@@ -1,3 +1,4 @@
+# Dependencies
 /vendor/
 node_modules/
 npm-debug.log
@@ -15,16 +16,21 @@ public/hot
 public_html/storage
 public_html/hot
 
+# Sensitive and temporary files
 storage/*.key
 .env
+.env.backup
+.env.production
 Homestead.yaml
 Homestead.json
 /.vagrant
 .phpunit.result.cache
-
 /public/build
 /storage/pail
-.env.backup
-.env.production
 .phpactor.json
 auth.json
+
+# IDE-specific files
+.idea/  # PhpStorm
+.vscode/  # VS Code
+*.sublime-project  # Sublime Text
