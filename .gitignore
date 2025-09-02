@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 *.log
 .DS_Store
 .env
@@ -22,3 +23,41 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+=======
+# Dependencies
+/vendor/
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Laravel 4 specific
+bootstrap/compiled.php
+app/storage/
+
+# Laravel 5 & Lumen specific
+public/storage
+public/hot
+
+# Laravel 5 & Lumen specific with changed public path
+public_html/storage
+public_html/hot
+
+# Sensitive and temporary files
+storage/*.key
+.env
+.env.backup
+.env.production
+Homestead.yaml
+Homestead.json
+/.vagrant
+.phpunit.result.cache
+/public/build
+/storage/pail
+.phpactor.json
+auth.json
+
+# IDE-specific files
+.idea/  # PhpStorm
+.vscode/  # VS Code
+*.sublime-project  # Sublime Text
+>>>>>>> 2df4258e01e0f2d7a62f6b43f3947a8021b90e42
