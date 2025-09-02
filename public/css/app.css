@@ -1,0 +1,32 @@
+#productsGrid {
+    background-color: #f1f5f9;
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+}
+#blur-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    z-index: 40;
+    display: none;
+}
+
+#blur-overlay.show {
+    display: block;
+}
+
+#cart-modal {
+    position: fixed;
+    top: 80px; 
+    left: 20px; 
+    z-index: 50;
+    display: none;
+}
+
+#cart-modal.show {
+    display: block;
+}
