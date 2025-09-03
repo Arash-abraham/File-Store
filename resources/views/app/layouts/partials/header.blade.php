@@ -9,7 +9,7 @@
                     <span><i class="fas fa-envelope ml-1"></i>info@shop.com</span>
                 </div>
                 <div class="flex items-center gap-4">
-                    <a href="auth.html" class="hover:text-blue-600 transition-colors">ورود / ثبت‌نام</a>
+                    <a href="{{route('login')}}" class="hover:text-blue-600 transition-colors">ورود / ثبت‌نام</a>
                     <a href="dashboard.html" class="hover:text-blue-600 transition-colors">پنل کاربری</a>
                     <a href="admin.html" class="hover:text-purple-600 transition-colors">
                         <i class="fas fa-cogs ml-1"></i>پنل مدیریت
@@ -53,7 +53,7 @@
         <nav class="border-t border-gray-200 py-4">
             <ul class="flex justify-center gap-8">
                 <li>
-                    <a href="{{ route('home') }}" class="nav-link text-black hover:text-blue-600 transition-colors">صفحه اصلی</a>
+                    <a href="{{ route('home') }}" class="nav-link text-black hover:text-blue-600 transition-colors">خانه</a>
                 </li>
                 <li>
                     <a href="{{ route('category') }}" class="nav-link text-black hover:text-blue-600 transition-colors">دسته‌بندی</a>

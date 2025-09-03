@@ -26,7 +26,7 @@
             <div class="container mx-auto px-4 text-center">
                 <h2 class="text-5xl font-bold mb-6">فروشگاه دیجیتال برتر</h2>
                 <p class="text-xl mb-8 opacity-90">بهترین نرم‌افزارها، دوره‌های آموزشی و محصولات دیجیتال را از ما بخرید</p>
-                <a href="products.html">
+                <a href="{{route('products')}}">
                     <button class="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg">
                         مشاهده محصولات
                     </button>
@@ -308,11 +308,11 @@
                 <h2 class="text-3xl font-bold mb-4">در خبرنامه ما عضو شوید</h2>
                 <p class="text-gray-300 mb-8">از آخرین محصولات و تخفیف‌ها باخبر شوید</p>
                 <div class="max-w-md mx-auto flex gap-4">
-                    <input type="email" placeholder="ایمیل شما..." 
-                        class="flex-1 px-4 py-3 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button class="bg-blue-600 px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
-                        عضویت
-                    </button>
+                    <a class="flex-1 px-4 py-3" href="{{route('login')}}">
+                        <button class="w-full bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold py-2">
+                            ثبت نام
+                        </button>
+                    </a>    
                 </div>
             </div>
         </section>
