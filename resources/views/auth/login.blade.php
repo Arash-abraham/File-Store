@@ -1,50 +1,3 @@
-{{-- <x-guest-layout>
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
-
-    <form method="POST" action="{{ route('login') }}">
-        @csrf
-
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
-
-        <!-- Password -->
-        <div class="mt-4">
-            <x-input-label for="password" :value="__('Password')" />
-
-            <x-text-input id="password" class="block mt-1 w-full"
-                            type="password"
-                            name="password"
-                            required autocomplete="current-password" />
-
-            <x-input-error :messages="$errors->get('password')" class="mt-2" />
-        </div>
-
-        <!-- Remember Me -->
-        <div class="block mt-4">
-            <label for="remember_me" class="inline-flex items-center">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
-                <span class="ms-2 text-sm text-gray-600">{{ __('Remember me') }}</span>
-            </label>
-        </div>
-
-        <div class="flex items-center justify-end mt-4">
-            @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" href="{{ route('password.request') }}">
-                    {{ __('Forgot your password?') }}
-                </a>
-            @endif
-
-            <x-primary-button class="ms-3">
-                {{ __('Log in') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout> --}}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
@@ -102,14 +55,16 @@
 
                 <form id="loginFormElement" class="space-y-6" method="POST" action="{{ route('login') }}">
                     @csrf
-                    @error('email')
-                        <div class="flex justify-center text-red-500 text-sm">{{ $message }}</div>
-                    @enderror
-                    
-                    @error('password')
-                        <div class="flex justify-center text-red-500 text-sm">{{ $message }}</div>
-                    @enderror
-                    
+                    @if ($errors->any())
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+                            <ul class="list-disc pr-4">
+                                @foreach ($errors->all() as $error)
+                                    <li class="text-sm font-medium">{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+        
                     <div>
                         <label for="loginEmail" class="block text-sm font-medium text-gray-700 mb-2">ایمیل</label>
                         <div class="relative">
@@ -174,18 +129,29 @@
                     <p class="text-gray-600">حساب کاربری خود را ایجاد کنید</p>
                 </div>
 
-                <form id="registerFormElement" class="space-y-6">
+                <form id="registerFormElement" class="space-y-6" method="POST" action="{{ route('register') }}">
+                    @csrf
+                    @if ($errors->any())
+                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg mb-4">
+                            <ul class="list-disc pr-4">
+                                @foreach ($errors->all() as $error)
+                                    <li class="text-sm font-medium">{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label for="firstName" class="block text-sm font-medium text-gray-700 mb-2">نام</label>
-                            <input type="text" id="firstName" name="firstName" required
+                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">نام</label>
+                            <input type="text" id="name" name="name" required
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                         </div>
-                        <div>
+                        {{-- <div>
                             <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">نام خانوادگی</label>
                             <input type="text" id="lastName" name="lastName" required
                                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
-                        </div>
+                        </div> --}}
                     </div>
 
                     <div>
@@ -197,7 +163,7 @@
                         </div>
                     </div>
 
-                    <div>
+                    {{-- <div>
                         <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">شماره تماس</label>
                         <div class="relative">
                             <input type="tel" id="phone" name="phone" required
@@ -205,7 +171,7 @@
                                    placeholder="09123456789">
                             <i class="fas fa-phone absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <div>
                         <label for="registerPassword" class="block text-sm font-medium text-gray-700 mb-2">رمز عبور</label>
@@ -231,12 +197,12 @@
                     </div>
 
                     <div>
-                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-2">تکرار رمز عبور</label>
+                        <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">تکرار رمز عبور</label>
                         <div class="relative">
-                            <input type="password" id="confirmPassword" name="confirmPassword" required
+                            <input type="password" id="password_confirmation" name="password_confirmation" required
                                    class="w-full px-4 py-3 pr-12 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                             <i class="fas fa-lock absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
-                            <button type="button" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600" onclick="togglePassword('confirmPassword')">
+                            <button type="button" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600" onclick="togglePassword('password_confirmation')">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
