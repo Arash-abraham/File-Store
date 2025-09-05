@@ -230,7 +230,7 @@
 
             <!-- Back to Home -->
             <div class="text-center mt-8">
-                <a href="index.html" class="text-blue-600 hover:text-blue-800 transition-colors">
+                <a href="{{route('home')}}" class="text-blue-600 hover:text-blue-800 transition-colors">
                     <i class="fas fa-arrow-right ml-2"></i>بازگشت به صفحه اصلی
                 </a>
             </div>
