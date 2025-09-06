@@ -8,13 +8,15 @@
                     <span><i class="fas fa-phone ml-1"></i>پشتیبانی: 021-12345678</span>
                     <span><i class="fas fa-envelope ml-1"></i>info@shop.com</span>
                 </div>
-                <div class="flex items-center gap-4">
-                    <a href="{{route('login')}}" class="hover:text-blue-600 transition-colors">ورود / ثبت‌نام</a>
-                    <a href="dashboard.html" class="hover:text-blue-600 transition-colors">پنل کاربری</a>
-                    <a href="admin.html" class="hover:text-purple-600 transition-colors">
-                        <i class="fas fa-cogs ml-1"></i>پنل مدیریت
-                    </a>
-                </div>
+                @guest
+                    <div class="flex items-center gap-4">
+                        <a href="{{route('login')}}" class="hover:text-blue-600 transition-colors">ورود / ثبت‌نام</a>
+                    </div>
+                @else
+                    <div class="flex items-center gap-4">
+                        <a href="{{route('dashboard')}}" class="hover:text-blue-600 transition-colors">{{ auth()->user()->name }}</a>
+                    </div>
+                @endguest
             </div>
         </div>
         
