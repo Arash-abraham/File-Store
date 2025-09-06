@@ -1,5 +1,7 @@
-// Authentication JavaScript
+console.log('Script loaded');
+
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOMContentLoaded triggered');
     const loginTab = document.getElementById('loginTab');
     const registerTab = document.getElementById('registerTab');
     const loginForm = document.getElementById('loginForm');
@@ -7,6 +9,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const loginFormElement = document.getElementById('loginFormElement');
     const registerFormElement = document.getElementById('registerFormElement');
     const loadingOverlay = document.getElementById('loadingOverlay');
+    const messageContainer = document.getElementById('messageContainer');
+
+    if (!loginTab || !registerTab || !loginForm || !registerForm) {
+        console.error('One or more elements not found:', { loginTab, registerTab, loginForm, registerForm });
+        return;
+    }
 
     // Tab switching functionality
     function switchToLogin() {
@@ -17,6 +25,12 @@ document.addEventListener('DOMContentLoaded', function() {
         
         loginForm.classList.remove('hidden');
         registerForm.classList.add('hidden');
+        localStorage.setItem('activeTab', 'login');
+        
+        messageContainer.innerHTML = '';
+        if (window.serverErrors && window.activeTab === 'login') {
+            showServerErrors();
+        }
     }
 
     function switchToRegister() {
@@ -27,51 +41,60 @@ document.addEventListener('DOMContentLoaded', function() {
         
         registerForm.classList.remove('hidden');
         loginForm.classList.add('hidden');
+        localStorage.setItem('activeTab', 'register');
+        
+        messageContainer.innerHTML = '';
+        if (window.serverErrors && window.activeTab === 'register') {
+            showServerErrors();
+        }
     }
 
-    // Event listeners for tabs
+    function showServerErrors() {
+        if (window.serverErrors && window.serverErrors.length > 0) {
+            window.serverErrors.forEach(error => {
+                const messageEl = document.createElement('div');
+                messageEl.className = 'px-6 py-4 rounded-lg text-white font-semibold mb-4 transition-all bg-red-600';
+                messageEl.textContent = error;
+                messageContainer.appendChild(messageEl);
+                
+                setTimeout(() => messageEl.remove(), 5000);
+            });
+        }
+    }
+
+    if (window.activeTab === 'register' || localStorage.getItem('activeTab') === 'register') {
+        switchToRegister();
+    } else {
+        switchToLogin();
+    }
+
+    if (window.serverErrors && window.serverErrors.length > 0) {
+        showServerErrors();
+    }
+
     loginTab.addEventListener('click', switchToLogin);
     registerTab.addEventListener('click', switchToRegister);
 
-    // Password toggle functionality
     window.togglePassword = function(inputId) {
         const input = document.getElementById(inputId);
-        const icon = input.nextElementSibling.querySelector('i');
+        const button = input?.parentElement?.querySelector('button');
+        const icon = button?.querySelector('i');
         
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
+        if (input && icon) {
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
         } else {
-            input.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
+            console.error('Toggle password failed:', { input, button, icon });
         }
     };
 
-    // Password strength checker
-    function checkPasswordStrength(password) {
-        let score = 0;
-        let feedback = 'ضعیف';
-        let color = 'bg-red-500';
-        
-        if (password.length >= 8) score += 25;
-        if (/[a-z]/.test(password)) score += 25;
-        if (/[A-Z]/.test(password)) score += 25;
-        if (/[0-9]/.test(password)) score += 25;
-        
-        if (score >= 75) {
-            feedback = 'قوی';
-            color = 'bg-green-500';
-        } else if (score >= 50) {
-            feedback = 'متوسط';
-            color = 'bg-yellow-500';
-        }
-        
-        return { score, feedback, color };
-    }
-
-    // Password strength indicator
     const registerPassword = document.getElementById('registerPassword');
     if (registerPassword) {
         registerPassword.addEventListener('input', function() {
@@ -87,170 +110,56 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Form validation
-    function validateEmail(email) {
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email);
+    function checkPasswordStrength(password) {
+        let score = 0, feedback = 'ضعیف', color = 'bg-red-500';
+        if (password.length >= 8) score += 25;
+        if (/[a-z]/.test(password)) score += 25;
+        if (/[A-Z]/.test(password)) score += 25;
+        if (/[0-9]/.test(password)) score += 25;
+        if (score >= 75) { feedback = 'قوی'; color = 'bg-green-500'; }
+        else if (score >= 50) { feedback = 'متوسط'; color = 'bg-yellow-500'; }
+        return { score, feedback, color };
     }
 
-    function validatePhone(phone) {
-        const re = /^09\d{9}$/;
-        return re.test(phone);
-    }
+    function validateEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+    function validatePassword(password) { return password.length >= 8 && /[a-zA-Z]/.test(password) && /[0-9]/.test(password); }
 
-    function validatePassword(password) {
-        return password.length >= 8 && /[a-zA-Z]/.test(password) && /[0-9]/.test(password);
-    }
-
-    // Show message
     function showMessage(message, type = 'info') {
-        const messageContainer = document.getElementById('messageContainer');
-        const messageEl = document.createElement('div');
-        messageEl.className = `px-6 py-4 rounded-lg text-white font-semibold mb-4 transition-all ${
-            type === 'success' ? 'bg-green-600' : 
-            type === 'error' ? 'bg-red-600' : 'bg-blue-600'
-        }`;
-        messageEl.textContent = message;
-        
-        messageContainer.appendChild(messageEl);
-        
-        setTimeout(() => {
-            messageEl.remove();
-        }, 5000);
+        if (messageContainer) {
+            const messageEl = document.createElement('div');
+            messageEl.className = `px-6 py-4 rounded-lg text-white font-semibold mb-4 transition-all ${
+                type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-blue-600'
+            }`;
+            messageEl.textContent = message;
+            messageContainer.appendChild(messageEl);
+            setTimeout(() => messageEl.remove(), 5000);
+        }
     }
 
-    // Show loading
-    function showLoading() {
-        loadingOverlay.classList.remove('hidden');
+    function showLoading() { if (loadingOverlay) loadingOverlay.classList.remove('hidden'); }
+    function hideLoading() { if (loadingOverlay) loadingOverlay.classList.add('hidden'); }
+
+    if (registerFormElement) {
+        registerFormElement.addEventListener('submit', function(e) {
+            const name = document.getElementById('name')?.value;
+            const email = document.getElementById('registerEmail')?.value;
+            const password = document.getElementById('registerPassword')?.value;
+            const confirmPassword = document.getElementById('password_confirmation')?.value;
+            const agreeTerms = document.querySelector('input[type="checkbox"][required]')?.checked;
+
+            if (!name) { showMessage('لطفاً نام را وارد کنید', 'error'); e.preventDefault(); return; }
+            if (!validateEmail(email)) { showMessage('لطفاً ایمیل معتبر وارد کنید', 'error'); e.preventDefault(); return; }
+            if (!validatePassword(password)) { showMessage('رمز عبور باید حداقل 8 کاراکتر و شامل حروف و اعداد باشد', 'error'); e.preventDefault(); return; }
+            if (password !== confirmPassword) { showMessage('رمز عبور و تکرار آن مطابقت ندارند', 'error'); e.preventDefault(); return; }
+            if (!agreeTerms) { showMessage('لطفاً شرایط و قوانین را بپذیرید', 'error'); e.preventDefault(); return; }
+            showLoading();
+        });
     }
 
-    // Hide loading
-    function hideLoading() {
-        loadingOverlay.classList.add('hidden');
-    }
-
-    // Login form submission
-    // loginFormElement.addEventListener('submit', function(e) {
-    //     e.preventDefault();
-        
-    //     const email = document.getElementById('loginEmail').value;
-    //     const password = document.getElementById('loginPassword').value;
-        
-    //     // Validation
-    //     if (!validateEmail(email)) {
-    //         showMessage('لطفاً ایمیل معتبر وارد کنید', 'error');
-    //         return;
-    //     }
-        
-    //     if (!password) {
-    //         showMessage('لطفاً رمز عبور را وارد کنید', 'error');
-    //         return;
-    //     }
-        
-    //     // Show loading
-    //     showLoading();
-        
-    //     // Simulate API call
-    //     setTimeout(() => {
-    //         hideLoading();
-            
-    //         // Simulate successful login
-    //         const userData = {
-    //             name: 'احمد محمدی',
-    //             email: email,
-    //             loginTime: new Date().toISOString()
-    //         };
-            
-    //         localStorage.setItem('user', JSON.stringify(userData));
-    //         localStorage.setItem('isLoggedIn', 'true');
-            
-    //         showMessage('با موفقیت وارد شدید', 'success');
-            
-    //         setTimeout(() => {
-    //             window.location.href = 'dashboard.html';
-    //         }, 1500);
-            
-    //     }, 2000);
-    // });
-
-    // Register form submission
-    registerFormElement.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const firstName = document.getElementById('firstName').value;
-        const lastName = document.getElementById('lastName').value;
-        const email = document.getElementById('registerEmail').value;
-        const phone = document.getElementById('phone').value;
-        const password = document.getElementById('registerPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-        const agreeTerms = document.querySelector('input[type="checkbox"][required]').checked;
-        
-        // Validation
-        if (!firstName || !lastName) {
-            showMessage('لطفاً نام و نام خانوادگی را وارد کنید', 'error');
-            return;
-        }
-        
-        if (!validateEmail(email)) {
-            showMessage('لطفاً ایمیل معتبر وارد کنید', 'error');
-            return;
-        }
-        
-        if (!validatePhone(phone)) {
-            showMessage('لطفاً شماره تماس معتبر وارد کنید (09123456789)', 'error');
-            return;
-        }
-        
-        if (!validatePassword(password)) {
-            showMessage('رمز عبور باید حداقل 8 کاراکتر و شامل حروف و اعداد باشد', 'error');
-            return;
-        }
-        
-        if (password !== confirmPassword) {
-            showMessage('رمز عبور و تکرار آن مطابقت ندارند', 'error');
-            return;
-        }
-        
-        if (!agreeTerms) {
-            showMessage('لطفاً شرایط و قوانین را بپذیرید', 'error');
-            return;
-        }
-        
-        // Show loading
-        showLoading();
-        
-        // Simulate API call
-        setTimeout(() => {
-            hideLoading();
-            
-            // Simulate successful registration
-            const userData = {
-                name: `${firstName} ${lastName}`,
-                email: email,
-                phone: phone,
-                registerTime: new Date().toISOString()
-            };
-            
-            localStorage.setItem('user', JSON.stringify(userData));
-            localStorage.setItem('isLoggedIn', 'true');
-            
-            showMessage('حساب کاربری با موفقیت ایجاد شد', 'success');
-            
-            setTimeout(() => {
-                window.location.href = 'dashboard.html';
-            }, 1500);
-            
-        }, 2000);
-    });
-
-    // Real-time validation feedback
     const inputs = document.querySelectorAll('input[required]');
     inputs.forEach(input => {
         input.addEventListener('blur', function() {
             if (this.type === 'email' && this.value && !validateEmail(this.value)) {
-                this.classList.add('border-red-500');
-                this.classList.remove('border-gray-300');
-            } else if (this.type === 'tel' && this.value && !validatePhone(this.value)) {
                 this.classList.add('border-red-500');
                 this.classList.remove('border-gray-300');
             } else if (this.value) {
@@ -263,11 +172,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // Password match validation
-    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const confirmPasswordInput = document.getElementById('password_confirmation');
     if (confirmPasswordInput) {
         confirmPasswordInput.addEventListener('input', function() {
-            const password = document.getElementById('registerPassword').value;
+            const password = document.getElementById('registerPassword')?.value;
             if (this.value && password !== this.value) {
                 this.classList.add('border-red-500');
                 this.classList.remove('border-green-500');
@@ -281,44 +189,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Social login placeholders
     document.querySelectorAll('button[type="button"]').forEach(button => {
         if (button.textContent.includes('Google') || button.textContent.includes('SMS')) {
             button.addEventListener('click', function() {
                 showMessage('این قابلیت به زودی فعال خواهد شد', 'info');
             });
         }
-    });
-
-    // // Check if user is already logged in
-    // if (localStorage.getItem('isLoggedIn') === 'true') {
-    //     showMessage('شما قبلاً وارد شده‌اید', 'info');
-    //     setTimeout(() => {
-    //         window.location.href = 'dashboard.html';
-    //     }, 2000);
-    // }
-
-    // Handle forgot password
-    document.querySelector('a[href="#"]').addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const email = document.getElementById('loginEmail').value;
-        if (!email) {
-            showMessage('لطفاً ابتدا ایمیل خود را وارد کنید', 'error');
-            document.getElementById('loginEmail').focus();
-            return;
-        }
-        
-        if (!validateEmail(email)) {
-            showMessage('لطفاً ایمیل معتبر وارد کنید', 'error');
-            return;
-        }
-        
-        showLoading();
-        
-        setTimeout(() => {
-            hideLoading();
-            showMessage('لینک بازیابی رمز عبور به ایمیل شما ارسال شد', 'success');
-        }, 1500);
     });
 });
