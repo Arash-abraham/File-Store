@@ -4,6 +4,7 @@ return [
     'email' => ':attribute باید یک آدرس ایمیل معتبر باشد.',
     'unique' => ':attribute وارد شده قبلاً ثبت شده است.',
     'confirmed' => 'تکرار :attribute با مقدار وارد شده مطابقت ندارد.',
+    'unique' => 'این :attribute قبلاً استفاده شده است.',
     'min' => [
         'string' => ':attribute باید حداقل :min کاراکتر باشد.',
     ],

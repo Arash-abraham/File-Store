@@ -140,7 +140,9 @@
                             </ul>
                         </div>
                     @endif
-                
+                    
+                    
+
                     <div class="grid grid-cols-2 gap-4">
                         <div>
                             <label for="name" class="block text-sm font-medium text-gray-700 mb-2">نام</label>

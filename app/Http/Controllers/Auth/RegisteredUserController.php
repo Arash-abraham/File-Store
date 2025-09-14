@@ -30,21 +30,30 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'name' => ['required', 'string', 'max:255', 'unique:users,name'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'name.required' => 'لطفاً نام خود را وارد کنید.',
+            'name.unique' => 'این نام کاربری قبلاً ثبت شده است. لطفاً نام دیگری انتخاب کنید.',
+            'email.required' => 'لطفاً ایمیل خود را وارد کنید.',
+            'email.unique' => 'این ایمیل قبلاً ثبت شده است. لطفاً ایمیل دیگری وارد کنید.',
+            'password.required' => 'لطفاً رمز عبور خود را وارد کنید.',
+            'password.confirmed' => 'تأیید رمز عبور با رمز عبور وارد شده مطابقت ندارد.',
         ]);
-
+    
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-
+        
         event(new Registered($user));
-
+    
         Auth::login($user);
-
+    
         return redirect(route('dashboard', absolute: false));
     }
+    
+    
 }
