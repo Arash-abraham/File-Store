@@ -1,164 +1,16 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>پنل مدیریت - فروشگاه آنلاین</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        'sans': ['Vazirmatn', 'system-ui', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-        <style>
-
-
-            /* Persian Date Picker Styles */
-            .calendar-day {
-                @apply w-8 h-8 flex items-center justify-center text-sm cursor-pointer rounded-lg transition-all;
-            }
-            
-            .calendar-day:hover {
-                @apply bg-blue-100 text-blue-600;
-            }
-            
-            .calendar-day.selected {
-                @apply bg-blue-500 text-white font-bold;
-            }
-            
-            .calendar-day.today {
-                @apply bg-green-100 text-green-700 font-bold;
-            }
-            
-            .calendar-day.other-month {
-                @apply text-gray-400 cursor-not-allowed;
-            }
-            
-            .calendar-day.disabled {
-                @apply text-gray-300 cursor-not-allowed;
-            }
-            
-            /* Persian Date Picker Animation */
-            #persianDatePicker {
-                backdrop-filter: blur(4px);
-            }
-            
-            #persianDatePicker .bg-white {
-                animation: fadeInUp 0.3s ease;
-            }
-            
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(30px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-        </style>    
+    @include('admin.layouts.head-tag')
 </head>
 <body class="font-sans bg-gray-50">
     <!-- Header -->
-    <header class="bg-white shadow-lg sticky top-0 z-40">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center">
-                    <img src="https://images.pexels.com/photos/1181533/pexels-photo-1181533.jpeg?auto=compress&cs=tinysrgb&w=100" 
-                         alt="لوگو فروشگاه" class="h-12 w-12 rounded-lg ml-3">
-                    <h1 class="text-2xl font-bold text-gray-800">پنل مدیریت</h1>
-                </div>
-                
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center text-sm text-gray-600">
-                        <i class="fas fa-crown ml-2 text-yellow-500"></i>
-                        <span>مدیر: <span class="font-semibold text-purple-600">{{ auth()->user()->name }}</span></span>
-                    </div>
-                    <div class="flex items-center">
-                        <img src="https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=100" 
-                             class="w-10 h-10 rounded-full ml-3">
-                    </div>
-                    <a href="{{route('home')}}" class="text-blue-600 hover:text-blue-800 transition-colors">
-                        <i class="fas fa-home text-xl"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </header>
+    @include('admin.layouts.partials.header')
 
     <div class="container mx-auto px-4 py-8">
         <div class="flex flex-col lg:flex-row gap-8">
             <!-- Sidebar -->
-            <div class="lg:w-1/4">
-                <div class="bg-white rounded-xl shadow-lg p-6 sticky top-24">
-                    <nav class="space-y-2">
-                        <a href="#" class="sidebar-item active flex items-center p-3 rounded-lg transition-colors" data-section="dashboard">
-                            <i class="fas fa-chart-pie w-5 ml-3"></i>
-                            <span>داشبورد</span>
-                        </a>
-                        <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="products">
-                            <i class="fas fa-box w-5 ml-3"></i>
-                            <span>مدیریت محصولات</span>
-                        </a>
-                        <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="product-files">
-                            <i class="fas fa-folder-open w-5 ml-3"></i>
-                            <span>فایل‌های محصولات</span>
-                        </a>
-                        <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="categories">
-                            <i class="fas fa-tags w-5 ml-3"></i>
-                            <span>دسته‌بندی‌ها</span>
-                        </a>
-                        <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="tags">
-                            <i class="fas fa-tag w-5 ml-3"></i>
-                            <span>برچسب‌ها</span>
-                        </a>
-                        <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="coupons">
-                            <i class="fas fa-percent w-5 ml-3"></i>
-                            <span>کدهای تخفیف</span>
-                        </a>
-                        <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="comments">
-                            <i class="fas fa-comments w-5 ml-3"></i>
-                            <span>نظرات</span>
-                        </a>
-                        <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="menus">
-                            <i class="fas fa-bars w-5 ml-3"></i>
-                            <span>منوهای سایت</span>
-                        </a>
-                        <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="settings">
-                            <i class="fas fa-cogs w-5 ml-3"></i>
-                            <span>تنظیمات سایت</span>
-                        </a>
-                        <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="payments">
-                            <i class="fas fa-credit-card w-5 ml-3"></i>
-                            <span>پرداخت‌ها</span>
-                        </a>
-                        <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="tickets">
-                            <i class="fas fa-ticket-alt w-5 ml-3"></i>
-                            <span>تیکت‌های پشتیبانی</span>
-                        </a>
-                        <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="faq">
-                            <i class="fas fa-question-circle w-5 ml-3"></i>
-                            <span>سوالات متداول</span>
-                        </a>
-                        <hr class="my-4">
-                        <a href="auth.html" class="flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                            <i class="fas fa-sign-out-alt w-5 ml-3"></i>
-                            <span>خروج</span>
-                        </a>
-                    </nav>
-                </div>
-            </div>
-
+            @include('admin.layouts.partials.sidebar')
             <!-- Main Content -->
             <div class="lg:w-3/4">
                 <!-- Dashboard Section -->

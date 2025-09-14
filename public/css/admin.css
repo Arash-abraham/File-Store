@@ -1,0 +1,45 @@
+
+/* Persian Date Picker Styles */
+.calendar-day {
+    @apply w-8 h-8 flex items-center justify-center text-sm cursor-pointer rounded-lg transition-all;
+}
+
+.calendar-day:hover {
+    @apply bg-blue-100 text-blue-600;
+}
+
+.calendar-day.selected {
+    @apply bg-blue-500 text-white font-bold;
+}
+
+.calendar-day.today {
+    @apply bg-green-100 text-green-700 font-bold;
+}
+
+.calendar-day.other-month {
+    @apply text-gray-400 cursor-not-allowed;
+}
+
+.calendar-day.disabled {
+    @apply text-gray-300 cursor-not-allowed;
+}
+
+/* Persian Date Picker Animation */
+#persianDatePicker {
+    backdrop-filter: blur(4px);
+}
+
+#persianDatePicker .bg-white {
+    animation: fadeInUp 0.3s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
