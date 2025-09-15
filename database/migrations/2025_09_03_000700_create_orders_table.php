@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // new update -> Arash-abraham
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users');
@@ -20,6 +21,7 @@ return new class extends Migration
             $table->string('reference', 191)->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['user_id', 'status', 'coupon_id']);
         });

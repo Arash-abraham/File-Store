@@ -8,11 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // new update -> Arash-abraham
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
-            $table->string('key', 150)->unique();
-            $table->text('value');
+            $table->string('logo');
+            $table->string('icon');
+            $table->string('siteTitle');
+            $table->string('description');
+            $table->string('phone');
+            $table->string('email');
+            $table->string('address');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

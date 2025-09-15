@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // new update -> Arash-abraham
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('orders');
@@ -20,6 +21,7 @@ return new class extends Migration
             $table->string('external_ref', 191)->nullable();
             $table->json('meta')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['order_id', 'user_id', 'status', 'transaction_id']);
         });

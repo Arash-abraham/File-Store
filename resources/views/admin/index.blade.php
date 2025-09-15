@@ -79,7 +79,7 @@
     <x-copan.add-copan-modal></x-copan.add-copan-modal>
 
     <!-- Edit Coupon Modal -->
-    <x-copan.edit-copan-modal></x-edit.add-copan-modal>
+    <x-copan.edit-copan-modal></x-edit.edit-copan-modal>
 
 
     <!-- Persian Date Picker Modal -->

@@ -8,19 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // new update -> Arash-abraham
         Schema::create('faqs', function (Blueprint $table) {
             $table->id();
             $table->string('question', 300);
             $table->longText('answer');
-            $table->string('category', 100);
             $table->enum('status', ['draft','published'])->default('published');
             $table->unsignedSmallInteger('sort_order')->default(1);
-            $table->unsignedInteger('views')->default(0);
-            $table->unsignedInteger('helpful')->default(0);
-            $table->unsignedInteger('not_helpful')->default(0);
             $table->timestamps();
-
-            $table->index(['status', 'category']);
+            $table->softDeletes();
         });
     }
 

@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // new update -> Arash-abraham
         Schema::create('coupons', function (Blueprint $table) {
             $table->id();
             $table->string('code', 100)->unique();
@@ -15,13 +16,11 @@ return new class extends Migration
             $table->unsignedInteger('value');
             $table->unsignedInteger('max_discount')->nullable();
             $table->unsignedInteger('min_order')->default(0);
-            $table->unsignedInteger('usage_limit')->nullable();
-            $table->unsignedInteger('usage_count')->default(0);
             $table->date('start_date')->nullable();
             $table->date('end_date')->nullable();
             $table->enum('status', ['active','inactive'])->default('active');
-            $table->text('description')->nullable();
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['status', 'start_date', 'end_date']);
         });

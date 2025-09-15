@@ -8,20 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // new update -> Arash-abraham
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-            $table->string('ticket_number', 50)->unique();
+            $table->string('ticket_number')->unique();
             $table->foreignId('user_id')->constrained('users');
-            $table->string('subject', 200);
-            $table->enum('category', ['technical','financial','general']);
-            $table->enum('priority', ['low','medium','high'])->default('medium');
+            $table->string('subject',200);
             $table->enum('status', ['open','in_progress','closed'])->default('open');
             $table->longText('message');
             $table->longText('response')->nullable();
             $table->string('assigned_to', 150)->nullable();
             $table->timestamps();
-
-            $table->index(['user_id', 'status', 'category', 'priority']);
+            $table->softDeletes();
         });
     }
 

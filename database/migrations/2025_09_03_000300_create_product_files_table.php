@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // new update -> Arash-abraham
         Schema::create('product_files', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained('products');
@@ -17,6 +18,7 @@ return new class extends Migration
             $table->enum('type', ['zip','rar','pdf','mp4','txt','other']);
             $table->unsignedSmallInteger('sort_order')->default(1);
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['product_id']);
         });

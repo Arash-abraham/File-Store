@@ -8,6 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // new update -> Arash-abraham
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
             $table->foreignId('order_id')->constrained('orders');
@@ -17,6 +18,7 @@ return new class extends Migration
             $table->unsignedInteger('quantity')->default(1);
             $table->unsignedBigInteger('subtotal');
             $table->timestamps();
+            $table->softDeletes();
 
             $table->index(['order_id']);
         });
