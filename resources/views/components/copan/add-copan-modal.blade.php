@@ -75,7 +75,7 @@
                         <input type="text" name="startDate" id="startDatePersian" readonly
                                class="w-full px-4 py-3 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white cursor-pointer"
                                placeholder="انتخاب تاریخ شروع">
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer" onclick="openDatePicker('startDatePersian')">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer">
                             <i class="fas fa-calendar-alt text-blue-500 hover:text-blue-600"></i>
                         </div>
                     </div>
