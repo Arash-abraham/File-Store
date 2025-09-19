@@ -110,7 +110,7 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <a class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" href="test">
+                        <a class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" href="{{route('login.email')}}">
                             <button type="button">
                                 <i class="fab fa-google text-red-500 ml-2"></i>
                                 <span class="text-sm">Email</span>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Auth\OtpLoginController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -17,5 +18,10 @@ Route::get('/dashboard', function () {
 Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('admin.')->group(function() {
     Route::get('/', [DashboardController::class, 'index'])->name('index');
 });
+
+Route::get('/login-email', [OtpLoginController::class, 'showEmailForm'])->name('login.email');
+Route::post('/send-otp', [OtpLoginController::class, 'sendOtp'])->name('otp.send');
+Route::get('/verify-otp', [OtpLoginController::class, 'showOtpForm'])->name('otp.verify');
+Route::post('/verify-otp', [OtpLoginController::class, 'verifyOtp'])->name('otp.verify.submit');
 
 require __DIR__.'/auth.php';
