@@ -33,6 +33,7 @@ class RegisteredUserController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:users,name'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'phone' => ['required' , 'regex:/^09\d{9}$/' , 'string' , 'unique:users,phone']
         ], [
             'name.required' => 'لطفاً نام خود را وارد کنید.',
             'name.unique' => 'این نام کاربری قبلاً ثبت شده است. لطفاً نام دیگری انتخاب کنید.',
@@ -40,12 +41,16 @@ class RegisteredUserController extends Controller
             'email.unique' => 'این ایمیل قبلاً ثبت شده است. لطفاً ایمیل دیگری وارد کنید.',
             'password.required' => 'لطفاً رمز عبور خود را وارد کنید.',
             'password.confirmed' => 'تأیید رمز عبور با رمز عبور وارد شده مطابقت ندارد.',
+            'phone.unique' => 'این شماره تماس قبلاً ثبت شده است. لطفاً شماره ای دیگر انتخاب کنید.',
+            'email.lowercase' => 'ایمیل خود را با حروف کوچک وارد کنید'
         ]);
+        // dd($request);
     
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'phone' => $request->phone
         ]);
         
         event(new Registered($user));

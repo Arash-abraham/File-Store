@@ -68,7 +68,7 @@
                     <div>
                         <label for="loginEmail" class="block text-sm font-medium text-gray-700 mb-2">ایمیل</label>
                         <div class="relative">
-                            <input type="email" id="loginEmail" name="email" required
+                            <input type="email" id="loginEmail" name="email"  
                                    class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                             <i class="fas fa-envelope absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
@@ -77,7 +77,7 @@
                     <div>
                         <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-2">رمز عبور</label>
                         <div class="relative">
-                            <input type="password" id="loginPassword" name="password" required
+                            <input type="password" id="loginPassword" name="password"  
                                    class="w-full px-4 py-3 pr-12 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                             <i class="fas fa-lock absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                             <button type="button" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600" onclick="togglePassword('loginPassword')">
@@ -110,14 +110,18 @@
                     </div>
 
                     <div class="grid grid-cols-2 gap-4">
-                        <button type="button" class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                            <i class="fab fa-google text-red-500 ml-2"></i>
-                            <span class="text-sm">Google</span>
-                        </button>
-                        <button type="button" class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                            <i class="fas fa-mobile-alt text-green-500 ml-2"></i>
-                            <span class="text-sm">SMS</span>
-                        </button>
+                        <a class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" href="test">
+                            <button type="button">
+                                <i class="fab fa-google text-red-500 ml-2"></i>
+                                <span class="text-sm">Email</span>
+                            </button>
+                        </a>
+                        <a class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" href="test">
+                            <button type="button">
+                                <i class="fas fa-mobile-alt text-green-500 ml-2"></i>
+                                <span class="text-sm">SMS</span>
+                            </button>
+                        </a>
                     </div>
                 </form>
             </div>
@@ -142,43 +146,38 @@
                     @endif
                     
                     
-
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label for="name" class="block text-sm font-medium text-gray-700 mb-2">نام</label>
-                            <input type="text" id="name" name="name" required
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                    <div>
+                        <label for="name" class="block text-sm font-medium text-gray-700 mb-2">نام</label>
+                        <div class="relative">
+                            <input type="text" id="name" name="name"  
+                            class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+                            <i class="fas fa-user absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
-                        {{-- <div>
-                            <label for="lastName" class="block text-sm font-medium text-gray-700 mb-2">نام خانوادگی</label>
-                            <input type="text" id="lastName" name="lastName" required
-                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
-                        </div> --}}
                     </div>
 
                     <div>
                         <label for="registerEmail" class="block text-sm font-medium text-gray-700 mb-2">ایمیل</label>
                         <div class="relative">
-                            <input type="email" id="registerEmail" name="email" required
+                            <input type="email" id="registerEmail" name="email"  
                                    class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                             <i class="fas fa-envelope absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
                     </div>
 
-                    {{-- <div>
+                    <div>
                         <label for="phone" class="block text-sm font-medium text-gray-700 mb-2">شماره تماس</label>
                         <div class="relative">
-                            <input type="tel" id="phone" name="phone" required
+                            <input type="tel" id="phone" name="phone"  
                                    class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
                                    placeholder="09123456789">
                             <i class="fas fa-phone absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
-                    </div> --}}
+                    </div>
 
                     <div>
                         <label for="registerPassword" class="block text-sm font-medium text-gray-700 mb-2">رمز عبور</label>
                         <div class="relative">
-                            <input type="password" id="registerPassword" name="password" required
+                            <input type="password" id="registerPassword" name="password"  
                                    class="w-full px-4 py-3 pr-12 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                             <i class="fas fa-lock absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                             <button type="button" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600" onclick="togglePassword('registerPassword')">
@@ -201,7 +200,7 @@
                     <div>
                         <label for="password_confirmation" class="block text-sm font-medium text-gray-700 mb-2">تکرار رمز عبور</label>
                         <div class="relative">
-                            <input type="password" id="password_confirmation" name="password_confirmation" required
+                            <input type="password" id="password_confirmation" name="password_confirmation"  
                                    class="w-full px-4 py-3 pr-12 pl-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
                             <i class="fas fa-lock absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                             <button type="button" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600" onclick="togglePassword('password_confirmation')">
