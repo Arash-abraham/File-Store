@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&display=swap');
+    
+body {
+  font-family: 'Vazirmatn', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.code-input {
+  direction: ltr; /* جهت چپ به راست */
+  text-align: center;
+  letter-spacing: 10px;
+  font-size: 24px;
+  font-weight: 600;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1), 0 3px 6px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  border: 2px solid #000000 !important;
+}
+
+.code-input:focus {
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4), 0 5px 10px rgba(59, 130, 246, 0.2);
+  transform: translateY(-2px);
+  border: 3px solid #000000 !important;
+  background-color: #f8fafc;
+}
+
+.code-input.active {
+  border: 3px solid #000000 !important;
+  background-color: #f1f5f9;
+  transform: scale(1.05);
+}
+
+.card { 
+  box-shadow: 0 20px 40px rgba(50, 50, 93, 0.15), 0 10px 20px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.btn-primary {
+  transition: all 0.3s ease;
+  background: linear-gradient(to right, #4361ee, #3a0ca3);
+  box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(67, 97, 238, 0.4);
+}
+
+.btn-secondary {
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 7px 14px rgba(0, 0, 0, 0.12);
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+
+.timer {
+  font-weight: 600;
+  color: #3b82f6;
+}

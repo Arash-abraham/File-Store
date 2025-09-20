@@ -19,9 +19,9 @@ Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('a
     Route::get('/', [DashboardController::class, 'index'])->name('index');
 });
 
-Route::get('/login-email', [OtpLoginController::class, 'showEmailForm'])->name('login.email');
-Route::post('/send-otp', [OtpLoginController::class, 'sendOtp'])->name('otp.send');
-Route::get('/verify-otp', [OtpLoginController::class, 'showOtpForm'])->name('otp.verify');
-Route::post('/verify-otp', [OtpLoginController::class, 'verifyOtp'])->name('otp.verify.submit');
+Route::get('/login-email', [OtpLoginController::class, 'showEmailForm'])->name('login.email'); // show view 
+Route::post('/send-otp', [OtpLoginController::class, 'sendOtp'])->name('otp.send'); // Send code to user's email
+Route::get('/verify-otp', [OtpLoginController::class, 'showOtpForm'])->name('otp.verify'); // show view 
+Route::post('/verify-otp', [OtpLoginController::class, 'verifyOtp'])->name('otp.verify.submit'); // check code
 
 require __DIR__.'/auth.php';

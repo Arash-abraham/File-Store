@@ -10,11 +10,11 @@ return new class extends Migration
     {
         Schema::create('otp_codes', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');  // ID کاربر
-            $table->string('email');  // ایمیل برای شناسایی
-            $table->string('otp', 6);  // کد 6 رقمی
-            $table->timestamp('expires_at');  // زمان انقضا (5 دقیقه)
-            $table->boolean('used')->default(false);  // آیا استفاده شده؟
+            $table->unsignedBigInteger('user_id'); 
+            $table->string('email');  // email for checking
+            $table->string('otp', 6);  
+            $table->timestamp('expires_at');  // Expiration time (5 minutes)
+            $table->boolean('used')->default(false);
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
