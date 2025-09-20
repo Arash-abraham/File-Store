@@ -13,7 +13,6 @@ use Illuminate\Support\Str;
 
 class OtpLoginController extends Controller
 {
-    // نمایش فرم ایمیل
     public function showEmailForm() {
         return view('auth.email-login');  // show view
     }
