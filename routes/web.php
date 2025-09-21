@@ -1,7 +1,9 @@
 <?php
+// new update -> Arash-abraham
 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\OtpLoginController;
+use App\Http\Controllers\Auth\SmsLoginController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -24,4 +26,5 @@ Route::post('/send-otp', [OtpLoginController::class, 'sendOtp'])->name('otp.send
 Route::get('/verify-otp', [OtpLoginController::class, 'showOtpForm'])->name('otp.verify'); // show view 
 Route::post('/verify-otp', [OtpLoginController::class, 'verifyOtp'])->name('otp.verify.submit'); // check code
 
+Route::get('/login-SMS' , [SmsLoginController::class,'showSmsForm'])->name('login.sms');
 require __DIR__.'/auth.php';

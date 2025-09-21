@@ -1,4 +1,5 @@
 <?php
+// new update -> Arash-abraham
 
 namespace App\Http\Controllers\Auth;
 
@@ -34,7 +35,8 @@ class RegisteredUserController extends Controller
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'phone' => ['required' , 'regex:/^09\d{9}$/' , 'string' , 'unique:users,phone']
-        ], [
+        ], //create and check valdation 
+        [
             'name.required' => 'لطفاً نام خود را وارد کنید.',
             'name.unique' => 'این نام کاربری قبلاً ثبت شده است. لطفاً نام دیگری انتخاب کنید.',
             'email.required' => 'لطفاً ایمیل خود را وارد کنید.',
@@ -43,7 +45,7 @@ class RegisteredUserController extends Controller
             'password.confirmed' => 'تأیید رمز عبور با رمز عبور وارد شده مطابقت ندارد.',
             'phone.unique' => 'این شماره تماس قبلاً ثبت شده است. لطفاً شماره ای دیگر انتخاب کنید.',
             'email.lowercase' => 'ایمیل خود را با حروف کوچک وارد کنید'
-        ]);
+        ]); // error msg
         // dd($request);
     
         $user = User::create([
@@ -51,7 +53,7 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'phone' => $request->phone
-        ]);
+        ]); // create column
         
         event(new Registered($user));
     

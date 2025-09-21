@@ -55,17 +55,15 @@
             <div class="divider">یا وارد شوید با</div>
             
             <div class="alternative-login">
-                <a href="#" class="social-btn">
-                    <i class="fab fa-google"></i>
-                </a>
-                <a href="#" class="social-btn">
-                    <i class="fab fa-microsoft"></i>
-                </a>
-                <a href="#" class="social-btn">
-                    <i class="fab fa-apple"></i>
+                <a href="{{route('login.sms')}}" class="social-btn">
+                    <i class="fas fa-mobile-alt"></i>
                 </a>
             </div>
             
+            <div class="mt-8 text-center text-xs text-gray-500">
+                <p class="mt-2"><a href="{{route('login')}}" class="text-blue-500 hover:text-blue-700 transition-colors">ورود با رمز عبور</a></p>
+            </div>
+
             <div class="mt-8 text-center text-xs text-gray-500">
                 <p class="mt-2">حساب کاربری ندارید؟ <a href="{{route('login')}}" class="text-blue-500 hover:text-blue-700 transition-colors">ثبت نام کنید</a></p>
             </div>

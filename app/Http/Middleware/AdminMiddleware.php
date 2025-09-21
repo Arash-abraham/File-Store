@@ -1,4 +1,5 @@
 <?php
+// new update -> Arash-abraham
 
 namespace App\Http\Middleware;
 
@@ -18,10 +19,10 @@ class AdminMiddleware
     {
         if(Auth::check()) {
             if(auth()->user()->role == 'admin') {
-                return $next($request);
+                return $next($request); // only for users with admin role 
             }
-            return abort(403);
+            return abort(404); // else ['not found']
         }
-        return to_route('login');
+        return to_route('login');   
     }
 }

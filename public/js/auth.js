@@ -189,11 +189,4 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    document.querySelectorAll('button[type="button"]').forEach(button => {
-        if (button.textContent.includes('Google') || button.textContent.includes('SMS')) {
-            button.addEventListener('click', function() {
-                showMessage('این قابلیت به زودی فعال خواهد شد', 'info');
-            });
-        }
-    });
 });

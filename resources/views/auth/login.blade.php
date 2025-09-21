@@ -116,7 +116,7 @@
                                 <span class="text-sm">Email</span>
                             </button>
                         </a>
-                        <a class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" href="test">
+                        <a class="flex items-center justify-center px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors" href="{{route('login.sms')}}">
                             <button type="button">
                                 <i class="fas fa-mobile-alt text-green-500 ml-2"></i>
                                 <span class="text-sm">SMS</span>

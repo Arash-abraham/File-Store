@@ -1,4 +1,5 @@
 <?php
+// new update -> Arash-abraham
 
 namespace App\Notifications;
 
@@ -17,7 +18,7 @@ class OtpNotification extends Notification
     public function __construct($otp)
     {
         $this->otp = $otp;
-        $this->expiryTime = Verta::now()->addMinutes(5)->format('H:i، j F Y');
+        $this->expiryTime = Verta::now()->addMinutes(5)->format('H:i، j F Y'); // create expire time [iran/tehran]
     }
 
     public function via($notifiable)
@@ -28,10 +29,10 @@ class OtpNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject('کد تأیید ورود - فایل استور')
-            ->view('emails.otp', [
-                'otp' => $this->otp,
-                'expiryTime' => $this->expiryTime
+            ->subject('کد تأیید ورود - فایل استور') //title
+            ->view('emails.otp', [ // opt msg 
+                'otp' => $this->otp, // code
+                'expiryTime' => $this->expiryTime //expire time
             ]);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+// new update -> Arash-abraham
 
 namespace App\Models;
 
@@ -11,23 +12,23 @@ class OtpCode extends Model
 
     protected $fillable = ['user_id', 'email', 'otp', 'expires_at', 'used'];
 
+    // TIME
     protected $casts = [
         'expires_at' => 'datetime',
     ];
 
-    // متد برای چک کردن اعتبار OTP
-    public static function isValid($email, $otp)
-    {
+    // method for check OPT validation
+
+    public static function isValid($email, $otp) {
         return self::where('email', $email)
-                   ->where('otp', $otp)
-                   ->where('used', false)
-                   ->where('expires_at', '>', now())
-                   ->exists();
+            ->where('otp', $otp)
+            ->where('used', false)
+            ->where('expires_at', '>', now())
+            ->exists();
     }
 
-    // متد برای استفاده از OTP
-    public function use()
-    {
+    // method for using OPT
+    public function use() {
         $this->update(['used' => true]);
     }
 }
