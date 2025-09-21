@@ -19,6 +19,7 @@ class OtpLoginController extends Controller
     }
 
     // send OTP
+    
     public function sendOtp(Request $request) {
         $request->validate(['email' => 'required|email']); // Validation for incoming email
 
