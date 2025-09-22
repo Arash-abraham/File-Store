@@ -27,4 +27,6 @@ Route::get('/verify-otp', [OtpLoginController::class, 'showOtpForm'])->name('otp
 Route::post('/verify-otp', [OtpLoginController::class, 'verifyOtp'])->name('otp.verify.submit'); // check code
 
 Route::get('/login-SMS' , [SmsLoginController::class,'showSmsForm'])->name('login.sms');
+Route::get('/verify-SMS' , [SmsLoginController::class,'showSmsOtpForm'])->name('sms.verify');
+
 require __DIR__.'/auth.php';
