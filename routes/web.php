@@ -4,6 +4,7 @@
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\OtpLoginController;
 use App\Http\Controllers\Auth\SmsLoginController;
+use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -24,9 +25,11 @@ Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('a
 Route::get('/login-email', [OtpLoginController::class, 'showEmailForm'])->name('login.email'); // show view 
 Route::post('/send-otp', [OtpLoginController::class, 'sendOtp'])->name('otp.send'); // Send code to user's email
 Route::get('/verify-otp', [OtpLoginController::class, 'showOtpForm'])->name('otp.verify'); // show view 
-Route::post('/verify-otp', [OtpLoginController::class, 'verifyOtp'])->name('otp.verify.submit'); // check code
+Route::post('/veri fy-otp', [OtpLoginController::class, 'verifyOtp'])->name('otp.verify.submit'); // check code
 
 Route::get('/login-SMS' , [SmsLoginController::class,'showSmsForm'])->name('login.sms');
 Route::get('/verify-SMS' , [SmsLoginController::class,'showSmsOtpForm'])->name('sms.verify');
 
-require __DIR__.'/auth.php';
+// Route::get('/send-code', [VerificationController::class, 'sendCode']);
+
+require __DIR__.'/auth.php';    

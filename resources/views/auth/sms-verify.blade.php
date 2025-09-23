@@ -36,26 +36,28 @@
           </div>
         @endif
 
-        <form action="{{ route('otp.verify.submit') }}" method="post" class="space-y-6">
+        <form action="{{ route('api.verify-code') }}" method="post" class="space-y-6">
           @csrf
+          <!-- فیلد مخفی برای شماره تلفن -->
+          <input type="hidden" name="phone_number" value="{{ session('phone_number') }}">
+          
           <div>
-            <label for="otp" class="block text-sm font-medium text-gray-700 mb-3">کد تأیید ۶ رقمی</label>
-            <div class="flex justify-start gap-3" dir="ltr"> <!-- جهت چپ به راست برای کل ردیف -->
-              <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 0)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
-              <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 1)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
-              <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 2)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
-              <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 3)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
-              <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 4)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
-              <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 5)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
-            </div>
-            <input type="hidden" id="fullCode" name="otp" value="">
-          </div>
-
+              <label for="otp" class="block text-sm font-medium text-gray-700 mb-3">کد تأیید ۶ رقمی</label>
+              <div class="flex justify-start gap-3" dir="ltr">
+                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 0)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
+                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 1)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
+                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 2)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
+                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 3)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
+                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 4)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
+                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 5)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
+              </div>
+              <input type="hidden" id="fullCode" name="code" value=""> <!-- تغییر name به code -->
+          </div>  
           <button type="submit" class="btn-primary w-full rounded-xl py-3.5 text-white font-medium flex items-center justify-center gap-2">
-            <i class="ri-login-box-line"></i>
-            تأیید و ادامه
+              <i class="ri-login-box-line"></i>
+              تأیید و ادامه
           </button>
-        </form>
+      </form>
 
         <div class="mt-8 pt-6 border-t border-gray-100 flex flex-col gap-3">
           <a href="{{route('home')}}" class="btn-secondary rounded-xl bg-gray-100 px-4 py-3 text-gray-700 font-medium text-center flex items-center justify-center gap-2">
