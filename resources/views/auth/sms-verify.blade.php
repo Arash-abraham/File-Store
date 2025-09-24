@@ -20,51 +20,53 @@
         </div>
 
         <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-2 text-center">تأیید هویت دو مرحله‌ای</h1>
-        <p class="text-gray-600 text-sm md:text-base mb-6 text-center">کد تأیید برای شما پیامک شد. لطفاً آن را وارد کنید.</p>
+        <p class="text-gray-600 text-sm md:text-base mb-6 text-center">کد تأیید برای شماره <strong>{{ $phone }}</strong> پیامک شد. لطفاً آن را وارد کنید.</p>
 
-        <!-- Alert area (backend should render conditionally) -->
+        <!-- نمایش خطاها -->
         @if ($errors->any())
           <div dir="rtl" class="mb-4 rounded-xl bg-red-50 p-4 text-red-700 text-sm flex items-start shadow-md">
             <i dir="rtl" class="ri-error-warning-line ml-2 mt-0.5"></i>
             <span dir="rtl">{{ $errors->first() }}</span>
           </div>
         @endif
-        @if (session('status'))
+        
+        @if (session('success'))
           <div dir="rtl" class="mb-4 rounded-xl bg-green-50 p-4 text-green-700 text-sm flex items-start shadow-md">
             <i dir="rtl" class="ri-checkbox-circle-line ml-2 mt-0.5"></i>
-            <span dir="rtl">{{ session('status') }}</span>
+            <span dir="rtl">{{ session('success') }}</span>
           </div>
         @endif
 
         <form action="{{ route('api.verify-code') }}" method="post" class="space-y-6">
           @csrf
           <!-- فیلد مخفی برای شماره تلفن -->
-          <input type="hidden" name="phone_number" value="{{ session('phone_number') }}">
+          <input type="hidden" name="phone_number" value="{{ $phone }}">
           
           <div>
               <label for="otp" class="block text-sm font-medium text-gray-700 mb-3">کد تأیید ۶ رقمی</label>
               <div class="flex justify-start gap-3" dir="ltr">
-                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 0)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
-                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 1)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
-                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 2)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
-                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 3)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
-                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 4)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
-                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 5)" onfocus="highlightInput(this)" onblur="unhighlightInput(this)">
+                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 0)">
+                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 1)">
+                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 2)">
+                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 3)">
+                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 4)">
+                  <input type="text" maxlength="1" class="code-input w-full h-14 rounded-xl text-center focus:outline-none focus:ring-0" onkeyup="moveToNext(this, 5)">
               </div>
-              <input type="hidden" id="fullCode" name="code" value=""> <!-- تغییر name به code -->
+              <input type="hidden" id="fullCode" name="code" value="">
           </div>  
+          
           <button type="submit" class="btn-primary w-full rounded-xl py-3.5 text-white font-medium flex items-center justify-center gap-2">
               <i class="ri-login-box-line"></i>
               تأیید و ادامه
           </button>
-      </form>
+        </form>
 
         <div class="mt-8 pt-6 border-t border-gray-100 flex flex-col gap-3">
-          <a href="{{route('home')}}" class="btn-secondary rounded-xl bg-gray-100 px-4 py-3 text-gray-700 font-medium text-center flex items-center justify-center gap-2">
+          <a href="{{ route('home') }}" class="btn-secondary rounded-xl bg-gray-100 px-4 py-3 text-gray-700 font-medium text-center flex items-center justify-center gap-2">
             <i class="ri-logout-box-r-line"></i>
             بازگشت به خانه
           </a>
-          <a href="{{ route('login.email') }}" class="btn-secondary rounded-xl bg-blue-50 px-4 py-3 text-blue-600 font-medium text-center flex items-center justify-center gap-2 animate-pulse-slow">
+          <a href="{{ route('login.sms') }}" class="btn-secondary rounded-xl bg-blue-50 px-4 py-3 text-blue-600 font-medium text-center flex items-center justify-center gap-2">
             <i class="ri-restart-line"></i>
             ارسال مجدد کد
           </a>
@@ -77,13 +79,8 @@
           </p>
         </div>
       </div>
-
-      <div class="mt-6 text-center text-xs text-gray-500">
-        <p>مشکلی دارید؟ <a href="#" class="text-blue-600 hover:text-blue-800">پشتیبانی</a></p>
-      </div>
     </div>
 
     <script src="{{asset('js/opt-verify.js')}}"></script>
-
 </body>
 </html>

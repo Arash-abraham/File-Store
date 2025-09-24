@@ -30,6 +30,5 @@ Route::post('/veri fy-otp', [OtpLoginController::class, 'verifyOtp'])->name('otp
 Route::get('/login-SMS' , [SmsLoginController::class,'showSmsForm'])->name('login.sms');
 Route::get('/verify-SMS' , [SmsLoginController::class,'showSmsOtpForm'])->name('sms.verify');
 
-// Route::get('/send-code', [VerificationController::class, 'sendCode']);
 
 require __DIR__.'/auth.php';    

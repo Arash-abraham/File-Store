@@ -26,33 +26,28 @@
                     <span class="text-sm font-medium">لطفاً یک شماره تلفن معتبر وارد کنید (مثال: 09123456789)</span>
                 </div>
             </div>
-            @if($errors->any())
-                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4">
+            
+            @if ($errors->any())
+                <div class="alert-box bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4">
                     <div class="flex items-center">
-                        <i class="fas fa-exclamation-circle ml-2"></i>
-                        <span class="text-sm">{{ $errors->first() }}</span>
+                        @foreach ($errors->all() as $error)
+                            <i class="fas fa-exclamation-circle ml-2"></i>
+                            <span class="text-sm font-medium">{{ $error }}</span>
+                        @endforeach
                     </div>
                 </div>
             @endif
 
-            @if(session('success'))
-                <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-xl mb-4">
-                    <div class="flex items-center">
-                        <i class="fas fa-check-circle ml-2"></i>
-                        <span class="text-sm">{{ session('success') }}</span>
-                    </div>
-                </div>
-            @endif
-            
             <form action="{{ route('api.send-code') }}" id="smsForm" method="POST" class="space-y-5">
                 @csrf
                 <div class="relative">
                     <input id="phone" name="phone_number" type="tel" required 
-                           class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl text-left"
+                           class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-xl text-left @error('phone_number') border-red-500 @enderror"
                            placeholder="09123456789" dir="ltr"
                            value="{{ old('phone_number') }}">
                     <i class="fas fa-phone absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                 </div>
+                
                 
                 <button type="submit"
                         class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3.5 rounded-xl font-semibold flex items-center justify-center gap-2 transition-colors">
@@ -73,7 +68,7 @@
             </div>
 
             <div class="mt-8 text-center text-xs text-gray-500">
-                <p class="mt-2">حساب کاربری ندارید؟ <a href="{{route('login')}}" class="text-blue-500 hover:text-blue-700 transition-colors">ثبت نام کنید</a></p>
+                <p class="mt-2">حساب کاربری ندارید؟ <a href="{{route('register')}}" class="text-blue-500 hover:text-blue-700 transition-colors">ثبت نام کنید</a></p>
             </div>
         </div>
     </div>

@@ -3,10 +3,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const alertBox = document.getElementById('alertBox');
     const phoneInput = document.getElementById('phone');
     
-    // تنظیمات اولیه برای نمایش صحیح لیبل
     const phoneLabel = document.querySelector('.input-label');
     
-    // بررسی مقدار اولیه در صورت وجود
     if (phoneInput.value !== '') {
         phoneLabel.style.top = '0';
         phoneLabel.style.fontSize = '14px';
@@ -15,7 +13,6 @@ document.addEventListener('DOMContentLoaded', function() {
         phoneLabel.style.zIndex = '3';
     }
     
-    // افزودن رویداد برای تغییرات آینده
     phoneInput.addEventListener('input', function() {
         if (this.value !== '') {
             phoneLabel.style.top = '0';
@@ -32,19 +29,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // اعتبارسنجی هنگام ارسال فرم
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        // اعتبارسنجی شماره تلفن (شروع با 09 و 11 رقمی)
         const phoneRegex = /^09\d{9}$/;
         
         if (!phoneRegex.test(phoneInput.value)) {
-            // نمایش خطا
             alertBox.classList.remove('hidden');
             
-
-            // جلوگیری از ارسال فرم
             return false;
         }
         
