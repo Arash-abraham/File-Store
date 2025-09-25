@@ -37,7 +37,7 @@
           </div>
         @endif
 
-        <form action="{{ route('api.verify-code') }}" method="post" class="space-y-6">
+        <form action="{{ route('sms.verify-code') }}" method="post" class="space-y-6">
           @csrf
           <!-- فیلد مخفی برای شماره تلفن -->
           <input type="hidden" name="phone_number" value="{{ $phone }}">

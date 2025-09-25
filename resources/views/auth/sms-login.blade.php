@@ -27,18 +27,19 @@
                 </div>
             </div>
             
-            @if ($errors->any())
-                <div class="alert-box bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4">
-                    <div class="flex items-center">
-                        @foreach ($errors->all() as $error)
-                            <i class="fas fa-exclamation-circle ml-2"></i>
-                            <span class="text-sm font-medium">{{ $error }}</span>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
 
-            <form action="{{ route('api.send-code') }}" id="smsForm" method="POST" class="space-y-5">
+            <form action="{{ route('sms.send') }}" id="smsForm" method="POST" class="space-y-5">
+                @if ($errors->any())
+                    <div class="alert-box bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl mb-4">
+                        <div class="flex items-center">
+                            @foreach ($errors->all() as $error)
+                                <i class="fas fa-exclamation-circle ml-2"></i>
+                                <span class="text-sm font-medium">{{ $error }}</span>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+                
                 @csrf
                 <div class="relative">
                     <input id="phone" name="phone_number" type="tel" required 

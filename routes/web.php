@@ -27,8 +27,11 @@ Route::post('/send-otp', [OtpLoginController::class, 'sendOtp'])->name('otp.send
 Route::get('/verify-otp', [OtpLoginController::class, 'showOtpForm'])->name('otp.verify'); // show view 
 Route::post('/veri fy-otp', [OtpLoginController::class, 'verifyOtp'])->name('otp.verify.submit'); // check code
 
-Route::get('/login-SMS' , [SmsLoginController::class,'showSmsForm'])->name('login.sms');
-Route::get('/verify-SMS' , [SmsLoginController::class,'showSmsOtpForm'])->name('sms.verify');
-
+Route::middleware('web')->group(function () {
+    Route::get('/login-SMS', [VerificationController::class, 'showSmsForm'])->name('login.sms');
+    Route::get('/verify-SMS', [VerificationController::class, 'showSmsOtpForm'])->name('sms.verify');
+    Route::post('/send-code', [VerificationController::class, 'sendCode'])->middleware('throttle:5,1')->name('sms.send');
+    Route::post('/verify-code', [VerificationController::class, 'verifyCode'])->name('sms.verify-code');
+});
 
 require __DIR__.'/auth.php';    

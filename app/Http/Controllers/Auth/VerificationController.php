@@ -9,9 +9,14 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class VerificationController extends Controller
 {
+    public function showSmsForm() {
+        return view('auth.sms-login');
+    }
+    
     public function sendCode(Request $request, SmsService $smsService)
     {
         $request->validate([
@@ -19,41 +24,49 @@ class VerificationController extends Controller
         ]);
     
         $phoneNumber = $request->phone_number;
+    
+        $userExists = User::where('phone', $phoneNumber)->exists();
         
+        if (!$userExists) {
+            Log::info('User does not exist', ['phone_number' => $phoneNumber]);
+            return redirect()->route('login.sms')
+                ->withErrors(['phone_number' => 'شماره تلفن در سیستم ثبت نشده است'])
+                ->withInput();
+        }
+    
         $code = rand(100000, 999999);
-    
+        
         VerificationCode::where('phone_number', $phoneNumber)->delete();
-    
+        
         VerificationCode::create([
             'phone_number' => $phoneNumber,
             'code' => $code,
             'expires_at' => Carbon::now()->addMinutes(10),
             'is_used' => false,
         ]);
-
-        return redirect()
-        ->route('sms.verify')
-        ->with('success', 'کد تأیید ارسال شد')
-        ->cookie(
-            'verify_phone', 
-            $phoneNumber, 
-            10,
-            '/', // path
-            null, // domain 
-            false, // secure (localhost)
-            false  // httpOnly
-        );
         
         try {
-            
             $smsService->sendSms($phoneNumber, "فایل استور - کد تایید شما: {$code}");
-            
-            return redirect()->route('sms.verify', ['phone' => $phoneNumber])->with('success', 'کد تأیید ارسال شد');
-            
-        } 
-        catch (\Exception $e) {
-            return back()->withErrors(['phone_number' => 'خطا در ارسال پیامک'])->withInput();
+            return redirect()
+                ->route('sms.verify')
+                ->with('success', 'کد تأیید ارسال شد')
+                ->with('phone_number', $phoneNumber);
+        } catch (\Exception $e) {
+            Log::error('SMS Error: ' . $e->getMessage());
+            return redirect()->route('login.sms')
+                ->withErrors(['phone_number' => 'خطا در ارسال پیامک'])
+                ->withInput();
         }
+    }
+    public function showSmsOtpForm(Request $request)
+    {
+        $phone = $request->session()->get('phone_number');
+        
+        if (!$phone) {
+            return redirect()->route('login.sms')->withErrors(['phone_number' => 'شماره تلفن یافت نشد']);
+        }
+        
+        return view('auth.sms-verify', compact('phone'));
     }
 
     public function verifyCode(Request $request)
@@ -73,19 +86,15 @@ class VerificationController extends Controller
             ->first();
     
         if (!$verification) {
-            return redirect()->route('sms.verify', ['phone' => $phoneNumber])->withErrors(['code' => 'کد نامعتبر یا منقضی شده است']);
+            // dd('test');
+            return redirect()->route('sms.verify')->withErrors(['code' => 'کد نامعتبر یا منقضی شده است'])->with('phone_number', $phoneNumber);
         }
     
         $verification->update(['is_used' => true]);
     
         $user = User::where('phone', $phoneNumber)->first();
-        
-        if (!$user) {
-            return redirect()->route('sms.verify', ['phone' => $phoneNumber])->withErrors(['phone_number' => 'کاربری با این شماره تلفن یافت نشد']);
-        }
-    
         Auth::login($user);
-    
-        return redirect()->route('dashboard')->with('success', 'ورود با موفقیت انجام شد');
+
+        return redirect()->intended(route('dashboard'))->with('status', 'لاگین موفق!');
     }
 }

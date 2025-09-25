@@ -53,6 +53,6 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function getAuthIdentifierName()
     {
-        return 'phone_number';
+        return 'id';
     }
 }
