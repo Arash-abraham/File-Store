@@ -9,6 +9,7 @@
 
 <link rel="stylesheet" href="{{ asset('js/jalalidatepicker/persian-datepicker.min.css') }}">
 <link rel="stylesheet" href="{{asset('css/admin.css')}}">
+<link rel="stylesheet" href="{{asset('css/faq.css')}}">
 
 
 <script>

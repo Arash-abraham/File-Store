@@ -348,76 +348,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    // Sample menus data (based on actual site navigation)
-    const sampleMenus = [
-        {
-            id: 1,
-            title: 'خانه',
-            url: 'index.html',
-            icon: 'fas fa-home',
-            order: 1,
-            target: '_self',
-            status: 'active',
-            description: 'صفحه اصلی سایت',
-            createdAt: '2024-01-01T00:00:00.000Z'
-        },
-        {
-            id: 2,
-            title: 'نرم‌افزارها',
-            url: 'category.html?cat=software',
-            icon: 'fas fa-desktop',
-            order: 2,
-            target: '_self',
-            status: 'active',
-            description: 'دسته‌بندی نرم‌افزارها',
-            createdAt: '2024-01-01T00:00:00.000Z'
-        },
-        {
-            id: 3,
-            title: 'دوره‌های آموزشی',
-            url: 'category.html?cat=courses',
-            icon: 'fas fa-graduation-cap',
-            order: 3,
-            target: '_self',
-            status: 'active',
-            description: 'دسته‌بندی دوره‌های آموزشی',
-            createdAt: '2024-01-01T00:00:00.000Z'
-        },
-        {
-            id: 4,
-            title: 'کتاب‌های الکترونیکی',
-            url: 'category.html?cat=ebooks',
-            icon: 'fas fa-book',
-            order: 4,
-            target: '_self',
-            status: 'active',
-            description: 'دسته‌بندی کتاب‌های الکترونیکی',
-            createdAt: '2024-01-01T00:00:00.000Z'
-        },
-        {
-            id: 5,
-            title: 'قالب‌ها',
-            url: 'category.html?cat=templates',
-            icon: 'fas fa-palette',
-            order: 5,
-            target: '_self',
-            status: 'active',
-            description: 'دسته‌بندی قالب‌ها',
-            createdAt: '2024-01-01T00:00:00.000Z'
-        },
-        {
-            id: 6,
-            title: 'سوالات متداول',
-            url: 'faq.html',
-            icon: 'fas fa-question-circle',
-            order: 6,
-            target: '_self',
-            status: 'active',
-            description: 'صفحه سوالات متداول',
-            createdAt: '2024-01-01T00:00:00.000Z'
-        }
-    ];
-
     // Sample payments data
     const samplePayments = [
         {
@@ -534,110 +464,28 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    // Sample FAQ data
-    const sampleFaqs = [
-        {
-            id: 1,
-            question: 'چگونه می‌توانم محصولات خریداری شده را دانلود کنم؟',
-            answer: 'پس از خرید موفق، لینک دانلود به ایمیل شما ارسال می‌شود. همچنین می‌توانید از پنل کاربری خود در قسمت "دانلودها" فایل‌هایتان را دریافت کنید.',
-            category: 'خرید و دانلود',
-            status: 'published',
-            statusName: 'منتشر شده',
-            order: 1,
-            views: 1250,
-            helpful: 890,
-            notHelpful: 45,
-            createdAt: '2024-01-01T00:00:00.000Z',
-            updatedAt: '2024-10-01T00:00:00.000Z'
-        },
-        {
-            id: 2,
-            question: 'آیا امکان بازگشت وجه وجود دارد؟',
-            answer: 'بله، در صورت عدم رضایت از محصول، ظرف 7 روز از تاریخ خرید می‌توانید درخواست بازگشت وجه دهید. شرایط و قوانین بازگشت وجه در صفحه "شرایط و قوانین" موجود است.',
-            category: 'پرداخت و مالی',
-            status: 'published',
-            statusName: 'منتشر شده',
-            order: 2,
-            views: 856,
-            helpful: 720,
-            notHelpful: 89,
-            createdAt: '2024-01-01T00:00:00.000Z',
-            updatedAt: '2024-09-15T00:00:00.000Z'
-        },
-        {
-            id: 3,
-            question: 'فرمت‌های پشتیبانی شده چیست؟',
-            answer: 'ما انواع فرمت‌های مختلف را پشتیبانی می‌کنیم: PDF, MP4, ZIP, RAR, EXE, MSI و سایر فرمت‌های متداول. حجم هر فایل حداکثر 2 گیگابایت است.',
-            category: 'فنی',
-            status: 'draft',
-            statusName: 'پیش‌نویس',
-            order: 3,
-            views: 234,
-            helpful: 189,
-            notHelpful: 12,
-            createdAt: '2024-09-01T00:00:00.000Z',
-            updatedAt: '2024-10-01T00:00:00.000Z'
-        },
-        {
-            id: 4,
-            question: 'چگونه با پشتیبانی تماس بگیرم؟',
-            answer: 'می‌توانید از طریق سیستم تیکت‌دهی در پنل کاربری، ایمیل info@shop.com یا شماره تلفن 021-12345678 با ما در ارتباط باشید. پاسخگویی 24 ساعته در روزهای کاری.',
-            category: 'پشتیبانی',
-            status: 'published',
-            statusName: 'منتشر شده',
-            order: 4,
-            views: 1890,
-            helpful: 1650,
-            notHelpful: 78,
-            createdAt: '2024-01-01T00:00:00.000Z',
-            updatedAt: '2024-10-02T00:00:00.000Z'
-        }
-    ];
-
     // Sidebar navigation
     const sidebarItems = document.querySelectorAll('.sidebar-item');
     const contentSections = document.querySelectorAll('.content-section');
 
     function showSection(sectionId) {
-        // Hide all sections
-        contentSections.forEach(section => {
-            section.classList.add('hidden');
-        });
-        
-        // Remove active class from all sidebar items
         sidebarItems.forEach(item => {
             item.classList.remove('active', 'bg-blue-100', 'text-blue-600');
             item.classList.add('text-gray-600', 'hover:bg-gray-100');
         });
-        
-        // Show selected section
-        const targetSection = document.getElementById(sectionId);
-        if (targetSection) {
-            targetSection.classList.remove('hidden');
-        }
-        
-        // Add active class to clicked sidebar item
-        const activeItem = document.querySelector(`[data-section="${sectionId}"]`);
-        if (activeItem) {
-            activeItem.classList.add('active', 'bg-blue-100', 'text-blue-600');
-            activeItem.classList.remove('text-gray-600', 'hover:bg-gray-100');
-        }
+                
+        // // Add active class to clicked sidebar item
+        // const activeItem = document.querySelector(`[data-section="${sectionId}"]`);
+        // if (activeItem) {
+        //     activeItem.classList.add('active', 'bg-blue-100', 'text-blue-600');
+        //     activeItem.classList.remove('text-gray-600', 'hover:bg-gray-100');
+        // }
 
         // Load section specific data
         loadSectionData(sectionId);
     }
 
-    // Sidebar click handlers
-    sidebarItems.forEach(item => {
-        item.addEventListener('click', function(e) {
-            e.preventDefault();
-            const sectionId = this.getAttribute('data-section');
-            if (sectionId) {
-                showSection(sectionId);
-                window.location.hash = sectionId;
-            }
-        });
-    });
+    
 
     // Handle URL hash on load
     const hash = window.location.hash.substring(1);
@@ -1032,9 +880,6 @@ document.addEventListener('DOMContentLoaded', function() {
         resetCouponForm();
     };
 
-    window.showAddFaqModal = function() {
-        showNotification('فرم اضافه کردن سوال متداول', 'info');
-    };
 
     // showAddMenuModal moved to menus section
 

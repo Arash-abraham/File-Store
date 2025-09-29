@@ -1,6 +1,7 @@
 <?php
 // new update -> Arash-abraham
 
+use App\Http\Controllers\Admin\AdminFaqController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\OtpLoginController;
 use App\Http\Controllers\Auth\SmsLoginController;
@@ -20,6 +21,8 @@ Route::get('/dashboard', function () {
 
 Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('admin.')->group(function() {
     Route::get('/', [DashboardController::class, 'index'])->name('index');
+    Route::get('/faq',[AdminFaqController::class , 'index'])->name('faq.index');
+    Route::post('faq-create',[AdminFaqController::class , 'create'])->name('faq.create');
 });
 
 Route::get('/login-email', [OtpLoginController::class, 'showEmailForm'])->name('login.email'); // show view 

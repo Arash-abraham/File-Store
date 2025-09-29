@@ -1,34 +1,110 @@
-<div id="faq" class="content-section hidden">
-    <div class="bg-white rounded-xl shadow-lg p-8">
-        <div class="flex justify-between items-center mb-6">
-            <h2 class="text-2xl font-bold text-gray-800">مدیریت سوالات متداول</h2>
-            <button onclick="showAddFaqModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors font-semibold">
-                <i class="fas fa-plus ml-1"></i>افزودن سوال جدید
-            </button>
-        </div>
-        
-        <!-- FAQ Stats -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div class="bg-blue-50 rounded-lg p-6 text-center">
-                <i class="fas fa-question-circle text-blue-600 text-3xl mb-3"></i>
-                <h3 class="text-2xl font-bold text-gray-800" id="totalFaqs">0</h3>
-                <p class="text-gray-600">کل سوالات</p>
+@extends('admin.index')
+
+@section('content')
+    <div id="faq" class="content-section">
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">مدیریت سوالات متداول</h2>
+                <button onclick="showModalFaq()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors font-semibold">
+                    <i class="fas fa-plus ml-1"></i>افزودن سوال جدید
+                </button>
             </div>
-            <div class="bg-green-50 rounded-lg p-6 text-center">
-                <i class="fas fa-eye text-green-600 text-3xl mb-3"></i>
-                <h3 class="text-2xl font-bold text-gray-800" id="publishedFaqs">0</h3>
-                <p class="text-gray-600">منتشر شده</p>
+            
+            <!-- FAQ Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div class="bg-blue-50 rounded-lg p-6 text-center">
+                    <i class="fas fa-question-circle text-blue-600 text-3xl mb-3"></i>
+                    <h3 class="text-2xl font-bold text-gray-800" id="totalFaqs">0</h3>
+                    <p class="text-gray-600">کل سوالات</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-6 text-center">
+                    <i class="fas fa-eye text-green-600 text-3xl mb-3"></i>
+                    <h3 class="text-2xl font-bold text-gray-800" id="publishedFaqs">0</h3>
+                    <p class="text-gray-600">منتشر شده</p>
+                </div>
             </div>
-            <div class="bg-yellow-50 rounded-lg p-6 text-center">
-                <i class="fas fa-edit text-yellow-600 text-3xl mb-3"></i>
-                <h3 class="text-2xl font-bold text-gray-800" id="draftFaqs">0</h3>
-                <p class="text-gray-600">پیش‌نویس</p>
+            
+            <!-- FAQ Items -->
+            <div id="faqAccordion" class="space-y-4">
+                <div class="border border-gray-200 rounded-lg">
+                    <div class="flex items-center justify-between p-4 bg-gray-50">
+                        @foreach ($faqs as $faq)
+                            <div class="flex-1">
+                                <h4 class="font-semibold text-gray-800">{{ $faq->question }}</h4>
+                                
+                                <div class="flex items-center gap-4 mt-2 text-sm text-gray-500">
+                                    <p>پاسخ: {{$faq->answer}} </p>
+                                </div>
+                                <br>
+                                <div class="flex items-center gap-2">
+                                    <button class="text-green-600 hover:text-green-800" title="ویرایش">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="text-red-600 hover:text-red-800" title="حذف">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-semibold text-sm" title="انتشار">
+                                        <i class="fas fa-eye ml-1"></i>انتشار
+                                    </button>
+                                    <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors font-semibold text-sm" title="عدم انتشار">
+                                        <i class="fas fa-eye-slash ml-1"></i>عدم انتشار
+                                    </button>
+                                    <br>
+                                    @if ($faq->status == 'published')
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                            منتشر شده
+                                        </span>
+                                        <br>
+                                    @else
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-red-600">
+                                            منتشر نشده است
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                        
+                        
+                    </div>
+                    <div id="faqAnswer2" class="p-4 border-t border-gray-200 hidden">
+                        <p class="text-gray-700 leading-relaxed">بله، در صورت عدم رضایت از محصول، ظرف 7 روز از تاریخ خرید می‌توانید درخواست بازگشت وجه دهید. شرایط و قوانین بازگشت وجه در صفحه "شرایط و قوانین" موجود است.</p>
+                    </div>
+                </div>
             </div>
-        </div>
-        
-        <!-- FAQ Items -->
-        <div id="faqAccordion" class="space-y-4">
-            <!-- FAQ items will be populated by JavaScript -->
         </div>
     </div>
-</div>
+
+    <div id="addFaqModal" class="modal-overlay">
+        <div class="bg-white rounded-xl p-8 max-w-2xl w-full mx-4">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold">افزودن پاسخ برای سوالات متداول</h3>
+                <button onclick="hideFaqModal()" class="text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <form action="{{ route('admin.faq.create') }}" method="POST" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">سوال</label>
+                    <input type="text" name="question" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">پاسخ</label>
+                        <textarea name="answer" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"></textarea>
+                    </div>
+                </div>
+            
+                <div class="flex gap-4">
+                    <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                        ثبت
+                    </button>
+                    <button type="button" onclick="hideFaqModal()" class="flex-1 border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        لغو
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+@endsection

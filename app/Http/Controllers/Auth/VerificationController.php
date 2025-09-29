@@ -46,7 +46,7 @@ class VerificationController extends Controller
         ]);
         
         try {
-            $smsService->sendSms($phoneNumber, "فایل استور - کد تایید شما: {$code}");
+            // $smsService->sendSms($phoneNumber, "فایل استور - کد تایید شما: {$code}");
             return redirect()
                 ->route('sms.verify')
                 ->with('success', 'کد تأیید ارسال شد')
@@ -58,8 +58,7 @@ class VerificationController extends Controller
                 ->withInput();
         }
     }
-    public function showSmsOtpForm(Request $request)
-    {
+    public function showSmsOtpForm(Request $request) {
         $phone = $request->session()->get('phone_number');
         
         if (!$phone) {

@@ -45,7 +45,7 @@
                 <i class="fas fa-ticket-alt w-5 ml-3"></i>
                 <span>تیکت‌های پشتیبانی</span>
             </a>
-            <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="faq">
+            <a href="{{route('admin.faq.index')}}" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="faq">
                 <i class="fas fa-question-circle w-5 ml-3"></i>
                 <span>سوالات متداول</span>
             </a>
