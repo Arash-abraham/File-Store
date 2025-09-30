@@ -80,15 +80,35 @@ class AdminFaqController extends Controller
     public function edit($id)
     {
         $faq = Faq::findOrFail($id);
-        return view('admin.layouts.sections.faq.faq-edit');
+        return view('admin.layouts.sections.faq.faq-edit',compact('faq'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
-    {
-        //
+    public function update(Request $request, Faq $faq) {
+        $validated = $request->validate([
+            'question' => [
+                'required',
+                'string',
+                'max:500',
+                'regex:/^[\pL\pN\pM\s\-_.,!?؛،؟()\[\]{}:؛]+$/u'
+            ],
+            'answer' => [
+                'required',
+                'string',
+                'max:2000',
+                'regex:/^[\pL\pN\pM\s\-_.,!?؛،؟()\[\]{}:؛\n\r]+$/u'
+            ]
+        ], [
+            'question.regex' => 'سوال فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.',
+            'answer.regex' => 'پاسخ فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.',
+            'question.required' => 'وارد کردن سوال الزامی است.',
+            'answer.required' => 'وارد کردن پاسخ الزامی است.'
+        ]);
+        $faq->update($validated);
+        return redirect()->route('admin.faq.index')->with('success', 'تغییرات مورد نظر با موفقیت ثبت شد');
+
     }
 
     /**

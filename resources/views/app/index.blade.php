@@ -303,19 +303,31 @@
         </section>
 
         <!-- Newsletter -->
-        <section class="py-16 bg-gray-800 text-white">
-            <div class="container mx-auto px-4 text-center">
-                <h2 class="text-3xl font-bold mb-4">در خبرنامه ما عضو شوید</h2>
-                <p class="text-gray-300 mb-8">از آخرین محصولات و تخفیف‌ها باخبر شوید</p>
-                <div class="max-w-md mx-auto flex gap-4">
-                    <a class="flex-1 px-4 py-3" href="{{route('login')}}">
-                        <button class="w-full bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold py-2">
-                            ثبت نام
-                        </button>
-                    </a>    
+        @guest
+            <section class="py-16 bg-gray-800 text-white">
+                <div class="container mx-auto px-4 text-center">
+                    <h2 class="text-3xl font-bold mb-4">در خبرنامه ما عضو شوید</h2>
+                    <p class="text-gray-300 mb-8">از آخرین محصولات و تخفیف‌ها باخبر شوید</p>
+                    <div class="max-w-md mx-auto flex gap-4">
+                        <a class="flex-1 px-4 py-3" href="{{route('login')}}">
+                            <button class="w-full bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold py-2">
+                                ثبت نام
+                            </button>
+                        </a>    
+                    </div>
                 </div>
-            </div>
-        </section>
+            </section>
+        @else
+            <section class="py-16 bg-gray-800 text-white">
+                <div class="container mx-auto px-4 text-center">
+                    <h2 class="text-3xl font-bold mb-4">در خبرنامه ما عضو شوید</h2>
+                    <p class="text-gray-300 mb-8">از آخرین محصولات و تخفیف‌ها باخبر شوید</p>
+                    <div class="max-w-md mx-auto flex-1 px-4 py-3">
+                        شما عضوی از خبرنامه ما هستید
+                    </div>
+                </div>
+            </section>
+        @endguest
     </div>
 @endsection
 @section('scripts')
