@@ -78,9 +78,11 @@
                                     </div>
                                     <br>
                                     <div class="flex items-center gap-2">
-                                        <button class="text-green-600 hover:text-green-800" title="ویرایش">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
+                                        <a href="{{ route('admin.faq.edit',$faq->id) }}">
+                                            <button class="text-green-600 hover:text-green-800" title="ویرایش">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </a>
                                         <form action="{{ route('admin.faq.destroy', $faq->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')

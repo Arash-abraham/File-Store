@@ -27,7 +27,7 @@ class AdminFaqController extends Controller
         }
 
         
-        return view('admin.layouts.sections.faq',compact('faqs','published_count','draft_count'));
+        return view('admin.layouts.sections.faq.faq',compact('faqs','published_count','draft_count'));
     }
 
     /**
@@ -77,9 +77,10 @@ class AdminFaqController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        $faq = Faq::findOrFail($id);
+        return view('admin.layouts.sections.faq.faq-edit');
     }
 
     /**
