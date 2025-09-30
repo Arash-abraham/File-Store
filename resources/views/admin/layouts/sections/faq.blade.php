@@ -46,6 +46,25 @@
                     </div>
                 </div>
             @endif
+            @if(session('success'))
+                <div class="card border-success mb-4 shadow-lg" id="successAlert">
+                    <div class="card-header bg-gradient bg-success text-white py-3 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span class="fw-bold fs-6">عملیات موفق</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" onclick="closeSuccessAlert()" aria-label="Close"></button>
+                    </div>
+                    <div class="card-body bg-light py-3">
+                        <ul class="mb-0 text-success fs-7">
+                            <li class="mb-1">
+                                <i class="fas fa-check me-2 small"></i>
+                                {{ session('success') }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            @endif
             <!-- FAQ Items -->
             <div id="faqAccordion" class="space-y-4">
                 <div class="border border-gray-200 rounded-lg">
@@ -62,9 +81,13 @@
                                         <button class="text-green-600 hover:text-green-800" title="ویرایش">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="text-red-600 hover:text-red-800" title="حذف">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        <form action="{{ route('admin.faq.destroy', $faq->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="text-red-600 hover:text-red-800" title="حذف">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>    
                                         @if ($faq->status == 'published')
                                             <a href=""> {{-- todo --}}
                                                 <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors font-semibold text-sm" title="عدم انتشار">

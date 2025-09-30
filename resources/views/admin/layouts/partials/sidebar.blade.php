@@ -50,10 +50,13 @@
                 <span>سوالات متداول</span>
             </a>
             <hr class="my-4">
-            <a href="auth.html" class="flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                <i class="fas fa-sign-out-alt w-5 ml-3"></i>
-                <span>خروج</span>
-            </a>
+            <form method="POST" action="{{route('logout')}}" class="flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+                @csrf
+                <button>
+                    <i class="fas fa-sign-out-alt w-5 ml-3"></i>    
+                    خروج
+                </button>
+            </form>
         </nav>
     </div>
 </div>

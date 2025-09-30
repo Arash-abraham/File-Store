@@ -93,8 +93,9 @@ class AdminFaqController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Faq $faq)
     {
-        //
+        $faq->delete();
+        return redirect()->route('admin.faq.index')->with('success', 'با موفقیقت حذف شد');
     }
 }

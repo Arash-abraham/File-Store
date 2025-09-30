@@ -16,3 +16,6 @@ document.getElementById('addFaqModal').addEventListener('click', function(e) {
 function closeErrorAlert() {
     document.getElementById('errorAlert').style.display = 'none';
 }
+function closeSuccessAlert() {
+    document.getElementById('successAlert').style.display = 'none';
+}
