@@ -21,8 +21,7 @@ Route::get('/dashboard', function () {
 
 Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('admin.')->group(function() {
     Route::get('/', [DashboardController::class, 'index'])->name('index');
-    Route::get('/faq',[AdminFaqController::class , 'index'])->name('faq.index');
-    Route::post('faq-create',[AdminFaqController::class , 'create'])->name('faq.create');
+    Route::resource('/faq',AdminFaqController::class);
 });
 
 Route::get('/login-email', [OtpLoginController::class, 'showEmailForm'])->name('login.email'); // show view 

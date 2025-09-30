@@ -111,7 +111,7 @@
                 </button>
             </div>
             
-            <form action="{{ route('admin.faq.create') }}" method="POST" class="space-y-4">
+            <form action="{{ route('admin.faq.store') }}" method="POST" class="space-y-4">
                 @csrf
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">سوال</label>
