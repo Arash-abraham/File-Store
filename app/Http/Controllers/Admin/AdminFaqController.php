@@ -94,8 +94,20 @@ class AdminFaqController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(Faq $faq)
-    {
+    {   
         $faq->delete();
         return redirect()->route('admin.faq.index')->with('success', 'با موفقیقت حذف شد');
+    }
+    public function status($id) {
+        $faq = Faq::findOrFail($id);
+        
+        if($faq->status == 'published') {
+            $faq->status = 'draft';
+        }
+        else if($faq->status == 'draft') {
+            $faq->status = 'published';
+        }
+        $faq->save();
+        return to_route('admin.faq.index')->with('success','تغییرات شما با موفقیت ثبت شد');
     }
 }

@@ -89,13 +89,13 @@
                                             </button>
                                         </form>    
                                         @if ($faq->status == 'published')
-                                            <a href=""> {{-- todo --}}
+                                            <a href="{{route('admin.faq.status', $faq->id)}}"> 
                                                 <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors font-semibold text-sm" title="عدم انتشار">
                                                     <i class="fas fa-eye-slash ml-1"></i>عدم انتشار
                                                 </button>
                                             </a>
                                         @else
-                                            <a href="">
+                                            <a href="{{route('admin.faq.status', $faq->id)}}">
                                                 <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-semibold text-sm" title="انتشار">
                                                     <i class="fas fa-eye ml-1"></i>انتشار
                                                 </button>

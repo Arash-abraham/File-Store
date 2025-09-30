@@ -4,6 +4,7 @@
 namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
+use App\Models\Faq;
 use Illuminate\Http\Request;
 
 class HomeController extends Controller
@@ -18,6 +19,7 @@ class HomeController extends Controller
         return view('app.products');
     }
     public function faq() {
-        return view('app.faq');
+        $faqs = Faq::all();
+        return view('app.faq',compact('faqs'));
     }
 }
