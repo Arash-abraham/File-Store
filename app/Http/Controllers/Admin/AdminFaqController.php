@@ -10,6 +10,7 @@ class AdminFaqController extends Controller
 {
     public function index() {
         $faqs = Faq::all();
+        // dd(count($faqs));
         return view('admin.layouts.sections.faq',compact('faqs'));
     }
     public function create(Request $request) {
