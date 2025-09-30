@@ -9,9 +9,16 @@ use Illuminate\Http\Request;
 class AdminFaqController extends Controller
 {
     public function index() {
+        
+        $published_count = 0;
         $faqs = Faq::all();
-        // dd(count($faqs));
-        return view('admin.layouts.sections.faq',compact('faqs'));
+        foreach($faqs as $faq) {
+            if($faq->status == 'published') {
+                $published_count += 1;
+            }
+        }
+        
+        return view('admin.layouts.sections.faq',compact('faqs','published_count'));
     }
     public function create(Request $request) {
         $validated = $request->validate([

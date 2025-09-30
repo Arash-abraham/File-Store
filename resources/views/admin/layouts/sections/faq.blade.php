@@ -19,8 +19,13 @@
                 </div>
                 <div class="bg-green-50 rounded-lg p-6 text-center">
                     <i class="fas fa-eye text-green-600 text-3xl mb-3"></i>
-                    <h3 class="text-2xl font-bold text-gray-800" id="publishedFaqs">0</h3>
+                    <h3 class="text-2xl font-bold text-gray-800" id="publishedFaqs">{{ $published_count }}</h3>
                     <p class="text-gray-600">منتشر شده</p>
+                </div>
+                <div class="bg-yellow-50 rounded-lg p-6 text-center">
+                    <i class="fas fa-ban text-red-600 text-3xl mb-3"></i>
+                    <h3 class="text-2xl font-bold text-gray-800" id="publishedFaqs">0</h3>
+                    <p class="text-gray-600">منتشر نشده است</p>
                 </div>
             </div>
             @if($errors->any())
