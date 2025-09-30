@@ -24,12 +24,13 @@
                 </div>
             </div>
             @if($errors->any())
-                <div class="card border-danger mb-4">
-                    <div class="card-header bg-danger text-white py-2">
+                <div class="card border-danger mb-4" id="errorAlert">
+                    <div class="card-header bg-danger text-white py-2 d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
                             <i class="fas fa-exclamation-circle me-2"></i>
                             <span class="fw-bold">خطا در ارسال فرم</span>
                         </div>
+                        <button type="button" class="btn-close btn-close-white" onclick="closeErrorAlert()" aria-label="Close"></button>
                     </div>
                     <div class="card-body text-danger py-3">
                         <ul class="mb-0">
@@ -39,6 +40,7 @@
                         </ul>
                     </div>
                 </div>
+                
             @endif
             <!-- FAQ Items -->
             <div id="faqAccordion" class="space-y-4">
