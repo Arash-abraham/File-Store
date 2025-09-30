@@ -23,7 +23,23 @@
                     <p class="text-gray-600">منتشر شده</p>
                 </div>
             </div>
-            
+            @if($errors->any())
+                <div class="card border-danger mb-4">
+                    <div class="card-header bg-danger text-white py-2">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span class="fw-bold">خطا در ارسال فرم</span>
+                        </div>
+                    </div>
+                    <div class="card-body text-danger py-3">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
             <!-- FAQ Items -->
             <div id="faqAccordion" class="space-y-4">
                 <div class="border border-gray-200 rounded-lg">
