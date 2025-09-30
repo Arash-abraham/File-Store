@@ -40,7 +40,6 @@
                         </ul>
                     </div>
                 </div>
-                
             @endif
             <!-- FAQ Items -->
             <div id="faqAccordion" class="space-y-4">
