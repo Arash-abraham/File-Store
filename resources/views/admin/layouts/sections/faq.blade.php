@@ -60,12 +60,19 @@
                                         <button class="text-red-600 hover:text-red-800" title="حذف">
                                             <i class="fas fa-trash"></i>
                                         </button>
-                                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-semibold text-sm" title="انتشار">
-                                            <i class="fas fa-eye ml-1"></i>انتشار
-                                        </button>
-                                        <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors font-semibold text-sm" title="عدم انتشار">
-                                            <i class="fas fa-eye-slash ml-1"></i>عدم انتشار
-                                        </button>
+                                        @if ($faq->status == 'published')
+                                            <a href=""> {{-- todo --}}
+                                                <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-colors font-semibold text-sm" title="عدم انتشار">
+                                                    <i class="fas fa-eye-slash ml-1"></i>عدم انتشار
+                                                </button>
+                                            </a>
+                                        @else
+                                            <a href="">
+                                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors font-semibold text-sm" title="انتشار">
+                                                    <i class="fas fa-eye ml-1"></i>انتشار
+                                                </button>
+                                            </a>
+                                        @endif
                                         <br>
                                         @if ($faq->status == 'published')
                                             <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
