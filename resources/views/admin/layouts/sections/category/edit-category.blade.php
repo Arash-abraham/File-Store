@@ -3,22 +3,22 @@
 @section('content')
     <div class="bg-white rounded-xl p-6 w-full shadow-lg">
         <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold text-gray-800">افزودن دسته‌بندی جدید</h3>
+            <h3 class="text-xl font-bold text-gray-800">تغییر در دسته بندی</h3>
         </div>
-        
-        <form id="addCategoryForm" class="space-y-6" method="POST" action="{{route('admin.category.store')}}">
+
+        <form data-current-icon="{{ $category->icon }}" data-current-color="{{ $category->color }}" id="addCategoryForm" class="space-y-6" method="POST" action="{{route('admin.category.store')}}">
             @csrf
             <!-- Basic Info -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">نام دسته‌بندی *</label>
-                    <input type="text" name="name" required 
+                    <input type="text" name="name" required value="{{ $category->name }}"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         placeholder="مثال: نرم‌افزارها">
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700 mb-2">شناسه (Slug) *</label>
-                    <input type="text" name="slug" required 
+                    <input type="text" name="slug" required value="{{ $category->slug }}"
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                         placeholder="software" id="categorySlug">
                     <p class="text-xs text-gray-500 mt-1">فقط حروف انگلیسی، اعداد و خط تیره</p>
@@ -29,8 +29,8 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-3">انتخاب آیکون</label>
                 <div class="grid grid-cols-6 gap-3" id="iconSelection">
-                    <div class="icon-option p-3 border-2 border-blue-500 rounded-lg text-center cursor-pointer bg-blue-50 transition-all" data-icon="fas fa-laptop-code">
-                        <i class="fas fa-laptop-code text-blue-600 text-xl"></i>
+                    <div class="icon-option p-3 border-2 border-gray-200 rounded-lg text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all" data-icon="fas fa-play-circle">
+                        <i class="fas fa-laptop-code text-gray-600 text-xl"></i>
                     </div>
                     <div class="icon-option p-3 border-2 border-gray-200 rounded-lg text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all" data-icon="fas fa-play-circle">
                         <i class="fas fa-play-circle text-gray-600 text-xl"></i>
@@ -91,7 +91,7 @@
                 <h4 class="font-semibold mb-3 text-gray-700">پیش‌نمایش:</h4>
                 <div class="border border-gray-200 rounded-lg p-6 bg-white">
                     <div class="flex items-center">
-                        <i id="previewIcon" class="fas fa-laptop-code text-blue-600 text-2xl ml-3"></i>
+                        <i id="previewIcon" class="{{$category->icon}} text-{{$category->color}}-600 text-2xl ml-3"></i>
                         <div>
                             <h3 id="previewName" class="font-semibold text-gray-800"></h3>
                         </div>
@@ -103,7 +103,7 @@
             <div class="flex gap-4 pt-4 border-t border-gray-200">
                 <button type="submit" 
                         class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold shadow-md">
-                    <i class="fas fa-plus ml-1"></i>افزودن دسته‌بندی
+                    <i class="fas fa-plus ml-1"></i>ثبت تغییرات
                 </button>
                 <a href="{{ route('admin.category.index') }}">
                     <button type="button" 
@@ -117,6 +117,6 @@
 
     </div>
     @section('js')
-        <script src="{{asset('js/admin/category.js')}}"></script>
+        <script src="{{asset('js/admin/category-edit.js')}}"></script>
     @endsection
 @endsection

@@ -22,12 +22,18 @@
                             </div>
                         </div>
                         <div class="flex gap-2">
-                            <button class="text-blue-600 hover:text-blue-800" title="ویرایش">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="text-red-600 hover:text-red-800" title="حذف">
-                                <i class="fas fa-trash"></i>
-                            </button>
+                                <a href="{{ route('admin.category.edit',$category->id) }}">
+                                    <button class="text-blue-600 hover:text-blue-800" title="ویرایش">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </a>
+                                <form action="{{ route('admin.category.destroy', $category->id) }}" method="POST" class="d-inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button class="text-red-600 hover:text-red-800" title="حذف">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>    
                         </div>
                     </div>
                 </div>

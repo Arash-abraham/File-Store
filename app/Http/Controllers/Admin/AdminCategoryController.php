@@ -71,7 +71,8 @@ class AdminCategoryController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $category = Category::findOrFail($id);
+        return view('admin.layouts.sections.category.edit-category',compact('category'));
     }
 
     /**
@@ -85,8 +86,9 @@ class AdminCategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Category $category)
     {
-        //
+        $category->delete();
+        return redirect()->route('admin.category.index')->with('success', 'با موفقیقت حذف شد');
     }
 }

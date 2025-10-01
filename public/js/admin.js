@@ -216,45 +216,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     ];
 
-    // Sample categories data
-    const sampleCategories = [
-        {
-            id: 1,
-            name: 'نرم‌افزارها',
-            slug: 'software',
-            icon: 'fas fa-laptop-code',
-            color: 'blue',
-            description: 'انواع نرم‌افزارهای کاربردی و حرفه‌ای',
-            productCount: 0
-        },
-        {
-            id: 2,
-            name: 'دوره‌های آموزشی',
-            slug: 'courses',
-            icon: 'fas fa-play-circle',
-            color: 'green',
-            description: 'آموزش‌های تخصصی و دوره‌های مهارتی',
-            productCount: 0
-        },
-        {
-            id: 3,
-            name: 'کتاب‌های الکترونیکی',
-            slug: 'ebooks',
-            icon: 'fas fa-book',
-            color: 'purple',
-            description: 'کتاب‌های PDF و EPUB',
-            productCount: 0
-        },
-        {
-            id: 4,
-            name: 'قالب‌ها',
-            slug: 'templates',
-            icon: 'fas fa-palette',
-            color: 'orange',
-            description: 'قالب‌های وب و گرافیک',
-            productCount: 0
-        }
-    ];
 
     // Sample tags data
     const sampleTags = [
