@@ -53,13 +53,19 @@ class AdminCategoryController extends Controller
             'name.regex' => 'نام دسته بندی فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.',
             'slug.regex' => 'اسلاگ فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.',
         ]);
-        $recordExists = Category::where('name', $validated['name'])->where('slug', $validated['slug'])->exists();
-        if(!$recordExists) {
+
+        $nameExists = Category::where('name', $validated['name'])->exists();
+        $slugExists = Category::where('slug', $validated['slug'])->exists();
+
+        if($nameExists && $slugExists) {
+            return redirect()->back()->withErrors(['category' => 'هم نام و هم اسلاگ از قبل ثبت شده‌اند.'])->withInput();
+        } elseif($nameExists) {
+            return redirect()->back()->withErrors(['name' => 'این نام از قبل ثبت شده است.'])->withInput();
+        } elseif($slugExists) {
+            return redirect()->back()->withErrors(['slug' => 'این اسلاگ از قبل ثبت شده است.'])->withInput();
+        } else {
             Category::create($validated);
             return redirect()->route('admin.category.index')->with('success', 'دسته بندی با موفقیت ثبت شد');
-        }
-        else {
-            return redirect()->back()->withErrors(['category' => 'دسته بندی یا اسلاگ از قبل ثبت شده است . یک نام جدید یا اسلاگ جدید استفاده کنید.'])->withInput();
         }
     }
 
@@ -109,19 +115,19 @@ class AdminCategoryController extends Controller
             'name.regex' => 'نام دسته بندی فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.',
             'slug.regex' => 'اسلاگ فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.',
         ]);
-        $recordExists = Category::where('name', $validated['name'])->where('slug', $validated['slug'])->exists();
-        if(!$recordExists) {
+        $duplicateExists = Category::where('id', '!=', $category->id)->where(
+            function($query) use ($validated) {
+            $query->where('name', $validated['name'])->orWhere('slug', $validated['slug']);
+        })->exists();
+        
+        $isSameAsCurrent = ($validated['name'] === $category->name && $validated['slug'] === $category->slug);
+        
+        if (!$duplicateExists || $isSameAsCurrent) {
             $category->update($validated);
-            return redirect()->route("admin.category.index")->with('success', 'تغییرات مورد نظر با موفقیت ثبت شد');        
+            return redirect()->route("admin.category.index")->with('success', 'تغییرات مورد نظر با موفقیت ثبت شد');
         }
         else {
-            if($validated['name'] === $category->name && $validated['slug'] === $category->slug) {
-                $category->update($validated);
-                return redirect()->route("admin.category.index")->with('success', 'تغییرات مورد نظر با موفقیت ثبت شد');  
-            }
-            else {
-                return redirect()->back()->withErrors(['category' => 'دسته بندی یا اسلاگ از قبل ثبت شده است . یک نام جدید یا اسلاگ جدید استفاده کنید.'])->withInput();
-            }
+            return redirect()->back()->withErrors(['category' => 'دسته بندی یا اسلاگ از قبل ثبت شده است. یک نام جدید یا اسلاگ جدید استفاده کنید.'])->withInput();
         }
 
     }
