@@ -1234,22 +1234,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Real-time updates simulation
-    function simulateRealTimeUpdates() {
-        setInterval(() => {
-            // Simulate new order
-            if (Math.random() > 0.7) {
-                showNotification('سفارش جدید دریافت شد!', 'success');
-                
-                // Update dashboard stats (simulation)
-                const salesElement = document.querySelector('.text-2xl.font-bold');
-                if (salesElement) {
-                    const currentValue = parseInt(salesElement.textContent.replace(/[,۰-۹]/g, ''));
-                    salesElement.textContent = (currentValue + 1).toLocaleString('fa-IR');
-                }
-            }
-        }, 30000); // Every 30 seconds
-    }
 
     // Start real-time updates
     simulateRealTimeUpdates();
