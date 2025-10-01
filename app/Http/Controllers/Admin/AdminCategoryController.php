@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 use Illuminate\Http\Request;
 
 class AdminCategoryController extends Controller
@@ -12,7 +13,8 @@ class AdminCategoryController extends Controller
      */
     public function index()
     {
-        return view('admin.layouts.sections.category.category');
+        $categories = Category::all();
+        return view('admin.layouts.sections.category.category',compact('categories'));
     }
 
     /**
@@ -28,7 +30,32 @@ class AdminCategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:500',
+                'regex:/^[\pL\pN\pM\s\-_.,!?؛،؟()\[\]{}:؛]+$/u'
+            ],
+            'slug' => [
+                'required',
+                'string',
+                'max:2000',
+                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/'
+            ] ,
+            'icon' => [
+                'required'
+            ],
+            'color' => [
+                'required'
+            ]
+        ], [
+            'name.regex' => 'سوال فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.',
+            'slug.regex' => 'پاسخ فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.',
+        ]);
+        // dd($validated);
+        Category::create($validated);
+        return redirect()->route('admin.category.index')->with('success', 'سوال متداول به همراه پاسخ با موفقیت ثبت شد');
     }
 
     /**

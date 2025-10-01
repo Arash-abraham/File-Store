@@ -12,33 +12,28 @@
                 </a>
             </div>
             
-            <!-- Categories Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach ($categories as $category)
                 <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center">
-                            <i class="fas fa-laptop-code text-blue-600 text-2xl ml-3"></i>
+                            <i class="{{$category->icon}} text-{{$category->color}}-600 text-2xl ml-3"></i>
                             <div>
-                                <h3 class="font-semibold">نرم‌افزارها</h3>
-                                <p class="text-sm text-gray-500">1 محصول</p>
+                                <h3 class="font-semibold">{{ $category->name }}</h3>
                             </div>
                         </div>
                         <div class="flex gap-2">
-                            <button class="text-blue-600 hover:text-blue-800" onclick="editCategory(1)" title="ویرایش">
+                            <button class="text-blue-600 hover:text-blue-800" title="ویرایش">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="text-red-600 hover:text-red-800" onclick="deleteCategory(1)" title="حذف">
+                            <button class="text-red-600 hover:text-red-800" title="حذف">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
                     </div>
-                    <p class="text-gray-600 text-sm">انواع نرم‌افزارهای کاربردی و حرفه‌ای</p>
-
                 </div>
-                
-            </div>
+            @endforeach
+
         </div>
-    </div> 
-    
-    
+    </div>
+        
 @endsection

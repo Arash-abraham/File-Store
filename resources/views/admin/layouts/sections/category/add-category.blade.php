@@ -6,7 +6,8 @@
             <h3 class="text-xl font-bold text-gray-800">افزودن دسته‌بندی جدید</h3>
         </div>
         
-        <form id="addCategoryForm" class="space-y-6">
+        <form id="addCategoryForm" class="space-y-6" method="POST" action="{{route('admin.category.store')}}">
+            @csrf
             <!-- Basic Info -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
