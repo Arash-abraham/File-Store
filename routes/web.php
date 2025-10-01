@@ -1,6 +1,7 @@
 <?php
 // new update -> Arash-abraham
 
+use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminFaqController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\OtpLoginController;
@@ -21,8 +22,9 @@ Route::get('/dashboard', function () {
 
 Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('admin.')->group(function() {
     Route::get('/', [DashboardController::class, 'index'])->name('index');
-    Route::resource('/faq',AdminFaqController::class);
+    Route::resource('faq',AdminFaqController::class);
     Route::get('faq/{status}/status' , [AdminFaqController::class,'status'])->name('faq.status');
+    Route::resource('category',AdminCategoryController::class);
 });
 
 Route::get('/login-email', [OtpLoginController::class, 'showEmailForm'])->name('login.email'); // show view 
