@@ -20,7 +20,7 @@ class AdminCategoryController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.layouts.sections.category.add-category');
     }
 
     /**

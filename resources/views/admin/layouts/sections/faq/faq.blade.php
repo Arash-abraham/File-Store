@@ -160,4 +160,7 @@
             </form>
         </div>
     </div>
+    @section('js')
+        <script src="{{asset('js/admin/faq.js')}}"></script>
+    @endsection
 @endsection

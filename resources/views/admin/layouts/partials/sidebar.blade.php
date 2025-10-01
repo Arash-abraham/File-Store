@@ -13,7 +13,7 @@
                 <i class="fas fa-folder-open w-5 ml-3"></i>
                 <span>فایل‌های محصولات</span>
             </a>
-            <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="categories">
+            <a href="{{ route('admin.category.index') }}" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="categories">
                 <i class="fas fa-tags w-5 ml-3"></i>
                 <span>دسته‌بندی‌ها</span>
             </a>

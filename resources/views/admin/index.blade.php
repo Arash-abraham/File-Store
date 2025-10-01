@@ -57,7 +57,7 @@
     <script src="{{ asset('js/jalalidatepicker/persian-date.min.js') }}"></script>
     <script src="{{ asset('js/jalalidatepicker/persian-datepicker.min.js') }}"></script>
     <script src="{{asset('js/date.js')}}"></script>
-    <script src="{{asset('js/admin/faq.js')}}"></script>
+    @yield('js')
     
 </body>
 </html>
