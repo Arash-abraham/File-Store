@@ -36,8 +36,7 @@
                 
             </div>
         </div>
-    </div>
+    </div> 
     
-    @include('admin.layouts.sections.category.add-category')
     
 @endsection
