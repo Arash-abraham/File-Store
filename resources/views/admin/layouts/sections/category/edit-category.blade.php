@@ -5,8 +5,26 @@
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold text-gray-800">تغییر در دسته بندی</h3>
         </div>
-
-        <form data-current-icon="{{ $category->icon }}" data-current-color="{{ $category->color }}" id="addCategoryForm" class="space-y-6" method="POST" action="{{route('admin.category.store')}}">
+        @if($errors->any())
+            <div class="card border-danger mb-4" id="errorAlert">
+                <div class="card-header bg-danger text-white py-2 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <span class="fw-bold">خطا در ارسال فرم</span>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" onclick="closeErrorAlert()" aria-label="Close"></button>
+                </div>
+                <div class="card-body text-danger py-3">
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+        <form data-current-icon="{{ $category->icon }}" data-current-color="{{ $category->color }}" id="addCategoryForm" class="space-y-6" method="POST" action="{{route('admin.category.update',$category->id)}}">
+            @method('PUT')
             @csrf
             <!-- Basic Info -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

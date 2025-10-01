@@ -11,7 +11,43 @@
                     </button>
                 </a>
             </div>
-            
+            @if($errors->any())
+                <div class="card border-danger mb-4" id="errorAlert">
+                    <div class="card-header bg-danger text-white py-2 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span class="fw-bold">خطا در ارسال فرم</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" onclick="closeErrorAlert()" aria-label="Close"></button>
+                    </div>
+                    <div class="card-body text-danger py-3">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
+            @if(session('success'))
+                <div class="card border-success mb-4 shadow-lg" id="successAlert">
+                    <div class="card-header bg-gradient bg-success text-white py-3 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span class="fw-bold fs-6">عملیات موفق</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" onclick="closeSuccessAlert()" aria-label="Close"></button>
+                    </div>
+                    <div class="card-body bg-light py-3">
+                        <ul class="mb-0 text-success fs-7">
+                            <li class="mb-1">
+                                <i class="fas fa-check me-2 small"></i>
+                                {{ session('success') }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            @endif
             @foreach ($categories as $category)
                 <div class="border border-gray-200 rounded-lg p-6 hover:shadow-lg transition-shadow">
                     <div class="flex items-center justify-between mb-4">
@@ -23,7 +59,7 @@
                         </div>
                         <div class="flex gap-2">
                                 <a href="{{ route('admin.category.edit',$category->id) }}">
-                                    <button class="text-blue-600 hover:text-blue-800" title="ویرایش">
+                                    <button class="text-green-600 hover:text-green-800" title="ویرایش">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                 </a>
@@ -41,5 +77,7 @@
 
         </div>
     </div>
-        
+    @section('js')
+        <script src="{{asset('js/admin/category.js')}}"></script>
+    @endsection
 @endsection
