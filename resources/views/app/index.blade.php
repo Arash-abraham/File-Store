@@ -270,33 +270,32 @@
         </section>
 
         <!-- Categories -->
-        <section class="py-16 bg-white">
+        <section class="py-16 bg-gray-50">
             <div class="container mx-auto px-4">
-                <div class="text-center mb-12">
-                    <h2 class="text-4xl font-bold text-gray-800 mb-4">محبوب‌ترین دسته‌بندی‌ها</h2>
-                    <p class="text-gray-600 text-lg">انواع مختلف محصولات دیجیتال</p>
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-8 text-white text-center hover:transform hover:scale-105 transition-all cursor-pointer">
-                        <i class="fas fa-laptop-code text-4xl mb-4"></i>
-                        <h3 class="text-xl font-bold mb-2">نرم‌افزارها</h3>
-                        <p class="opacity-90">انواع نرم‌افزارهای کاربردی</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 transform group">
+                        <i class="fas fa-laptop-code text-5xl mb-4 group-hover:text-blue-100 transition-colors duration-300"></i>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-white">دسته بندی ها</h3>
+                        <p class="opacity-90 group-hover:opacity-100 transition-opacity duration-300">انواع دسته بندی‌های کاربردی</p>
+                        <button class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-200">مشاهده</button>
                     </div>
-                    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-8 text-white text-center hover:transform hover:scale-105 transition-all cursor-pointer">
-                        <i class="fas fa-play-circle text-4xl mb-4"></i>
-                        <h3 class="text-xl font-bold mb-2">دوره‌های آموزشی</h3>
-                        <p class="opacity-90">آموزش‌های تخصصی</p>
+                    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
+                        <i class="fas fa-play-circle text-5xl mb-4 group-hover:text-green-100 transition-colors duration-300"></i>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-white">دوره‌های آموزشی</h3>
+                        <p class="opacity-90 group-hover:opacity-100 transition-opacity duration-300">آموزش‌های تخصصی</p>
+                        <button class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-200">مشاهده</button>
                     </div>
-                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-8 text-white text-center hover:transform hover:scale-105 transition-all cursor-pointer">
-                        <i class="fas fa-book text-4xl mb-4"></i>
-                        <h3 class="text-xl font-bold mb-2">کتاب‌های الکترونیکی</h3>
-                        <p class="opacity-90">کتاب‌های PDF و EPUB</p>
+                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
+                        <i class="fas fa-book text-5xl mb-4 group-hover:text-purple-100 transition-colors duration-300"></i>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-white">کتاب‌های الکترونیکی</h3>
+                        <p class="opacity-90 group-hover:opacity-100 transition-opacity duration-300">کتاب‌های PDF و EPUB</p>
+                        <button class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-200">مشاهده</button>
                     </div>
-                    <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-8 text-white text-center hover:transform hover:scale-105 transition-all cursor-pointer">
-                        <i class="fas fa-palette text-4xl mb-4"></i>
-                        <h3 class="text-xl font-bold mb-2">قالب‌ها</h3>
-                        <p class="opacity-90">قالب‌های وب و گرافیک</p>
+                    <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
+                        <i class="fas fa-palette text-5xl mb-4 group-hover:text-orange-100 transition-colors duration-300"></i>
+                        <h3 class="text-xl font-bold mb-2 group-hover:text-white">قالب‌ها</h3>
+                        <p class="opacity-90 group-hover:opacity-100 transition-opacity duration-300">قالب‌های وب و گرافیک</p>
+                        <button class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-200">مشاهده</button>
                     </div>
                 </div>
             </div>

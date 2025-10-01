@@ -53,13 +53,18 @@
         
         <!-- Navigation Menu -->
         <nav class="border-t border-gray-200 py-4">
-            <ul class="flex justify-center gap-8">
+            <ul class="flex justify-center gap-8 items-center">
                 <li>
                     <a href="{{ route('home') }}" class="nav-link text-black hover:text-blue-600 transition-colors">خانه</a>
                 </li>
-                <li>
-                    <a href="{{ route('category') }}" class="nav-link text-black hover:text-blue-600 transition-colors">دسته‌بندی</a>
-                </li>   
+                <li class="relative group">
+                    <a href="{{ route('category') }}" class="nav-link text-black hover:text-blue-600 transition-colors py-2 px-4 block">دسته‌بندی</a>
+                    <div class="absolute top-full right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">زیرمنوی ۱</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">زیرمنوی ۲</a>
+                        <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors">زیرمنوی ۳</a>
+                    </div>
+                </li>
                 <li>
                     <a href="{{ route('products') }}" class="nav-link text-black hover:text-blue-600 transition-colors">محصولات</a>
                 </li>           
