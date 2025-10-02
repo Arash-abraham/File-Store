@@ -17,35 +17,6 @@
             </div>
         </div>
     </div>
-
-    <!-- Add Product Modal -->
-    {{-- <x-add-product-modal></x-add-product-modal> --}}
-
-    <!-- Add File Modal -->
-    {{-- <x-add-file-modal></x-add-file-modal> --}}
-
-    <!-- Add Category Modal -->
-    {{-- <x-category.add-category></x-category.add-category> --}}
-
-    <!-- Edit Category Modal -->
-    {{-- <x-category.edit-category></x-category.edit-category> --}}
-
-    <!-- Add Tag Modal -->
-    {{-- <x-tag.add-tag-modal></x-tag.add-tag-modal> --}}
-
-    <!-- Edit Tag Modal -->
-    {{-- <x-tag.edit-tag-modal></x-tag.edit-tag-modal> --}}
-
-    <!-- Add Coupon Modal -->
-    {{-- <x-copan.add-copan-modal></x-copan.add-copan-modal> --}}
-
-    <!-- Edit Coupon Modal -->
-    {{-- <x-copan.edit-copan-modal></x-edit.edit-copan-modal> --}}
-
-
-    <!-- Persian Date Picker Modal -->
-    {{-- <x-copan.date-modal></x-edit.date-modal>
-     --}}
     
     <!-- Add Menu Modal -->
         {{-- TODO --}}

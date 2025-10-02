@@ -12,7 +12,7 @@ class AdminTagController extends Controller
      */
     public function index()
     {
-        //
+        return view('admin.layouts.sections.tag.tags');
     }
 
     /**

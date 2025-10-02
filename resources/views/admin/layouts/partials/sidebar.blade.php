@@ -17,7 +17,7 @@
                 <i class="fas fa-tags w-5 ml-3"></i>
                 <span>دسته‌بندی‌ها</span>
             </a>
-            <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="tags">
+            <a href="{{ route('admin.tag.index') }}" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="tags">
                 <i class="fas fa-tag w-5 ml-3"></i>
                 <span>برچسب‌ها</span>
             </a>
