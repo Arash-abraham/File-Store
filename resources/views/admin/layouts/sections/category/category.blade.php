@@ -11,24 +11,6 @@
                     </button>
                 </a>
             </div>
-            @if($errors->any())
-                <div class="card border-danger mb-4" id="errorAlert">
-                    <div class="card-header bg-danger text-white py-2 d-flex justify-content-between align-items-center">
-                        <div class="d-flex align-items-center">
-                            <i class="fas fa-exclamation-circle me-2"></i>
-                            <span class="fw-bold">خطا در ارسال فرم</span>
-                        </div>
-                        <button type="button" class="btn-close btn-close-white" onclick="closeErrorAlert()" aria-label="Close"></button>
-                    </div>
-                    <div class="card-body text-danger py-3">
-                        <ul class="mb-0">
-                            @foreach($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
-            @endif
             @if(session('success'))
                 <div class="card border-success mb-4 shadow-lg" id="successAlert">
                     <div class="card-header bg-gradient bg-success text-white py-3 d-flex justify-content-between align-items-center">

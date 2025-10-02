@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Tag;
 use Illuminate\Http\Request;
 
 class AdminTagController extends Controller
@@ -12,7 +13,8 @@ class AdminTagController extends Controller
      */
     public function index()
     {
-        return view('admin.layouts.sections.tag.tags');
+        $tags = Tag::all();
+        return view('admin.layouts.sections.tag.tags',compact('tags'));
     }
 
     /**
@@ -20,7 +22,7 @@ class AdminTagController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.layouts.sections.tag.add-tag');
     }
 
     /**
@@ -28,8 +30,42 @@ class AdminTagController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:500',
+                'regex:/^[\pL\pN\pM\s\-_.,!?؛،؟()\[\]{}:؛]+$/u'
+            ],
+            'slug' => [
+                'required',
+                'string',
+                'max:2000',
+                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/'
+            ] ,
+        ], [
+            'name.regex' => 'نام برچسب فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.',
+            'slug.regex' => 'اسلاگ فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.',
+        ]);
+
+        $nameExists = Tag::where('name', $validated['name'])->exists();
+        $slugExists = Tag::where('slug', $validated['slug'])->exists();
+
+        if($nameExists && $slugExists) {
+            return redirect()->back()->withErrors(['category' => 'هم نام و هم اسلاگ از قبل ثبت شده‌اند.'])->withInput();
+        } 
+        elseif($nameExists) {
+            return redirect()->back()->withErrors(['name' => 'این نام از قبل ثبت شده است.'])->withInput();
+        } 
+        elseif($slugExists) {
+            return redirect()->back()->withErrors(['slug' => 'این اسلاگ از قبل ثبت شده است.'])->withInput();
+        }
+        else {
+            Tag::create($validated);
+            return redirect()->route('admin.tag.index')->with('success', 'برچسب با موفقیت ثبت شد');
+        }
     }
+
 
     /**
      * Display the specified resource.
@@ -58,8 +94,9 @@ class AdminTagController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Tag $tag)
     {
-        //
+        $tag->delete();
+        return redirect()->route('admin.tag.index')->with('success', 'با موفقیقت حذف شد');
     }
 }
