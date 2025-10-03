@@ -1,4 +1,4 @@
-@extends('admin.index')
+@extends('admin.layouts.partials.master')
 
 @section('content')
     <div class="bg-white rounded-xl p-6 w-full shadow-lg">

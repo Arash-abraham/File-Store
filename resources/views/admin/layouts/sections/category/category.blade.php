@@ -1,4 +1,4 @@
-@extends('admin.index')
+@extends('admin.layouts.partials.master')
 
 @section('content')
     <div id="categories" class="content-section">
