@@ -56,9 +56,11 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex gap-2">
-                                    <button class="text-green-600 hover:text-green-800" onclick="editTag(1)" title="ویرایش">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
+                                    <a href="{{route('admin.tag.edit',$tag->id)}}">
+                                        <button class="text-green-600 hover:text-green-800" title="ویرایش">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                    </a>
                                     <form action="{{ route('admin.tag.destroy', $tag->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         @method('DELETE')
