@@ -26,9 +26,12 @@
         <!-- <div class="mt-4 rounded-md bg-red-50 p-4 text-red-700 text-sm">ارسال لینک با خطا مواجه شد.</div> -->
 
         <div class="mt-8 flex flex-col gap-3">
-          <a href="/home" class="w-full inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-white font-medium shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">خروج</a>
-          <a href="/resend-email-verification" class="w-full inline-flex items-center justify-center rounded-lg bg-blue-600 px-4 py-2.5 text-white font-medium shadow hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">ارسال دوباره لینک به ایمیل</a>
-        </div>
+          <form method="POST" action="{{route('logout')}}" class="flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition-colors">
+              @csrf
+              <button class="w-full inline-flex items-center justify-center rounded-lg bg-red-600 px-4 py-2.5 text-white font-medium shadow hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                  ارسال دوباره
+              </button>
+          </form>
 
         <div class="mt-6 text-center">
           <p class="text-xs text-gray-500">اگر ایمیلی دریافت نکردید، پوشه اسپم (Spam) را نیز بررسی کنید.</p>
