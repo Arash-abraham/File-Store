@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class AdminTagController extends Controller
 {
@@ -35,13 +36,16 @@ class AdminTagController extends Controller
                 'required',
                 'string',
                 'max:500',
-                'regex:/^[\pL\pN\pM\s\-_.,!?؛،؟()\[\]{}:؛]+$/u'
+                'regex:/^[\pL\pN\pM\s\-_.,!?؛،؟()\[\]{}:؛]+$/u',
+                Rule::unique('tags')->whereNull('deleted_at')
+
             ],
             'slug' => [
                 'required',
                 'string',
                 'max:2000',
-                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/'
+                'regex:/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\/[a-z0-9]+(?:-[a-z0-9]+)*)*$/',
+                Rule::unique('tags')->whereNull('deleted_at')
             ] ,
         ], [
             'name.regex' => 'نام برچسب فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.',
@@ -61,6 +65,7 @@ class AdminTagController extends Controller
             return redirect()->back()->withErrors(['slug' => 'این اسلاگ از قبل ثبت شده است.'])->withInput();
         }
         else {
+            
             Tag::create($validated);
             return redirect()->route('admin.tag.index')->with('success', 'برچسب با موفقیت ثبت شد');
         }
