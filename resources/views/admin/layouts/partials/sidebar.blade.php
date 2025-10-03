@@ -1,7 +1,7 @@
 <div class="lg:w-1/4">
     <div class="bg-white rounded-xl shadow-lg p-6 sticky top-24">
         <nav class="space-y-2">
-            <a href="#" class="sidebar-item active flex items-center p-3 rounded-lg transition-colors" data-section="dashboard">
+            <a href="{{route('admin.index')}}" class="sidebar-item active flex items-center p-3 rounded-lg transition-colors" data-section="dashboard">
                 <i class="fas fa-chart-pie w-5 ml-3"></i>
                 <span>داشبورد</span>
             </a>
