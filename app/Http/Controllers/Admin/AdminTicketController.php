@@ -12,7 +12,7 @@ class AdminTicketController extends Controller
      */
     public function index()
     {
-        //
+        return view('admin.layouts.sections.tickets.tickets');
     }
 
     /**

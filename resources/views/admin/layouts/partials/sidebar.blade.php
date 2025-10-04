@@ -41,7 +41,7 @@
                 <i class="fas fa-credit-card w-5 ml-3"></i>
                 <span>پرداخت‌ها</span>
             </a>
-            <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="tickets">
+            <a href="{{ route('admin.ticket.index') }}" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="tickets">
                 <i class="fas fa-ticket-alt w-5 ml-3"></i>
                 <span>تیکت‌های پشتیبانی</span>
             </a>
