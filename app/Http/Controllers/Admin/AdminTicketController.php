@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Ticket;
 use Illuminate\Http\Request;
 
 class AdminTicketController extends Controller
@@ -10,8 +11,9 @@ class AdminTicketController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
+    public function index() {
+        $tickets = Ticket::all();
+        dd($tickets);
         return view('admin.layouts.sections.tickets.tickets');
     }
 
