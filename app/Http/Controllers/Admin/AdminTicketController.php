@@ -13,19 +13,23 @@ class AdminTicketController extends Controller
      */
     public function index() {
         $tickets = Ticket::all();
-        $published_count = 0;
-        $draft_count = 0;
+        $open_count = 0;
+        $progress_count = 0;
+        $close_count = 0;
 
         foreach($tickets as $ticket) {
-            if($ticket->status == 'published') {
-                $published_count += 1;
+            if($ticket->status == 'open') {
+                $open_count += 1;
             }
-            if($ticket->status != 'published') {
-                $draft_count += 1;
+            if($ticket->status == 'in_progress') {
+                $progress_count += 1;
+            }
+            if($ticket->status == 'closed') {
+                $close_count += 1;
             }
         }
 
-        return view('admin.layouts.sections.tickets.tickets',compact('tickets'));
+        return view('admin.layouts.sections.tickets.tickets',compact('tickets','open_count','progress_count','close_count'));
     }
 
     /**
