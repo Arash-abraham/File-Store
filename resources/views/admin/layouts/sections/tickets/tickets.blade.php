@@ -48,21 +48,34 @@
                     <tbody id="ticketsTableBody" class="bg-white divide-y divide-gray-200">
                         @foreach ($tickets as $ticket)
                             <tr class="hover:bg-gray-50">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-blue-600 font-bold">TKT-1001</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-blue-600 font-bold">{{$ticket->id}}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div>
                                         <div class="text-sm font-medium text-gray-900">{{$ticket->user->name}}</div>
-                                        <div class="text-sm text-gray-500">ahmad@example.com</div>
+                                        <div class="text-sm text-gray-500">{{$ticket->user->email}}</div>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">مشکل در دانلود فایل</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">فنی</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{$ticket->subject}}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{$ticket->assigned_to}}</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                        باز
-                                    </span>
+                                    @if ($ticket->status == 'open')
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                            باز
+                                        </span>
+                                    @elseif ($ticket->status == 'in_progress')
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            درحال بررسی
+                                        </span>
+                                    @else
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                            بسته شد
+                                        </span>
+                                    @endif
                                 </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">1403/07/16</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    {{ \Morilog\Jalali\Jalalian::fromCarbon(\Carbon\Carbon::parse($ticket->created_at)->tz('Asia/Tehran'))->format('Y-m-d H:i:s') }}
+                                </td>
+                                </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex gap-2">
                                         <button class="text-blue-600 hover:text-blue-800" onclick="viewTicket(1)" title="مشاهده">
