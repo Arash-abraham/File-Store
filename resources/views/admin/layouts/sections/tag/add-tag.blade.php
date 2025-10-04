@@ -1,6 +1,4 @@
-@extends('admin.layouts.partials.master')
-
-@section('content')
+id 	ticket_number 	user_id 	subject 	status 	message 	response 	assigned_to 	created_at 	updated_at 	deleted_at 	
     <div class="bg-white rounded-xl p-6 w-full shadow-lg">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-bold text-gray-800">افزودن برچسب</h3>
