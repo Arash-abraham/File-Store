@@ -4,6 +4,7 @@
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminFaqController;
 use App\Http\Controllers\Admin\AdminTagController;
+use App\Http\Controllers\Admin\AdminTicketController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\OtpLoginController;
 use App\Http\Controllers\Auth\SmsLoginController;
@@ -27,6 +28,7 @@ Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('a
     Route::get('faq/{status}/status' , [AdminFaqController::class,'status'])->name('faq.status');
     Route::resource('category',AdminCategoryController::class);
     Route::resource('tag',AdminTagController::class);
+    Route::resource('ticket',AdminTicketController::class);
 });
 
 Route::get('/login-email', [OtpLoginController::class, 'showEmailForm'])->name('login.email'); // show view 
