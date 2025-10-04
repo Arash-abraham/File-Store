@@ -7,30 +7,24 @@
                 <h2 class="text-2xl font-bold text-gray-800">مدیریت تیکت‌های پشتیبانی</h2>
             </div>
             
-            <!-- Ticket Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                <div class="bg-blue-50 rounded-lg p-6 text-center">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-8">
+                <div class="bg-blue-50 rounded-lg p-6 text-center shadow-md">
                     <i class="fas fa-ticket-alt text-blue-600 text-3xl mb-3"></i>
-                    <h3 class="text-2xl font-bold text-gray-800" id="totalTickets">0</h3>
+                    <h3 class="text-2xl font-bold text-gray-800" id="totalTickets">{{count($tickets)}}</h3>
                     <p class="text-gray-600">کل تیکت‌ها</p>
                 </div>
-                <div class="bg-yellow-50 rounded-lg p-6 text-center">
+                <div class="bg-yellow-50 rounded-lg p-6 text-center shadow-md">
                     <i class="fas fa-clock text-yellow-600 text-3xl mb-3"></i>
                     <h3 class="text-2xl font-bold text-gray-800" id="openTickets">0</h3>
                     <p class="text-gray-600">باز</p>
                 </div>
-                <div class="bg-red-50 rounded-lg p-6 text-center">
-                    <i class="fas fa-exclamation-triangle text-red-600 text-3xl mb-3"></i>
-                    <h3 class="text-2xl font-bold text-gray-800" id="urgentTickets">0</h3>
-                    <p class="text-gray-600">فوری</p>
-                </div>
-                <div class="bg-green-50 rounded-lg p-6 text-center">
+                <div class="bg-green-50 rounded-lg p-6 text-center shadow-md">
                     <i class="fas fa-check-circle text-green-600 text-3xl mb-3"></i>
                     <h3 class="text-2xl font-bold text-gray-800" id="closedTickets">0</h3>
                     <p class="text-gray-600">بسته شده</p>
                 </div>
             </div>
-            
+
             <!-- Tickets Table -->
             <div class="overflow-x-auto">
                 <table class="w-full table-auto">

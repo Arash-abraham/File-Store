@@ -13,8 +13,19 @@ class AdminTicketController extends Controller
      */
     public function index() {
         $tickets = Ticket::all();
-        dd($tickets);
-        return view('admin.layouts.sections.tickets.tickets');
+        $published_count = 0;
+        $draft_count = 0;
+
+        foreach($tickets as $ticket) {
+            if($ticket->status == 'published') {
+                $published_count += 1;
+            }
+            if($ticket->status != 'published') {
+                $draft_count += 1;
+            }
+        }
+
+        return view('admin.layouts.sections.tickets.tickets',compact('tickets'));
     }
 
     /**
