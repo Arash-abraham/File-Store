@@ -51,7 +51,7 @@
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-blue-600 font-bold">TKT-1001</td>
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div>
-                                        <div class="text-sm font-medium text-gray-900">احمد محمدی</div>
+                                        <div class="text-sm font-medium text-gray-900">{{$ticket->user->name}}</div>
                                         <div class="text-sm text-gray-500">ahmad@example.com</div>
                                     </div>
                                 </td>

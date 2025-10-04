@@ -28,7 +28,6 @@ class AdminTicketController extends Controller
                 $close_count += 1;
             }
         }
-
         return view('admin.layouts.sections.tickets.tickets',compact('tickets','open_count','progress_count','close_count'));
     }
 
