@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Ticket;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AdminTicketController extends Controller
@@ -68,9 +69,13 @@ class AdminTicketController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Ticket $ticket)
     {
-        //
+        // dd(now()['']);
+        $ticket->update([
+            'response' => $request->response,
+            'response_time' => Carbon::now()
+        ]);
     }
 
     /**

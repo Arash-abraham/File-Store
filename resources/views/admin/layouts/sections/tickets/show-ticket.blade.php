@@ -79,72 +79,69 @@
                     </div>
                     </div>
                     <div class="text-gray-700 leading-relaxed">
-                        
+                        {{$ticket->response}}
                     </div>
                 </div>
             @endif
         <!-- فرم پاسخ -->
-        <div class="bg-white rounded-lg shadow-sm p-6">
-            <h3 class="text-lg font-medium text-gray-800 mb-4">پاسخ به تیکت</h3>
-            <form id="replyForm">
-            <div class="mb-4">
-                <textarea 
-                id="message"
-                rows="6" 
-                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
-                placeholder="پاسخ خود را وارد کنید..."
-                required
-                ></textarea>
-            </div>
-            
-            <div class="flex justify-between items-center">
-                <div class="flex space-x-3 space-x-reverse">
-                <button 
-                    type="submit" 
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition duration-200"
-                >
-                    ارسال پاسخ
-                </button>
-                <button 
-                    type="button" 
-                    class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition duration-200"
-                >
-                    درحال بررسی
-                </button>
+            @if ($ticket->response == NULL)
+                <div class="bg-white rounded-lg shadow-sm p-6">
+                    <h3 class="text-lg font-medium text-gray-800 mb-4">پاسخ به تیکت</h3>
+                    <form id="replyForm" action="{{route('admin.ticket.update',$ticket->id)}}" method="POST">
+                        @method('PUT')
+                        @csrf
+                        <div class="mb-4">
+                            <textarea 
+                            id="message"
+                            rows="6" 
+                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" 
+                            placeholder="پاسخ خود را وارد کنید..."
+                            required
+                            name="response"></textarea>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <div class="flex space-x-3 space-x-reverse">
+                                <button 
+                                    type="submit" 
+                                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition duration-200"
+                                >
+                                    ارسال پاسخ
+                                </button>
+                                <button 
+                                    type="button" 
+                                    class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition duration-200"
+                                >
+                                    درحال بررسی
+                                </button>
+                                <button 
+                                    type="button" 
+                                    class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition duration-200"
+                                >
+                                    بستن تیکت
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            @else
+                <a href="">
+                    <button 
+                        type="button" 
+                        class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition duration-200"
+                    >
+                        درحال بررسی
+                    </button>
+                </a>
                 <button 
                     type="button" 
                     class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition duration-200"
                 >
                     بستن تیکت
-            </button>
-                </div>
-                
-                <div class="flex items-center space-x-2 space-x-reverse">
-                <label class="text-sm text-gray-600">اولویت:</label>
-                <select id="priority" class="border border-gray-300 rounded px-3 py-1 text-sm">
-                    <option value="کم">کم</option>
-                    <option value="متوسط" selected>متوسط</option>
-                    <option value="بالا">بالا</option>
-                </select>
-                </div>
-            </div>
-                </form>
-            </div>
-        </div>
+                </button>
+            @endif
     </div>
     @section('js')
         <script src="{{asset('js/admin/category.js')}}"></script>
-        <script>
-            document.getElementById('replyForm').addEventListener('submit', function(e) {
-              e.preventDefault();
-              const message = document.getElementById('message').value;
-              const priority = document.getElementById('priority').value;
-              
-              if (message.trim()) {
-                alert('پاسخ با موفقیت ارسال شد');
-                document.getElementById('message').value = '';
-              }
-            });
-        </script>
     @endsection
 @endsection
