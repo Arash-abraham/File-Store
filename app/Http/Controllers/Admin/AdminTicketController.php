@@ -53,7 +53,8 @@ class AdminTicketController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $ticket = Ticket::findOrFail($id);
+        return view('admin.layouts.sections.tickets.show-ticket',compact('ticket'));
     }
 
     /**

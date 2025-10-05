@@ -78,9 +78,11 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex gap-2">
-                                        <button class="text-blue-600 hover:text-blue-800" onclick="viewTicket(1)" title="مشاهده">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
+                                        <a href="{{ route('admin.ticket.show',$ticket->id) }}">
+                                            <button class="text-blue-600 hover:text-blue-800" title="مشاهده">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </a>
                                         <button class="text-green-600 hover:text-green-800" onclick="replyToTicket(1)" title="پاسخ">
                                             <i class="fas fa-reply"></i>
                                         </button>
