@@ -65,33 +65,24 @@
             </div>
     
         <!-- تاریخچه پاسخ‌ها -->
-            <div class="bg-white rounded-lg shadow-sm p-6 mb-4">
-                <div class="flex items-center mb-4">
-                <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">
-                    پ
-                </div>
-                <div class="mr-3">
-                    <div class="font-medium text-gray-800">پشتیبانی فنی
-                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded mr-2">پشتیبان</span>
+            @if ($ticket->response != NULL)
+                <div class="bg-white rounded-lg shadow-sm p-6 mb-4">
+                    <div class="flex items-center mb-4">
+                    <div class="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold">
+                        پ
                     </div>
-                    <div class="text-sm text-gray-500">1402/10/15 - 15:45</div>
+                    <div class="mr-3">
+                        <div class="font-medium text-gray-800">پشتیبانی فنی
+                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded mr-2">پشتیبان</span>
+                        </div>
+                        <div class="text-sm text-gray-500">1402/10/15 - 15:45</div>
+                    </div>
+                    </div>
+                    <div class="text-gray-700 leading-relaxed">
+                        
+                    </div>
                 </div>
-                </div>
-                <div class="text-gray-700 leading-relaxed">
-                با سلام آقای رضایی،
-                <br><br>
-                مشکل شما را بررسی کردیم. به نظر می‌رسد مشکل از سمت سرور درگاه پرداخت باشد. لطفاً موارد زیر را بررسی کنید:
-                <br><br>
-                1. از آخرین نسخه مرورگر استفاده کنید
-                <br>
-                2. افزونه‌های مسدودکننده را غیرفعال کنید
-                <br>
-                3. پس از 1 ساعت مجدد تلاش کنید
-                <br><br>
-                در صورت ادامه مشکل، اطلاع دهید.
-                </div>
-            </div>
-    
+            @endif
         <!-- فرم پاسخ -->
         <div class="bg-white rounded-lg shadow-sm p-6">
             <h3 class="text-lg font-medium text-gray-800 mb-4">پاسخ به تیکت</h3>
