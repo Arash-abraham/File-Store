@@ -83,9 +83,6 @@
                                                 <i class="fas fa-eye"></i>
                                             </button>
                                         </a>
-                                        <button class="text-green-600 hover:text-green-800" onclick="replyToTicket(1)" title="پاسخ">
-                                            <i class="fas fa-reply"></i>
-                                        </button>
                                     </div>
                                 </td>
                             </tr>

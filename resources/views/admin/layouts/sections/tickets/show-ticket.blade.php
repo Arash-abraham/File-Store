@@ -50,19 +50,17 @@
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                 <div class="flex items-center mb-4">
                     <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                    {{substr($ticket->user->name,0,1)}}
+                        {{ mb_substr($ticket->user->name, 0, 1, 'UTF-8') }}                    
                     </div>
                     <div class="mr-3">
                     <div class="font-medium text-gray-800">{{$ticket->user->name}}</div>
-                    <div class="text-sm text-gray-500">1402/10/15 - 14:30</div>
+                    <div class="text-sm text-gray-500">
+                        {{ \Morilog\Jalali\Jalalian::fromCarbon(\Carbon\Carbon::parse($ticket->created_at)->tz('Asia/Tehran'))->format('Y-m-d H:i:s') }}
+                    </div>
                     </div>
                 </div>
                 <div class="text-gray-700 leading-relaxed">
-                    با سلام،
-                    <br><br>
-                    هنگام تلاش برای پرداخت از طریق درگاه بانک سامان، با خطای "اتصال ناموفق" مواجه می‌شوم. این مشکل از دیروز شروع شده و تاکنون چندین بار تلاش کرده‌ام اما نتیجه‌ای نداشته است.
-                    <br><br>
-                    لطفاً راهنمایی بفرمایید.
+                    {{ $ticket->message }}
                 </div>
             </div>
     
