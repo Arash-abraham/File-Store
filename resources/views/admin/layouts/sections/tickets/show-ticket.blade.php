@@ -11,9 +11,19 @@
                         <p class="text-gray-600 mt-1">{{$ticket->subject}}</p>
                     </div>
                     <div class="text-left">
-                        <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                        باز
-                        </span>
+                        @if ($ticket->status == 'open')
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                باز
+                            </span>
+                        @elseif ($ticket->status == 'in_progress')
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                درحال بررسی
+                            </span>
+                        @else
+                            <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                بسته شد
+                            </span>
+                        @endif
                     </div>
                 </div>
         
@@ -21,19 +31,17 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div class="flex">
                     <span class="text-gray-500 w-24">کاربر:</span>
-                    <span class="text-gray-800">محمد رضایی</span>
+                    <span class="text-gray-800">{{$ticket->user->name}}</span>
                     </div>
                     <div class="flex">
                     <span class="text-gray-500 w-24">دسته‌بندی:</span>
-                    <span class="text-gray-800">پشتیبانی فنی</span>
-                    </div>
-                    <div class="flex">
-                    <span class="text-gray-500 w-24">اولویت:</span>
-                    <span class="text-gray-800">بالا</span>
+                    <span class="text-gray-800">{{$ticket->assigned_to}}</span>
                     </div>
                     <div class="flex">
                     <span class="text-gray-500 w-24">تاریخ ایجاد:</span>
-                    <span class="text-gray-800">1402/10/15 - 14:30</span>
+                    <span class="text-gray-800">
+                        {{ \Morilog\Jalali\Jalalian::fromCarbon(\Carbon\Carbon::parse($ticket->created_at)->tz('Asia/Tehran'))->format('Y-m-d H:i:s') }}
+                    </span>
                     </div>
                 </div>
                 </div>
@@ -42,10 +50,10 @@
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                 <div class="flex items-center mb-4">
                     <div class="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">
-                    م
+                    {{substr($ticket->user->name,0,1)}}
                     </div>
                     <div class="mr-3">
-                    <div class="font-medium text-gray-800">محمد رضایی</div>
+                    <div class="font-medium text-gray-800">{{$ticket->user->name}}</div>
                     <div class="text-sm text-gray-500">1402/10/15 - 14:30</div>
                     </div>
                 </div>
@@ -112,8 +120,14 @@
                     type="button" 
                     class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition duration-200"
                 >
-                    بستن تیکت
+                    درحال بررسی
                 </button>
+                <button 
+                    type="button" 
+                    class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition duration-200"
+                >
+                    بستن تیکت
+            </button>
                 </div>
                 
                 <div class="flex items-center space-x-2 space-x-reverse">
