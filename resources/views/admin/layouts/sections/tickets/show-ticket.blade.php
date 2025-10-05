@@ -108,37 +108,54 @@
                                 >
                                     ارسال پاسخ
                                 </button>
-                                <button 
-                                    type="button" 
-                                    class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition duration-200"
-                                >
-                                    درحال بررسی
-                                </button>
-                                <button 
-                                    type="button" 
-                                    class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition duration-200"
-                                >
-                                    بستن تیکت
-                                </button>
+                                @if ($ticket->status == 'open')
+                                    <a href="{{route('admin.ticket.process',$ticket->id)}}">
+                                        <button 
+                                            type="button" 
+                                            class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition duration-200"
+                                        >
+                                            درحال بررسی
+                                        </button>
+                                    </a>
+                                @endif
+                                
+                                @if ($ticket->status == 'open' || $ticket->status == 'in_progress')
+                                    <a href="{{route('admin.ticket.closed',$ticket->id)}}">
+                                        <button 
+                                            type="button" 
+                                            class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition duration-200"
+                                        >
+                                            بستن تیکت
+                                        </button>
+                                    </a>
+                                @endif
                             </div>
                         </form>
                     </div>
                 </div>
             @else
-                <a href="">
-                    <button 
-                        type="button" 
-                        class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition duration-200"
-                    >
-                        درحال بررسی
-                    </button>
-                </a>
-                <button 
-                    type="button" 
-                    class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition duration-200"
-                >
-                    بستن تیکت
-                </button>
+                @if ($ticket->status == 'open')
+                    <a href="{{route('admin.ticket.process',$ticket->id)}}">
+                        <button 
+                            type="button" 
+                            class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-md transition duration-200"
+                        >
+                            درحال بررسی
+                        </button>
+                    </a>
+                @endif
+                
+                @if ($ticket->status == 'open' || $ticket->status == 'in_progress')
+                    <a href="{{route('admin.ticket.closed',$ticket->id)}}">
+                        <button 
+                            type="button" 
+                            class="bg-red-500 hover:bg-red-600 text-white px-6 py-2 rounded-md transition duration-200"
+                        >
+                            بستن تیکت
+                        </button>
+                    </a>
+                @endif
+
             @endif
     </div>
     @section('js')

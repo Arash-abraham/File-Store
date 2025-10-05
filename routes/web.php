@@ -29,6 +29,9 @@ Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('a
     Route::resource('category',AdminCategoryController::class);
     Route::resource('tag',AdminTagController::class);
     Route::resource('ticket',AdminTicketController::class);
+    Route::get('ticket/{process}/process' , [AdminTicketController::class,'process'])->name('ticket.process');
+    Route::get('ticket/{closed}/closed' , [AdminTicketController::class,'closed'])->name('ticket.closed');
+
 });
 
 Route::get('/login-email', [OtpLoginController::class, 'showEmailForm'])->name('login.email'); // show view 

@@ -85,4 +85,16 @@ class AdminTicketController extends Controller
     {
         //
     }
+    public function process($id) {
+        $ticket = Ticket::findOrFail($id);
+        $ticket->status = 'in_progress';
+        $ticket->save();
+        return to_route('admin.ticket.index')->with('success','تغییرات شما با موفقیت ثبت شد');
+    }
+    public function closed($id) {
+        $ticket = Ticket::findOrFail($id);
+        $ticket->status = 'closed';
+        $ticket->save();
+        return to_route('admin.ticket.index')->with('success','تغییرات شما با موفقیت ثبت شد');
+    }
 }
