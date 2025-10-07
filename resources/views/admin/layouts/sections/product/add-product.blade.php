@@ -6,8 +6,27 @@
             <h3 class="text-2xl font-bold">افزودن محصول جدید</h3>
 
         </div>
-        
-        <form id="addProductForm" class="space-y-6">
+        @if($errors->any())
+            <div class="card border-danger mb-4" id="errorAlert">
+                <div class="card-header bg-danger text-white py-2 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <span class="fw-bold">خطا در ارسال فرم</span>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" onclick="closeErrorAlert()" aria-label="Close"></button>
+                </div>
+                <div class="card-body text-danger py-3">
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+        @endif
+        <form enctype="multipart/form-data" id="addProductForm" action="{{route('admin.product.store')}}" method="POST" class="space-y-6">
+            @csrf
+            @method('POST')
             <!-- Basic Info -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -20,11 +39,12 @@
                     <label class="block text-sm font-medium text-gray-700 mb-2">دسته‌بندی *</label>
                     <select name="category" required 
                             class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                        <option value="">انتخاب دسته‌بندی</option>
-                        <option value="software">نرم‌افزار</option>
-                        <option value="courses">دوره آموزشی</option>
-                        <option value="ebooks">کتاب الکترونیکی</option>
-                        <option value="templates">قالب</option>
+                            <option value="">همه دسته‌بندی‌ها</option>
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}">
+                                    {{ $category->name }}
+                                </option>
+                            @endforeach
                     </select>
                 </div>
             </div>
@@ -58,13 +78,14 @@
             <!-- Tags -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">برچسب‌ها (با کاما جدا کنید)</label>
-                <select name="category" required 
+                <select name="tag" required 
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">انتخاب دسته‌بندی</option>
-                    <option value="software">نرم‌افزار</option>
-                    <option value="courses">دوره آموزشی</option>
-                    <option value="ebooks">کتاب الکترونیکی</option>
-                    <option value="templates">قالب</option>
+                        <option value="">همه تگ ها</option>
+                        @foreach ($tags as $tag)
+                            <option value="{{ $tag->id }}">
+                                {{ $tag->name }}
+                            </option>
+                        @endforeach
                 </select>
             </div>
 

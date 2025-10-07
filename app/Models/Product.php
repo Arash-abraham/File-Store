@@ -24,13 +24,13 @@ class Product extends Model
      */
     protected $fillable = [
         'title',
-        'slug',
+        'tag_id',
         'category_id',
         'status',
         'availability',
         'original_price',
         'price',
-        'image_url',
+        'image_urls',
         'description',
     ];
 
@@ -40,13 +40,14 @@ class Product extends Model
      * @var array
      */
     protected $casts = [
-        'status' => 'string', // برای مدیریت enum
+        'status' => 'string',
         'availability' => 'boolean',
         'original_price' => 'integer',
         'price' => 'integer',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
+        'image_urls' => 'array'
     ];
 
     /**
@@ -87,5 +88,10 @@ class Product extends Model
     {
         return $this->availability && $this->status === 'active';
     }
-    
+    public function tags()
+    {
+        return $this->belongsToMany(Tag::class);
+    }
+
+
 }

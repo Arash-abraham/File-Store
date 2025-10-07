@@ -5,7 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\Tag;
+use Illuminate\Support\Facades\DB;
+use App\Models\Image;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AdminProductController extends Controller
 {
@@ -24,7 +29,9 @@ class AdminProductController extends Controller
      */
     public function create()
     {
-        return view('admin.layouts.sections.product.add-product');
+        $categories = Category::all();
+        $tags = Tag::all();
+        return view('admin.layouts.sections.product.add-product',compact('categories','tags'));
     }
 
     /**
@@ -32,7 +39,60 @@ class AdminProductController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        // اعتبارسنجی ورودی‌ها
+        $validated = $request->validate([
+            'title' => 'required|string|max:255',
+            'category' => 'required|exists:categories,id',
+            'originalPrice' => 'required|numeric|min:0',
+            'status' => 'required|in:active,inactive,draft',
+            'availability' => 'required|in:true,false',
+            'description' => 'nullable|string',
+            'tag' => 'required|exists:tags,id',
+            'productImages.*' => 'nullable|string',
+        ]);
+    
+        $directory = public_path('products');
+        if (!file_exists($directory)) {
+            mkdir($directory, 0755, true);
+        }
+    
+        // ذخیره تصاویر
+        $imageUrls = [];
+        if ($request->has('productImages')) {
+            foreach ($request->productImages as $imageData) {
+                if ($imageData) {
+                    $imageData = str_replace(['data:image/jpeg;base64,', 'data:image/png;base64,', 'data:image/webp;base64,', ' '], ['', '', '', '+'], $imageData);
+                    $imageContent = base64_decode($imageData);
+                    
+                    if ($imageContent === false) {
+                        return back()->withErrors(['productImages' => 'تصویر نامعتبر است']);
+                    }
+    
+                    if (strlen($imageContent) > 2 * 1024 * 1024) {
+                        return back()->withErrors(['productImages' => 'حجم تصویر باید کمتر از 2MB باشد']);
+                    }
+    
+                    $fileName = 'products/' . Str::random(40) . '.png';
+                    $filePath = public_path($fileName);
+                    file_put_contents($filePath, $imageContent);
+                    $imageUrls[] = $fileName;
+                }
+            }
+        }
+    
+        // ایجاد محصول
+        $product = Product::create([
+            'category_id' => $validated['category'],
+            'original_price' => $validated['originalPrice'],
+            'status' => $validated['status'],
+            'availability' => $validated['availability'] === 'true',
+            'tag_id' => $validated['tag'],
+            'description' => $validated['description'],
+            'title' => $validated['title'],
+            'image_urls' => $imageUrls, 
+        ]);
+    
+        return redirect()->route('admin.product.index')->with('success', 'محصول با موفقیت اضافه شد.');
     }
 
     /**
