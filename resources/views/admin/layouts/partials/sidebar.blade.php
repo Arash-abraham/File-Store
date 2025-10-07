@@ -5,7 +5,7 @@
                 <i class="fas fa-chart-pie w-5 ml-3"></i>
                 <span>داشبورد</span>
             </a>
-            <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="products">
+            <a href="{{ route('admin.product.index') }}" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="products">
                 <i class="fas fa-box w-5 ml-3"></i>
                 <span>مدیریت محصولات</span>
             </a>
