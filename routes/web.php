@@ -46,4 +46,4 @@ Route::middleware('web')->group(function () {
     Route::post('/verify-code', [VerificationController::class, 'verifyCode'])->name('sms.verify-code');
 });
 
-require __DIR__.'/auth.php';    
+require __DIR__.'/auth.php';
