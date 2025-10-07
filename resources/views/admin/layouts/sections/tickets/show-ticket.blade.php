@@ -4,6 +4,43 @@
     <div class="min-h-screen bg-gray-50 p-6">
         <div class="max-w-4xl mx-auto">
         <!-- هدر تیکت -->
+            @if(session('success'))
+                <div class="card border-success mb-4 shadow-lg" id="successAlert">
+                    <div class="card-header bg-gradient bg-success text-white py-3 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span class="fw-bold fs-6">عملیات موفق</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" onclick="closeSuccessAlert()" aria-label="Close"></button>
+                    </div>
+                    <div class="card-body bg-light py-3">
+                        <ul class="mb-0 text-success fs-7">
+                            <li class="mb-1">
+                                <i class="fas fa-check me-2 small"></i>
+                                {{ session('success') }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            @endif
+            @if($errors->any())
+                <div class="card border-danger mb-4" id="errorAlert">
+                    <div class="card-header bg-danger text-white py-2 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            <span class="fw-bold">خطا در ارسال فرم</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" onclick="closeErrorAlert()" aria-label="Close"></button>
+                    </div>
+                    <div class="card-body text-danger py-3">
+                        <ul class="mb-0">
+                            @foreach($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
             <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
                 <div class="flex justify-between items-start mb-4">
                     <div>
@@ -63,7 +100,7 @@
                     {{ $ticket->message }}
                 </div>
             </div>
-    
+
         <!-- تاریخچه پاسخ‌ها -->
             @if ($ticket->response != NULL)
                 <div class="bg-white rounded-lg shadow-sm p-6 mb-4">
@@ -104,7 +141,7 @@
                             <div class="flex space-x-3 space-x-reverse">
                                 <button 
                                     type="submit" 
-                                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition duration-200"
+                                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-md transition duration-200"
                                 >
                                     ارسال پاسخ
                                 </button>
@@ -129,6 +166,14 @@
                                         </button>
                                     </a>
                                 @endif
+                                <a href="{{route('admin.ticket.index')}}">
+                                    <button 
+                                        type="button" 
+                                        class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition duration-200"
+                                    >
+                                        بازگشت
+                                    </button>
+                                </a>
                             </div>
                         </form>
                     </div>
@@ -155,7 +200,14 @@
                         </button>
                     </a>
                 @endif
-
+                <a href="{{route('admin.ticket.index')}}">
+                    <button 
+                        type="button" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md transition duration-200"
+                    >
+                        بازگشت
+                    </button>
+                </a>
             @endif
     </div>
     @section('js')

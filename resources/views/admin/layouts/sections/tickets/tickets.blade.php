@@ -8,14 +8,33 @@
             </div>
             
             <!-- Ticket Stats -->
+            @if(session('success'))
+                <div class="card border-success mb-4 shadow-lg" id="successAlert">
+                    <div class="card-header bg-gradient bg-success text-white py-3 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span class="fw-bold fs-6">عملیات موفق</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" onclick="closeSuccessAlert()" aria-label="Close"></button>
+                    </div>
+                    <div class="card-body bg-light py-3">
+                        <ul class="mb-0 text-success fs-7">
+                            <li class="mb-1">
+                                <i class="fas fa-check me-2 small"></i>
+                                {{ session('success') }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            @endif
             <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-                <div class="bg-red-50 rounded-lg p-6 text-center">
-                    <i class="fas fa-ticket-alt text-red-600 text-3xl mb-3"></i>
+                <div class="bg-yellow-50 rounded-lg p-6 text-center">
+                    <i class="fas fa-ticket-alt text-yellow-600 text-3xl mb-3"></i>
                     <h3 class="text-2xl font-bold text-gray-800" id="totalTickets">{{count($tickets)}}</h3>
                     <p class="text-gray-600">کل تیکت‌ها</p>
                 </div>
-                <div class="bg-yellow-50 rounded-lg p-6 text-center">
-                    <i class="fas fa-clock text-yellow-600 text-3xl mb-3"></i>
+                <div class="bg-red-50 rounded-lg p-6 text-center">
+                    <i class="fas fa-clock text-red-600 text-3xl mb-3"></i>
                     <h3 class="text-2xl font-bold text-gray-800" id="openTickets">{{$open_count}}</h3>
                     <p class="text-gray-600">باز</p>
                 </div>

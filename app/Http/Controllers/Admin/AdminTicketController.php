@@ -71,11 +71,23 @@ class AdminTicketController extends Controller
      */
     public function update(Request $request, Ticket $ticket)
     {
-        // dd(now()['']);
+        $validated = $request->validate([
+            'response' => [
+                'required',
+                'string',
+                'max:500',
+                'regex:/^[\pL\pN\pM\s\-_.,!?؛،؟()\[\]{}:؛]+$/u'
+            ]
+        ], [
+            'response.regex' => 'پاسخ به تیکت فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.',
+        ]);
         $ticket->update([
-            'response' => $request->response,
+            'response' => $validated['response'],
             'response_time' => Carbon::now()
         ]);
+        $ticket->status = 'closed';
+        $ticket->save();
+        return to_route('admin.ticket.index')->with('success','پاسخ شما به تیکت کاربر با موفقیت ثبت شد');
     }
 
     /**
@@ -89,12 +101,12 @@ class AdminTicketController extends Controller
         $ticket = Ticket::findOrFail($id);
         $ticket->status = 'in_progress';
         $ticket->save();
-        return to_route('admin.ticket.index')->with('success','تغییرات شما با موفقیت ثبت شد');
+        return back()->with('success','وضعیت تیکت با موفقیت به درحال بررسی تغییر یافت');
     }
     public function closed($id) {
         $ticket = Ticket::findOrFail($id);
         $ticket->status = 'closed';
         $ticket->save();
-        return to_route('admin.ticket.index')->with('success','تغییرات شما با موفقیت ثبت شد');
+        return to_route('admin.ticket.index')->with('success','تیکت با موفقیت بسته شد');
     }
 }
