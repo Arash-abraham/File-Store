@@ -80,191 +80,38 @@
                 
                 <div id="productsGrid" class=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
-                        <div class="relative overflow-hidden">
-                            <img src="https://images.pexels.com/photos/4348401/pexels-photo-4348401.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=400" alt="Adobe Photoshop 2024" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
-                            
-                    <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                        17% تخفیف
-                    </span>
-                
-                        </div>
-                        
-                        <div class="p-6">
-                            <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2">Adobe Photoshop 2024</h3>
-                            
-                            <div class="flex items-center mb-3">
-                                <span class="text-gray-500 text-sm mr-2">(126)</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between mb-4">
-                                <div>
-                                    <span class="text-xl font-bold text-green-600">۲٬۵۰۰٬۰۰۰ تومان</span>
+                        @foreach ($products as $product)
+                            <div class="relative overflow-hidden">
+                                <a href="">
+                                    <img src="{{$product->image_urls[0]}}">
+                                </a>
+                                <div class="p-6">
+                                    <a href="">
+                                        <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2">{{ $product->title }}</h3>    
+                                    </a>                                    
+                                    <div class="flex items-center mb-3">
+                                        <span class="text-gray-500 text-sm mr-2">{{$product->category->name}}</span>
+                                    </div>
                                     
-                    <span class="text-sm text-gray-500 line-through">۳٬۰۰۰٬۰۰۰ تومان</span>
-                
+                                    <div class="flex items-center justify-between mb-4">
+                                        <div>
+                                            <span class="text-xl font-bold text-green-600">{{$product->original_price}} تومان</span>                        
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="flex gap-2 mb-4">
+                                        <button onclick="addToCart(1)" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                            <i class="fas fa-shopping-cart ml-1"></i>
+                                            افزودن به سبد
+                                        </button>
+                                        <button onclick="viewProduct(1)" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div class="flex gap-2 mb-4">
-                                <button onclick="addToCart(1)" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                    <i class="fas fa-shopping-cart ml-1"></i>
-                                    افزودن به سبد
-                                </button>
-                                <button onclick="viewProduct(1)" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
-                        <div class="relative overflow-hidden">
-                            <img src="https://images.pexels.com/photos/4348401/pexels-photo-4348401.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=400" alt="Adobe Photoshop 2024" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
-                            
-                    <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                        17% تخفیف
-                    </span>
-                
-                        </div>
-                        
-                        <div class="p-6">
-                            <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2">Adobe Photoshop 2024</h3>
-                            
-                            <div class="flex items-center mb-3">
-                                <span class="text-gray-500 text-sm mr-2">(126)</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between mb-4">
-                                <div>
-                                    <span class="text-xl font-bold text-green-600">۲٬۵۰۰٬۰۰۰ تومان</span>
-                                    
-                    <span class="text-sm text-gray-500 line-through">۳٬۰۰۰٬۰۰۰ تومان</span>
-                
-                                </div>
-                            </div>
-                            
-                            <div class="flex gap-2 mb-4">
-                                <button onclick="addToCart(1)" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                    <i class="fas fa-shopping-cart ml-1"></i>
-                                    افزودن به سبد
-                                </button>
-                                <button onclick="viewProduct(1)" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
-                        <div class="relative overflow-hidden">
-                            <img src="https://images.pexels.com/photos/4348401/pexels-photo-4348401.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=400" alt="Adobe Photoshop 2024" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
-                            
-                    <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                        17% تخفیف
-                    </span>
-                
-                        </div>
-                        
-                        <div class="p-6">
-                            <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2">Adobe Photoshop 2024</h3>
-                            
-                            <div class="flex items-center mb-3">
-                                <span class="text-gray-500 text-sm mr-2">(126)</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between mb-4">
-                                <div>
-                                    <span class="text-xl font-bold text-green-600">۲٬۵۰۰٬۰۰۰ تومان</span>
-                                    
-                    <span class="text-sm text-gray-500 line-through">۳٬۰۰۰٬۰۰۰ تومان</span>
-                
-                                </div>
-                            </div>
-                            
-                            <div class="flex gap-2 mb-4">
-                                <button onclick="addToCart(1)" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                    <i class="fas fa-shopping-cart ml-1"></i>
-                                    افزودن به سبد
-                                </button>
-                                <button onclick="viewProduct(1)" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
-                        <div class="relative overflow-hidden">
-                            <img src="https://images.pexels.com/photos/4348401/pexels-photo-4348401.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=400" alt="Adobe Photoshop 2024" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
-                            
-                    <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                        17% تخفیف
-                    </span>
-                
-                        </div>
-                        
-                        <div class="p-6">
-                            <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2">Adobe Photoshop 2024</h3>
-                            
-                            <div class="flex items-center mb-3">
-                                <span class="text-gray-500 text-sm mr-2">(126)</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between mb-4">
-                                <div>
-                                    <span class="text-xl font-bold text-green-600">۲٬۵۰۰٬۰۰۰ تومان</span>
-                                    
-                    <span class="text-sm text-gray-500 line-through">۳٬۰۰۰٬۰۰۰ تومان</span>
-                
-                                </div>
-                            </div>
-                            
-                            <div class="flex gap-2 mb-4">
-                                <button onclick="addToCart(1)" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                    <i class="fas fa-shopping-cart ml-1"></i>
-                                    افزودن به سبد
-                                </button>
-                                <button onclick="viewProduct(1)" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
-                        <div class="relative overflow-hidden">
-                            <img src="https://images.pexels.com/photos/4348401/pexels-photo-4348401.jpeg?auto=compress&amp;cs=tinysrgb&amp;w=400" alt="Adobe Photoshop 2024" class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
-                            
-                    <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-                        17% تخفیف
-                    </span>
-                
-                        </div>
-                        
-                        <div class="p-6">
-                            <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2">Adobe Photoshop 2024</h3>
-                            
-                            <div class="flex items-center mb-3">
-                                <span class="text-gray-500 text-sm mr-2">(126)</span>
-                            </div>
-                            
-                            <div class="flex items-center justify-between mb-4">
-                                <div>
-                                    <span class="text-xl font-bold text-green-600">۲٬۵۰۰٬۰۰۰ تومان</span>
-                                    
-                    <span class="text-sm text-gray-500 line-through">۳٬۰۰۰٬۰۰۰ تومان</span>
-                
-                                </div>
-                            </div>
-                            
-                            <div class="flex gap-2 mb-4">
-                                <button onclick="addToCart(1)" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                    <i class="fas fa-shopping-cart ml-1"></i>
-                                    افزودن به سبد
-                                </button>
-                                <button onclick="viewProduct(1)" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
                 </div>
             </div>
         </section>
@@ -273,30 +120,14 @@
         <section class="py-16 bg-gray-50">
             <div class="container mx-auto px-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 transform group">
-                        <i class="fas fa-laptop-code text-5xl mb-4 group-hover:text-blue-100 transition-colors duration-300"></i>
-                        <h3 class="text-xl font-bold mb-2 group-hover:text-white">دسته بندی ها</h3>
-                        <p class="opacity-90 group-hover:opacity-100 transition-opacity duration-300">انواع دسته بندی‌های کاربردی</p>
-                        <button class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-200">مشاهده</button>
-                    </div>
-                    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
-                        <i class="fas fa-play-circle text-5xl mb-4 group-hover:text-green-100 transition-colors duration-300"></i>
-                        <h3 class="text-xl font-bold mb-2 group-hover:text-white">دوره‌های آموزشی</h3>
-                        <p class="opacity-90 group-hover:opacity-100 transition-opacity duration-300">آموزش‌های تخصصی</p>
-                        <button class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-200">مشاهده</button>
-                    </div>
-                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
-                        <i class="fas fa-book text-5xl mb-4 group-hover:text-purple-100 transition-colors duration-300"></i>
-                        <h3 class="text-xl font-bold mb-2 group-hover:text-white">کتاب‌های الکترونیکی</h3>
-                        <p class="opacity-90 group-hover:opacity-100 transition-opacity duration-300">کتاب‌های PDF و EPUB</p>
-                        <button class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-200">مشاهده</button>
-                    </div>
-                    <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
-                        <i class="fas fa-palette text-5xl mb-4 group-hover:text-orange-100 transition-colors duration-300"></i>
-                        <h3 class="text-xl font-bold mb-2 group-hover:text-white">قالب‌ها</h3>
-                        <p class="opacity-90 group-hover:opacity-100 transition-opacity duration-300">قالب‌های وب و گرافیک</p>
-                        <button class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-200">مشاهده</button>
-                    </div>
+                    @foreach ($categories as $category)
+                        <div class="bg-gradient-to-br from-{{$category->color}}-500 to-{{$category->color}}-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
+                            <i class="fas {{$category->icon}} text-5xl mb-4 group-hover:text-{{$category->color}}-100 transition-colors duration-300"></i>
+                            <h3 class="text-xl font-bold mb-2 group-hover:text-white">دوره‌های آموزشی</h3>
+                            <p class="opacity-90 group-hover:opacity-100 transition-opacity duration-300">آموزش‌های تخصصی</p>
+                            <button class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-200">مشاهده</button>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </section>
