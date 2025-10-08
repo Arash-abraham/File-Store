@@ -63,33 +63,56 @@
                         </tr>
                     </thead>
                     <tbody id="productsTableBody">
-                        <tr class="border-b hover:bg-gray-50">
-                            <td class="p-4">1</td>
+                        @foreach ($products as $product)
+                            <tr class="border-b hover:bg-gray-50">
+                                <td class="p-4">{{$product->id}}</td>
 
-                            <td class="p-4">
-                                <img src="https://images.pexels.com/photos/4348401/pexels-photo-4348401.jpeg?auto=compress&cs=tinysrgb&w=100" 
-                                    class="w-16 h-16 rounded-lg object-cover">
-                            </td>
-                            <td class="p-4 font-semibold">Adobe Photoshop 2024</td>
-                            <td class="p-4">نرم‌افزار</td>
-                            <td class="p-4">2,500,000 تومان</td>
-                            <td class="p-4">
-                                <span class="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full">فعال</span>
-                            </td>
-                            <td class="p-4">
-                                <span class="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">در دسترس</span>
-                            </td>
-                            <td class="p-4">
-                                <div class="flex gap-2">
-                                    <button class="text-blue-600 hover:text-blue-800" onclick="editProduct(1)">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="text-red-600 hover:text-red-800" onclick="deleteProduct(1)">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                                <td class="p-4">
+                                    <img src="{{asset($product->image_urls[0])}}" 
+                                        class="w-16 h-16 rounded-lg object-cover">
+                                </td>
+                                <td class="p-4 font-semibold">{{$product->title}}</td>
+                                <td class="p-4">{{$product->category->name}}</td>
+                                <td class="p-4">{{$product->original_price}} تومان</td>
+                                @if ($product->status == 'active')
+                                    <td class="p-4">
+                                        <span class="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full">فعال</span>
+                                    </td>
+                                @elseif($product->status == 'inactive')
+                                    <td class="p-4">
+                                        <span class="bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full">
+                                            پیشنویس 
+                                        </span>
+                                    </td>
+                                @else 
+                                    <td class="p-4">
+                                        <span class="bg-red-100 text-red-800 text-sm px-3 py-1 rounded-full">
+                                            غیرفعال
+                                        </span>
+                                    </td>
+                                @endif
+                                @if ($product->availability)
+                                    <td class="p-4">
+                                        <span class="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">دردسترس</span>
+                                    </td>
+                                @else
+                                    <td class="p-4">
+                                        <span class="bg-red-100 text-red-800 text-sm px-3 py-1 rounded-full">ناموجود</span>
+                                    </td>
+                                @endif
+
+                                <td class="p-4">
+                                    <div class="flex gap-2">
+                                        <button class="text-blue-600 hover:text-blue-800" onclick="editProduct(1)">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-800" onclick="deleteProduct(1)">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
