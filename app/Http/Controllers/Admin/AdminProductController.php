@@ -41,14 +41,26 @@ class AdminProductController extends Controller
     {
         // اعتبارسنجی ورودی‌ها
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => [
+                'required',
+                'string',
+                'max:255',
+                'regex:/^[\pL\pN\pM\s\-_.,!?؛،؟()\[\]{}:؛]+$/u'
+            ],
             'category' => 'required|exists:categories,id',
             'originalPrice' => 'required|numeric|min:0',
             'status' => 'required|in:active,inactive,draft',
             'availability' => 'required|in:true,false',
-            'description' => 'nullable|string',
+            'description' => [
+                'required',
+                'string',
+                'regex:/^[\pL\pN\pM\s\-_.,!?؛،؟()\[\]{}:؛]+$/u'
+            ],
             'tag' => 'required|exists:tags,id',
             'productImages.*' => 'nullable|string',
+        ],[
+            'title.regex' => 'تایتل فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.',
+            'description.regex' => 'پاسخ فقط می‌تواند شامل حروف، اعداد و کاراکترهای مجاز باشد.'
         ]);
     
         $directory = public_path('products');
@@ -122,8 +134,9 @@ class AdminProductController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Product $product)
     {
-        //
+        $product->delete();
+        return redirect()->route('admin.product.index')->with('success', 'با موفقیقت حذف شد');
     }
 }

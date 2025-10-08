@@ -338,4 +338,7 @@
             }
         }
     </script>
+    @section('js')
+        <script src="{{asset('js/admin/category.js')}}"></script>
+    @endsection
 @endsection

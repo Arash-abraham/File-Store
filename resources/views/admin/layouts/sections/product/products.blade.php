@@ -13,6 +13,25 @@
             </div>
             
         <!-- Search and Filter Form -->
+        @if(session('success'))
+            <div class="card border-success mb-4 shadow-lg" id="successAlert">
+                <div class="card-header bg-gradient bg-success text-white py-3 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <span class="fw-bold fs-6">عملیات موفق</span>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" onclick="closeSuccessAlert()" aria-label="Close"></button>
+                </div>
+                <div class="card-body bg-light py-3">
+                    <ul class="mb-0 text-success fs-7">
+                        <li class="mb-1">
+                            <i class="fas fa-check me-2 small"></i>
+                            {{ session('success') }}
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        @endif
         <form action="" method="GET" class="flex flex-col md:flex-row gap-4 mb-6">
             <!-- Search Input -->
             <div class="flex-1 relative">
@@ -47,6 +66,7 @@
                 </button>
             </div>
         </form>
+
             <!-- Products Table -->
             <div class="overflow-x-auto">
                 <table class="w-full table-auto">
@@ -66,7 +86,7 @@
                         @foreach ($products as $product)
                             <tr class="border-b hover:bg-gray-50">
                                 <td class="p-4">{{$product->id}}</td>
-
+                                
                                 <td class="p-4">
                                     <img src="{{asset($product->image_urls[0])}}" 
                                         class="w-16 h-16 rounded-lg object-cover">
@@ -106,9 +126,13 @@
                                         <button class="text-blue-600 hover:text-blue-800" onclick="editProduct(1)">
                                             <i class="fas fa-edit"></i>
                                         </button>
-                                        <button class="text-red-600 hover:text-red-800" onclick="deleteProduct(1)">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
+                                        <form action="{{ route('admin.product.destroy', $product->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button class="text-red-600 hover:text-red-800" title="حذف">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>    
                                     </div>
                                 </td>
                             </tr>
@@ -119,5 +143,7 @@
             
         </div>
     </div>
-
+    @section('js')
+        <script src="{{asset('js/admin/category.js')}}"></script>
+    @endsection
 @endsection
