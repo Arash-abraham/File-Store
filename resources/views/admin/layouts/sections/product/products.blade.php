@@ -12,60 +12,59 @@
                 </a>
             </div>
             
-        <!-- Search and Filter Form -->
-        @if(session('success'))
-            <div class="card border-success mb-4 shadow-lg" id="successAlert">
-                <div class="card-header bg-gradient bg-success text-white py-3 d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-check-circle me-2"></i>
-                        <span class="fw-bold fs-6">عملیات موفق</span>
+            <!-- Success Alert -->
+            @if(session('success'))
+                <div class="card border-success mb-4 shadow-lg" id="successAlert">
+                    <div class="card-header bg-gradient bg-success text-white py-3 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span class="fw-bold fs-6">عملیات موفق</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" onclick="closeSuccessAlert()" aria-label="Close"></button>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" onclick="closeSuccessAlert()" aria-label="Close"></button>
+                    <div class="card-body bg-light py-3">
+                        <ul class="mb-0 text-success fs-7">
+                            <li class="mb-1">
+                                <i class="fas fa-check me-2 small"></i>
+                                {{ session('success') }}
+                            </li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="card-body bg-light py-3">
-                    <ul class="mb-0 text-success fs-7">
-                        <li class="mb-1">
-                            <i class="fas fa-check me-2 small"></i>
-                            {{ session('success') }}
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        @endif
-        <form action="" method="GET" class="flex flex-col md:flex-row gap-4 mb-6">
-            <!-- Search Input -->
-            <div class="flex-1 relative">
-                <input type="text" name="search" id="productSearch" placeholder="جستجوی محصولات..." 
-                       class="w-full px-4 py-3 pl-12 pr-4 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-right bg-white">
-                
-                <!-- Search Icon on left side -->
-                <div class="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"></path>
-                    </svg>
-                </div>
-            </div>
-            <!-- Category Filter -->
-            <div class="w-full md:w-1/4">
-                <select name="category_id" id="categoryFilter" 
-                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <option value="">همه دسته‌بندی‌ها</option>
-                    @foreach ($categories as $category)
-                        <option value="{{ $category->id }}">
-                            {{ $category->name }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+            @endif
 
-            <!-- Submit Button -->
-            <div class="w-full md:w-auto">
-                <button type="submit" 
-                        class="w-full md:w-auto px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
-                    فیلتر
-                </button>
-            </div>
-        </form>
+            <!-- Search and Filter Form -->
+            <form action="" method="GET" class="flex flex-col md:flex-row gap-4 mb-6">
+                <!-- Search Input -->
+                <div class="flex-1 relative">
+                    <input type="text" name="search" id="productSearch" placeholder="جستجوی محصولات..." 
+                           class="w-full px-4 py-3 pl-12 pr-4 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-right bg-white">
+                    <div class="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <!-- Category Filter -->
+                <div class="w-full md:w-1/4">
+                    <select name="category_id" id="categoryFilter" 
+                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">همه دسته‌بندی‌ها</option>
+                        @foreach ($categories as $category)
+                            <option value="{{ $category->id }}">
+                                {{ $category->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
+                <!-- Submit Button -->
+                <div class="w-full md:w-auto">
+                    <button type="submit" 
+                            class="w-full md:w-auto px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
+                        فیلتر
+                    </button>
+                </div>
+            </form>
 
             <!-- Products Table -->
             <div class="overflow-x-auto">
@@ -83,32 +82,32 @@
                         </tr>
                     </thead>
                     <tbody id="productsTableBody">
-                        @foreach ($products as $product)
+                        @forelse ($products as $product)
                             <tr class="border-b hover:bg-gray-50">
-                                <td class="p-4">{{$product->id}}</td>
-                                
+                                <td class="p-4">{{ $product->id }}</td>
                                 <td class="p-4">
-                                    <img src="{{asset($product->image_urls[0])}}" 
-                                        class="w-16 h-16 rounded-lg object-cover">
+                                    @if ($product->image_urls && count($product->image_urls) > 0)
+                                        <img src="{{ asset($product->image_urls[0]) }}" 
+                                             class="w-16 h-16 rounded-lg object-cover" 
+                                             alt="تصویر محصول {{ $product->title }}">
+                                    @else
+                                        <span class="text-gray-500">بدون تصویر</span>
+                                    @endif
                                 </td>
-                                <td class="p-4 font-semibold">{{$product->title}}</td>
-                                <td class="p-4">{{$product->category->name}}</td>
-                                <td class="p-4">{{$product->original_price}} تومان</td>
+                                <td class="p-4 font-semibold">{{ $product->title }}</td>
+                                <td class="p-4">{{ $product->category->name }}</td>
+                                <td class="p-4">{{ number_format($product->original_price) }} تومان</td>
                                 @if ($product->status == 'active')
                                     <td class="p-4">
                                         <span class="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full">فعال</span>
                                     </td>
                                 @elseif($product->status == 'inactive')
                                     <td class="p-4">
-                                        <span class="bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full">
-                                            پیشنویس 
-                                        </span>
+                                        <span class="bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full">پیش‌نویس</span>
                                     </td>
-                                @else 
+                                @else
                                     <td class="p-4">
-                                        <span class="bg-red-100 text-red-800 text-sm px-3 py-1 rounded-full">
-                                            غیرفعال
-                                        </span>
+                                        <span class="bg-red-100 text-red-800 text-sm px-3 py-1 rounded-full">غیرفعال</span>
                                     </td>
                                 @endif
                                 @if ($product->availability)
@@ -120,30 +119,40 @@
                                         <span class="bg-red-100 text-red-800 text-sm px-3 py-1 rounded-full">ناموجود</span>
                                     </td>
                                 @endif
-
                                 <td class="p-4">
                                     <div class="flex gap-2">
-                                        <button class="text-blue-600 hover:text-blue-800" onclick="editProduct(1)">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
+                                        <a href="{{ route('admin.product.edit', $product->id) }}">
+                                            <button class="text-blue-600 hover:text-blue-800">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </a>
                                         <form action="{{ route('admin.product.destroy', $product->id) }}" method="POST" class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button class="text-red-600 hover:text-red-800" title="حذف">
+                                            <button type="submit" class="text-red-600 hover:text-red-800" 
+                                                    onclick="return confirm('آیا مطمئن هستید؟')">
                                                 <i class="fas fa-trash"></i>
                                             </button>
-                                        </form>    
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="8" class="p-4 text-center text-gray-500">محصولی یافت نشد.</td>
+                            </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
-            
         </div>
     </div>
+
     @section('js')
-        <script src="{{asset('js/admin/category.js')}}"></script>
+        <script>
+            function closeSuccessAlert() {
+                document.getElementById('successAlert').style.display = 'none';
+            }
+        </script>
     @endsection
 @endsection
