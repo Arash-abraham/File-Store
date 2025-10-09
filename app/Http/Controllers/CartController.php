@@ -2,119 +2,130 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\CartService;
+use App\Models\Cart;
+use App\Models\CartItem;
+use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class CartController extends Controller
 {
-    public function __construct(private CartService $cartService) {
-    }   
-    /**
-    * نمایش سبد خرید کاربر
-    */
-    public function show(Request $request): JsonResponse
+    public function addToCart(Request $request)
     {
-        $user = $request->user(); // از auth:sanctum برای گرفتن کاربر
-        $cart = $this->cartService->getCart($user?->id, $request->header('session-token')); // session token از header  
-        if (!$cart) {
-            return response()->json([
-            'success' => true,
-            'data' => ['items' => [], 'total' => 0, 'items_count' => 0]
-            ]);
-        }   
-        $cart->load('items.product');   
-        return response()->json([
-            'success' => true,
-            'data' => [
-            'id' => $cart->id,
-            'items' => $cart->items,
-            'total' => $cart->total,
-            'items_count' => $cart->items_count
-            ]
-        ]);
-    }   
-    /**
-    * اضافه کردن محصول به سبد خرید
-    */
-    public function store(Request $request): JsonResponse {
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'quantity' => 'sometimes|integer|min:1',
-        ]); 
+        ]);
+
         try {
-            $cartItem = $this->cartService->addToCart([
-                'user_id' => $request->user()?->id,
-                'session_token' => $request->header('session-token'),
-                'product_id' => $request->product_id,
-                'quantity' => $request->quantity ?? 1
-            ]); 
-            return response()->json([
-                'success' => true,
-                'message' => 'محصول به سبد خرید اضافه شد',
-                'data' => $cartItem->load('product')
-            ], 201);
-        } 
-        catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'خطا در افزودن به سبد خرید: ' . $e->getMessage()
-            ], 500);
+            $product = Product::findOrFail($request->product_id);
+            $sessionToken = session()->getId();
+            $cart = $this->findOrCreateCart($sessionToken);
+
+            DB::transaction(function () use ($cart, $product) {
+                $existingItem = $cart->items()->where('product_id', $product->id)->first();
+
+                if ($existingItem) {
+                    $existingItem->increment('quantity');
+                    $existingItem->update(['subtotal' => $existingItem->unit_price * $existingItem->quantity]);
+                } else {
+                    CartItem::create([
+                        'cart_id' => $cart->id,
+                        'product_id' => $product->id,
+                        'quantity' => 1,
+                        'unit_price' => $product->original_price,
+                        'subtotal' => $product->original_price
+                    ]);
+                }
+            });
+
+            return back()->with('success', 'محصول به سبد خرید اضافه شد');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'خطا در افزودن به سبد خرید');
         }
-    }   
-    /**
-    * به‌روزرسانی تعداد محصول
-    */
-    public function update(Request $request, int $cartItemId): JsonResponse {
+    }
+
+    public function updateCart(Request $request, $cartItemId)
+    {
         $request->validate([
             'quantity' => 'required|integer|min:1'
-        ]); 
+        ]);
+
         try {
-            $cartItem = $this->cartService->updateQuantity($cartItemId, $request->quantity);    
-            return response()->json([
-                'success' => true,
-                'message' => 'تعداد محصول به‌روزرسانی شد',
-                'data' => $cartItem
+            $cartItem = CartItem::findOrFail($cartItemId);
+
+            $cartItem->update([
+                'quantity' => $request->quantity,
+                'subtotal' => $cartItem->unit_price * $request->quantity
+            ]);
+
+            return back()->with('success', 'تعداد محصول بروزرسانی شد');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'خطا در بروزرسانی سبد خرید');
+        }
+    }
+
+    public function removeFromCart($cartItemId)
+    {
+        try {
+            CartItem::where('id', $cartItemId)->delete();
+            return back()->with('success', 'محصول از سبد خرید حذف شد');
+        } catch (\Exception $e) {
+            return back()->with('error', 'خطا در حذف محصول');
+        }
+    }
+
+    public function showCart()
+    {
+        $sessionToken = session()->getId();
+        $cart = Cart::where('session_token', $sessionToken)
+            ->where('status', 'active')
+            ->first();
+
+        $cartItems = collect();
+        $total = 0;
+
+        if ($cart) {
+            $cartItems = $cart->items()->with('product')->get();
+            $total = $cartItems->sum('subtotal');
+        }
+
+        return view('cart.show', [
+            'cartItems' => $cartItems,
+            'total' => $total
+        ]);
+    }
+
+    public function clearCart()
+    {
+        try {
+            $sessionToken = session()->getId();
+            $cart = Cart::where('session_token', $sessionToken)->first();
+            
+            if ($cart) {
+                $cart->items()->delete();
+            }
+            
+            return back()->with('success', 'سبد خرید خالی شد');
+        } catch (\Exception $e) {
+            return back()->with('error', 'خطا در خالی کردن سبد خرید');
+        }
+    }
+
+    private function findOrCreateCart($sessionToken): Cart
+    {
+        $cart = Cart::where('session_token', $sessionToken)
+            ->where('status', 'active')
+            ->first();
+
+        if (!$cart) {
+            $cart = Cart::create([
+                'session_token' => $sessionToken,
+                'status' => 'active'
             ]);
         }
-        catch (\Exception $e) {
-            return response()->json([
-            'success' => false,
-            'message' => $e->getMessage()
-            ], 400);
-        }
-    }   
-    /**
-    * حذف محصول از سبد خرید
-    */
-    public function destroy(int $cartItemId): JsonResponse {
-    try {
-        $deleted = $this->cartService->removeFromCart($cartItemId); 
-        return response()->json([
-            'success' => true,
-            'message' => 'محصول از سبد خرید حذف شد',
-            'data' => ['deleted' => $deleted]
-        ]); 
-    }
-    catch (\Exception $e) {
-        return response()->json([
-            'success' => false,
-            'message' => 'خطا در حذف محصول: ' . $e->getMessage()
-        ], 500);
-    }
-    }   
-    /**
-    * خالی کردن سبد خرید
-    */
-    public function clear(Request $request): JsonResponse {
-        $user = $request->user();
-        $cart = $this->cartService->getCart($user?->id, $request->header('session-token')); 
-        if ($cart) {
-            $this->cartService->clearCart($cart);
-        }   
-        return response()->json([
-            'success' => true,
-            'message' => 'سبد خرید خالی شد'
-        ]);
+
+        return $cart;
     }
 }

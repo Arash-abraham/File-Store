@@ -2,31 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cart;
+use App\Models\CartItem;
 use App\Models\Order;
-use App\Services\CartService;
-use App\Services\PaymentService;
+use App\Models\OrderItem;
 use App\Models\Payment;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CheckoutController extends Controller
 {
-    public function __construct(
-        private CartService $cartService,
-        private PaymentService $paymentService
-    ) {}
-
     public function checkout(Request $request): JsonResponse
     {
         $request->validate([
-            'session_token' => 'sometimes|string',
-            'coupon_code' => 'sometimes|string',
+            'session_token' => 'required|string',
             'payment_gateway' => 'sometimes|string|in:zarinpal',
         ]);
 
-        $user = $request->user();
-        $cart = $this->cartService->getCart($user?->id, $request->header('session-token'));
+        $sessionToken = $request->session_token;
+        $cart = $this->getCart(null, $sessionToken);
 
         if (!$cart || $cart->items->isEmpty()) {
             return response()->json([
@@ -36,22 +32,23 @@ class CheckoutController extends Controller
         }
 
         try {
-            $order = $this->cartService->convertToOrder($cart, [
+            $order = $this->convertToOrder($cart, [
                 'payment_gateway' => $request->payment_gateway ?? 'zarinpal',
             ]);
 
-            $paymentData = $this->paymentService->createPaymentRequest($order);
-
-            if (!$paymentData['success']) {
-                throw new \Exception($paymentData['message']);
-            }
+            // شبیه‌سازی درگاه پرداخت
+            $authority = 'test_auth_' . time();
+            $order->update(['reference' => $authority]);
+            
+            $paymentUrl = "https://sandbox.zarinpal.com/pg/StartPay/{$authority}";
 
             return response()->json([
                 'success' => true,
                 'message' => 'سفارش با موفقیت ایجاد شد',
                 'data' => [
                     'order_id' => $order->id,
-                    'payment_url' => $paymentData['payment_url'],
+                    'payment_url' => $paymentUrl,
+                    'authority' => $authority
                 ]
             ], 201);
 
@@ -73,33 +70,34 @@ class CheckoutController extends Controller
 
         try {
             $order = Order::findOrFail($request->order_id);
-            $verification = $this->paymentService->verifyPayment($order, $request->authority, $request->status);
-
-            if ($verification['success']) {
-                $order->markAsPaid('zarinpal', $request->authority);
-
-                Payment::create([
-                    'order_id' => $order->id,
-                    'user_id' => $order->user_id,
-                    'gateway' => 'zarinpal',
-                    'gateway_name' => 'zarinpal',
-                    'amount' => $order->final_amount * 10,
-                    'status' => 'completed',
-                    'transaction_id' => $request->authority,
-                    'external_ref' => $verification['ref_id'],
-                ]);
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'پرداخت با موفقیت تأیید شد',
-                    'data' => $order->fresh()
-                ]);
+            
+            if ($request->status !== 'OK' || $order->reference !== $request->authority) {
+                throw new \Exception('شناسه تراکنش نامعتبر');
             }
 
+            // شبیه‌سازی پرداخت موفق
+            $refId = 'test_ref_' . time();
+            
+            $order->update([
+                'status' => 'paid',
+                'transaction_id' => $refId,
+                'paid_at' => now()
+            ]);
+
+            Payment::create([
+                'order_id' => $order->id,
+                'user_id' => $order->user_id,
+                'gateway' => 'zarinpal',
+                'amount' => $order->final_amount * 10,
+                'status' => 'completed',
+                'transaction_id' => $refId,
+            ]);
+
             return response()->json([
-                'success' => false,
-                'message' => 'پرداخت ناموفق بود: ' . ($verification['message'] ?? '')
-            ], 400);
+                'success' => true,
+                'message' => 'پرداخت با موفقیت تأیید شد',
+                'data' => $order->fresh()
+            ]);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -109,22 +107,44 @@ class CheckoutController extends Controller
         }
     }
 
-    public function showCart(Request $request)
+    // ========== متدهای مستقیم دیتابیس ==========
+
+    private function getCart(?int $userId = null, ?string $sessionToken = null): ?Cart
     {
-        $user = $request->user();
-        $cart = $this->cartService->getCart($user?->id, $request->header('session-token'));
-
-        if (!$cart) {
-            return view('cart.checkout', ['cartItems' => collect(), 'total' => 0, 'discount' => 0]);
+        if ($sessionToken) {
+            return Cart::where('session_token', $sessionToken)
+                ->where('status', 'active')
+                ->first();
         }
+        return null;
+    }
 
-        $total = $cart->total;
-        $discount = 0; // می‌تونی بعداً از کوپن واقعی استفاده کنی
+    private function convertToOrder(Cart $cart, array $orderData = []): Order
+    {
+        return DB::transaction(function () use ($cart, $orderData) {
+            // محاسبه مجموع
+            $total = $cart->items->sum('subtotal');
+            
+            $order = Order::create(array_merge([
+                'user_id' => $cart->user_id,
+                'total_amount' => $total,
+                'status' => 'pending',
+            ], $orderData));
 
-        return view('cart.checkout', [
-            'cartItems' => $cart->items,
-            'total' => $total,
-            'discount' => $discount
-        ]);
+            foreach ($cart->items as $cartItem) {
+                OrderItem::create([
+                    'order_id' => $order->id,
+                    'product_id' => $cartItem->product_id,
+                    'product_title' => $cartItem->product->title,
+                    'unit_price' => $cartItem->unit_price,
+                    'quantity' => $cartItem->quantity,
+                    'subtotal' => $cartItem->subtotal
+                ]);
+            }
+
+            $cart->update(['status' => 'converted']);
+
+            return $order;
+        });
     }
 }

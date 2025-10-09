@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\OtpLoginController;
 use App\Http\Controllers\Auth\SmsLoginController;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Middleware\AdminMiddleware;
@@ -20,7 +21,19 @@ Route::get('/category', [HomeController::class, 'category'])->name('category');
 Route::get('/product', [HomeController::class, 'products'])->name('products');
 Route::get('/faq', [HomeController::class, 'faq'])->name('faq');
 Route::get('/show-product/{id}/product', [HomeController::class, 'showProduct'])->name('show-product');
-Route::get('/cart/checkout', [CheckoutController::class, 'showCart'])->name('cart.checkout');
+
+Route::prefix('cart')->group(function () {
+    Route::get('/', [CartController::class, 'showCart'])->name('cart.show');
+    Route::post('/add', [CartController::class, 'addToCart'])->name('cart.add');
+    Route::post('/update/{cartItemId}', [CartController::class, 'updateCart'])->name('cart.update');
+    Route::delete('/remove/{cartItemId}', [CartController::class, 'removeFromCart'])->name('cart.remove');
+    Route::post('/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+});
+
+Route::prefix('checkout')->group(function () {
+    Route::get('/', [CheckoutController::class, 'showCheckout'])->name('checkout.show');
+    Route::post('/process', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
+});
 
 Route::get('/dashboard', function () {
     return view('dashboard');

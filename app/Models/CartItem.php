@@ -18,11 +18,6 @@ class CartItem extends Model
         'subtotal'
     ];
 
-    protected $casts = [
-        'unit_price' => 'integer',
-        'subtotal' => 'integer'
-    ];
-
     public function cart(): BelongsTo
     {
         return $this->belongsTo(Cart::class);
@@ -31,25 +26,5 @@ class CartItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
-    }
-
-    public function updateSubtotal(): void
-    {
-        $this->subtotal = $this->unit_price * $this->quantity;
-    }
-
-    public function incrementQuantity(int $quantity = 1): void
-    {
-        $this->quantity += $quantity;
-        $this->updateSubtotal();
-        $this->save();
-    }
-
-    public function updateUnitPriceFromProduct(): void
-    {
-        if ($this->product) {
-            $this->unit_price = $this->product->price; 
-            $this->updateSubtotal();
-        }
     }
 }

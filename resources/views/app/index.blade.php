@@ -16,7 +16,17 @@
                 </button>
             </div>
             <div id="cart-content" class="max-h-64 overflow-y-auto mb-4">
-                <!-- محتوای سبد خرید اینجا رندر می‌شود -->
+                <div class="flex items-center">
+                    <img src="${item.image}" alt="${item.title}" class="w-12 h-12 object-cover rounded mr-2">
+                    <div>
+                        <h3 class="text-sm font-semibold">${item.title}</h3>
+                        <p class="text-xs text-gray-400">${formatPrice(item.price)} تومان</p>
+                    </div>
+                    <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+                <button id="checkout" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md">تسویه حساب</button>
             </div>
             <div id="cart-actions" class="mt-4"></div>
         </div>
@@ -101,10 +111,15 @@
                                     </div>
                                     
                                     <div class="flex gap-2">
-                                        <button onclick="addToCart({{ $product->id }})" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                            <i class="fas fa-shopping-cart ml-1"></i>
-                                            افزودن به سبد
-                                        </button>
+                                        <form action="{{ route('cart.add') }}" method="POST" class="flex-1">
+                                            @csrf
+                                            <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                            <button type="submit" 
+                                                    class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                                                <i class="fas fa-shopping-cart"></i>
+                                                افزودن به سبد
+                                            </button>
+                                        </form>
                                         <a href="{{ route('show-product', $product->id) }}">
                                             <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                                                 <i class="fas fa-eye"></i>
@@ -164,308 +179,41 @@
 @endsection
 
 @section('scripts')
-    <script>
-        // متغیرهای اولیه
-        let cart = JSON.parse(localStorage.getItem('cart')) || [];
-        const cartContent = document.getElementById('cart-content');
-        const cartActions = document.getElementById('cart-actions');
-        const cartToggle = document.getElementById('cartToggle');
-        const cartModal = document.getElementById('cart-modal');
-        const blurOverlay = document.getElementById('blur-overlay');
-        const closeCart = document.getElementById('close-cart');
-
-        // فرمت قیمت
-        function formatPrice(price) {
-            return Number(price).toLocaleString('fa-IR');
-        }
-
-        // به‌روزرسانی تعداد سبد
-        function updateCartCount() {
-            const cartCount = document.getElementById('cartCount');
-            if (cartCount) {
-                const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-                cartCount.textContent = totalItems;
-                cartCount.style.display = totalItems > 0 ? 'flex' : 'none';
-            }
-        }
-
-        // رندر سبد خرید
-        function renderCart() {
-            if (!cartContent) return;
-
-            cartContent.innerHTML = '';
-            if (cart.length === 0) {
-                cartContent.innerHTML = '<p class="text-center text-gray-400">سبد خرید خالی است</p>';
-                if (cartActions) cartActions.innerHTML = '';
-            } else {
-                let total = 0;
-                cart.forEach(item => {
-                    total += item.price * item.quantity;
-                    const cartItem = document.createElement('div');
-                    cartItem.className = 'flex items-center justify-between py-2 border-b border-gray-700';
-                    cartItem.innerHTML = `
-                        <div class="flex items-center">
-                            <img src="${item.image}" alt="${item.title}" class="w-12 h-12 object-cover rounded mr-2">
-                            <div>
-                                <h3 class="text-sm font-semibold">${item.title}</h3>
-                                <p class="text-xs text-gray-400">${formatPrice(item.price)} تومان × ${item.quantity}</p>
-                            </div>
-                        </div>
-                        <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    `;
-                    cartContent.appendChild(cartItem);
-                });
-                
-                if (cartActions) {
-                    cartActions.innerHTML = `
-                        <div class="mb-2">
-                            <input id="couponCode" type="text" placeholder="کد تخفیف" class="w-full p-2 border rounded text-gray-800">
-                            <button onclick="applyCoupon()" class="w-full bg-yellow-500 text-white py-2 rounded mt-2">اعمال کد تخفیف</button>
-                            <p id="couponMessage" class="text-sm mt-1"></p>
-                        </div>
-                        <button id="checkout" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md">تسویه حساب</button>
-                    `;
-                }
-            }
-            updateCartCount();
-        }
-
-        // حذف آیتم از سبد
-        function removeFromCart(productId) {
-            cart = cart.filter(item => item.id !== productId);
-            localStorage.setItem('cart', JSON.stringify(cart));
-            syncCartToApi();
+<script>
+    const cartToggle = document.getElementById('cart-toggle');
+    const cartModal = document.getElementById('cart-modal');
+    const closeCart = document.getElementById('close-cart');
+    const cartContent = document.getElementById('cart-content');
+    const cartCount = document.getElementById('cart-count');
+    const cartActions = document.getElementById('cart-actions');
+    const blurOverlay = document.getElementById('blur-overlay');
+        // Toggle cart modal
+    cartToggle.addEventListener('click', () => {
+        cartModal.classList.toggle('show');
+        blurOverlay.classList.toggle('show');
+        if (cartModal.classList.contains('show')) {
             renderCart();
+            positionCartModal();
         }
+    });
+    // Position cart modal
+    function positionCartModal() {
+        cartModal.style.top = '80px';
+        cartModal.style.left = '20px';
+    }
+    // Close cart modal
+    closeCart.addEventListener('click', () => {
+        cartModal.classList.remove('show');
+        blurOverlay.classList.remove('show');
+    });
 
-        // موقعیت مودال سبد
-        function positionCartModal() {
-            if (cartModal) {
-                cartModal.style.top = '80px';
-                cartModal.style.left = '20px';
-            }
-        }
-
-        // toggle مودال سبد
-        if (cartToggle) {
-            cartToggle.addEventListener('click', () => {
-                if (cartModal) cartModal.classList.toggle('show');
-                if (blurOverlay) blurOverlay.classList.toggle('show');
-                if (cartModal && cartModal.classList.contains('show')) {
-                    renderCart();
-                    positionCartModal();
-                }
-            });
-        }
-
-        // بستن مودال سبد
-        if (closeCart) {
-            closeCart.addEventListener('click', () => {
-                if (cartModal) cartModal.classList.remove('show');
-                if (blurOverlay) blurOverlay.classList.remove('show');
-            });
-        }
-
-        // بستن مودال با کلیک روی overlay
-        if (blurOverlay) {
-            blurOverlay.addEventListener('click', () => {
-                if (cartModal) cartModal.classList.remove('show');
-                if (blurOverlay) blurOverlay.classList.remove('show');
-            });
-        }
-
-        // اعمال کد تخفیف
-        let discount = 0;
-        function applyCoupon() {
-            const couponCode = document.getElementById('couponCode').value;
-            const couponMessage = document.getElementById('couponMessage');
-            
-            if (couponCode === 'DISCOUNT10') {
-                discount = Math.floor(cart.reduce((sum, item) => sum + item.price * item.quantity, 0) * 0.1);
-                couponMessage.textContent = 'کد تخفیف 10% اعمال شد!';
-                couponMessage.className = 'text-sm text-green-600 mt-1';
-            } else {
-                discount = 0;
-                couponMessage.textContent = 'کد تخفیف نامعتبر است!';
-                couponMessage.className = 'text-sm text-red-600 mt-1';
-            }
-        }
-
-        // همگام‌سازی سبد با API
-        async function syncCartToApi() {
-            const token = localStorage.getItem('api_token');
-            const sessionToken = localStorage.getItem('session_token') || 'default-session';
-            
-            if (!token) {
-                console.log('کاربر لاگین نکرده است');
-                return;
-            }
-
-            try {
-                // ابتدا سبد سرور را خالی کنیم
-                await fetch('/api/cart/clear', {
-                    method: 'DELETE',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'session-token': sessionToken,
-                    }
-                });
-
-                // سپس آیتم‌ها را اضافه کنیم
-                for (const item of cart) {
-                    await fetch('/api/cart/add', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                            'session-token': sessionToken,
-                        },
-                        body: JSON.stringify({
-                            product_id: item.id,
-                            quantity: item.quantity
-                        })
-                    });
-                }
-            } catch (error) {
-                console.error('خطا در همگام‌سازی:', error);
-            }
-        }
-
-        // افزودن به سبد با API
-        async function addToCart(productId) {
-            const token = localStorage.getItem('api_token');
-            const sessionToken = localStorage.getItem('session_token') || 'default-session';
-
-            try {
-                const response = await fetch('/api/cart/add', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                        'session-token': sessionToken,
-                    },
-                    body: JSON.stringify({
-                        product_id: productId,
-                        quantity: 1
-                    })
-                });
-
-                const data = await response.json();
-
-                if (data.success) {
-                    // محصول به سبد سرور اضافه شد، حالا سبد لوکال را آپدیت کن
-                    await fetchCartFromServer();
-                    
-                    // نمایش پیام موفقیت
-                    showNotification('محصول به سبد خرید اضافه شد', 'success');
-                    
-                    // نمایش سبد خرید
-                    if (cartModal) {
-                        cartModal.classList.add('show');
-                        blurOverlay.classList.add('show');
-                        renderCart();
-                        positionCartModal();
-                    }
-                } else {
-                    showNotification('خطا در افزودن به سبد: ' + data.message, 'error');
-                }
-            } catch (error) {
-                console.error('خطا:', error);
-                showNotification('خطا در ارتباط با سرور', 'error');
-            }
-        }
-
-        // دریافت سبد خرید از سرور
-        async function fetchCartFromServer() {
-            const token = localStorage.getItem('api_token');
-            const sessionToken = localStorage.getItem('session_token') || 'default-session';
-
-            try {
-                const response = await fetch('/api/cart', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'session-token': sessionToken,
-                    }
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    // آپدیت سبد لوکال بر اساس داده‌های سرور
-                    cart = data.items || [];
-                    localStorage.setItem('cart', JSON.stringify(cart));
-                    updateCartCount();
-                }
-            } catch (error) {
-                console.error('خطا در دریافت سبد خرید:', error);
-            }
-        }
-
-        // نمایش نوتیفیکیشن
-        function showNotification(message, type = 'info') {
-            // ایجاد المان نوتیفیکیشن
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-                type === 'success' ? 'bg-green-500 text-white' : 
-                type === 'error' ? 'bg-red-500 text-white' : 
-                'bg-blue-500 text-white'
-            }`;
-            notification.textContent = message;
-            
-            document.body.appendChild(notification);
-            
-            // حذف خودکار بعد از 3 ثانیه
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        // تسویه حساب
-        document.addEventListener('click', async (e) => {
-            if (e.target.id === 'checkout' && cart.length > 0) {
-                const token = localStorage.getItem('api_token');
-                const sessionToken = localStorage.getItem('session_token') || 'default-session';
-
-                try {
-                    const response = await fetch('/api/checkout', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json',
-                            'session-token': sessionToken,
-                        },
-                        body: JSON.stringify({
-                            payment_gateway: 'zarinpal'
-                        })
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        // هدایت به درگاه پرداخت
-                        window.location.href = data.data.payment_url;
-                    } else {
-                        showNotification('خطا در ایجاد سفارش: ' + data.message, 'error');
-                    }
-                } catch (error) {
-                    showNotification('خطا در ارتباط با سرور', 'error');
-                }
-            }
-        });
-
-        // بارگذاری اولیه
-        document.addEventListener('DOMContentLoaded', async () => {
-            // ابتدا سبد را از سرور بگیر
-            await fetchCartFromServer();
-            renderCart();
-            updateCartCount();
-        });
-
-        // قرار دادن توابع در scope全局
-        window.removeFromCart = removeFromCart;
-        window.addToCart = addToCart;
-        window.applyCoupon = applyCoupon;
-    </script>
+    // Close cart modal on overlay click
+    blurOverlay.addEventListener('click', () => {
+        cartModal.classList.remove('show');
+        blurOverlay.classList.remove('show');
+    });
+    function formatPrice(price) {
+        return new Intl.NumberFormat('fa-IR').format(price);
+    }
+</script>
 @endsection
