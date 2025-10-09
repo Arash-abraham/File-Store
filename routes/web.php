@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Auth\OtpLoginController;
 use App\Http\Controllers\Auth\SmsLoginController;
 use App\Http\Controllers\Auth\VerificationController;
+use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Middleware\AdminMiddleware;
 use Illuminate\Support\Facades\Route;
@@ -19,6 +20,7 @@ Route::get('/category', [HomeController::class, 'category'])->name('category');
 Route::get('/product', [HomeController::class, 'products'])->name('products');
 Route::get('/faq', [HomeController::class, 'faq'])->name('faq');
 Route::get('/show-product/{id}/product', [HomeController::class, 'showProduct'])->name('show-product');
+Route::get('/cart/checkout', [CheckoutController::class, 'showCart'])->name('cart.checkout');
 
 Route::get('/dashboard', function () {
     return view('dashboard');

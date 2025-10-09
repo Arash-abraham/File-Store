@@ -16,9 +16,10 @@
         "kavenegar/php": "^1.2",
         "laravel-lang/lang": "^14.0",
         "laravel/framework": "^12.0",
-        "laravel/sanctum": "^4.0",
+        "laravel/sanctum": "^4.2",
         "laravel/tinker": "^2.10.1",
-        "morilog/jalali": "^3.4"
+        "morilog/jalali": "^3.4",
+        "pishran/zarinpal": "^4.3"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -4,35 +4,33 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OrderItem extends Model
 {
-    use HasFactory;
-
-    protected $table = 'order_items';
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'order_id',
         'product_id',
-        'quantity',
+        'product_title',
         'unit_price',
-        'subtotal',
+        'quantity',
+        'subtotal'
     ];
 
     protected $casts = [
-        'quantity' => 'integer',
         'unit_price' => 'integer',
-        'subtotal' => 'integer',
-        'created_at' => 'datetime',
-        'updated_at' => 'datetime',
+        'subtotal' => 'integer'
     ];
 
-    public function order()
+    public function order(): BelongsTo
     {
         return $this->belongsTo(Order::class);
     }
 
-    public function product()
+    public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }

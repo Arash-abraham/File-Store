@@ -1,19 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Cart data
-    let cart = [
-        {
-            id: 1,
-            title: 'Adobe Photoshop 2024',
-            price: 2500000,
-            image: 'https://images.pexels.com/photos/4348401/pexels-photo-4348401.jpeg?auto=compress&cs=tinysrgb&w=400'
-        },
-        {
-            id: 2,
-            title: 'دوره کامل آموزش React JS',
-            price: 450000,
-            image: 'https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=400'
-        }
-    ];
 
     // DOM Elements
     const cartToggle = document.getElementById('cart-toggle');
@@ -32,14 +17,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const clearFilters = document.getElementById('clear-filters');
     const productItems = document.querySelectorAll('.product-item');
 
-    // Filter state
-    let filters = {
-        availableOnly: false,
-        unavailableOnly: false,
-        priceMin: null,
-        priceMax: null,
-        authors: []
-    };
 
     // Update cart count
     function updateCartCount() {
@@ -48,52 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Render cart content
-    function renderCart() {
-        if (!cartContent) return;
-        
-        cartContent.innerHTML = '';
-        if (cart.length === 0) {
-            cartContent.innerHTML = '<p class="text-center text-gray-400">سبد خرید خالی است</p>';
-            if (cartActions) cartActions.innerHTML = '';
-        } else {
-            cart.forEach(item => {
-                const cartItem = document.createElement('div');
-                cartItem.className = 'flex items-center justify-between py-2 border-b border-gray-700';
-                cartItem.innerHTML = `
-                    <div class="flex items-center">
-                        <img src="${item.image}" alt="${item.title}" class="w-12 h-12 object-cover rounded mr-2">
-                        <div>
-                            <h3 class="text-sm font-semibold">${item.title}</h3>
-                            <p class="text-xs text-gray-400">${formatPrice(item.price)} تومان</p>
-                        </div>
-                    </div>
-                    <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                `;
-                cartContent.appendChild(cartItem);
-            });
-            if (cartActions) {
-                cartActions.innerHTML = '<button id="checkout" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md">تسویه حساب</button>';
-            }
-        }
-        updateCartCount();
-    }
 
-    // Remove item from cart
-    window.removeFromCart = function(productId) {
-        cart = cart.filter(item => item.id !== productId);
-        renderCart();
-    };
-
-    // Position cart modal
-    function positionCartModal() {
-        if (cartModal) {
-            cartModal.style.top = '80px';
-            cartModal.style.left = '20px';
-        }
-    }
 
     // Add to cart
     window.addToCart = function(productId) {
