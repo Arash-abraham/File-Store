@@ -4,7 +4,6 @@
     <div id="addProductPage" class="bg-white rounded-xl p-8 max-w-6xl w-full mx-auto">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-2xl font-bold">افزودن محصول جدید</h3>
-
         </div>
         @if($errors->any())
             <div class="card border-danger mb-4" id="errorAlert">
@@ -27,6 +26,7 @@
         <form enctype="multipart/form-data" id="addProductForm" action="{{route('admin.product.store')}}" method="POST" class="space-y-6">
             @csrf
             @method('POST')
+            
             <!-- Basic Info -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
@@ -48,8 +48,6 @@
                     </select>
                 </div>
             </div>
-
-
 
             <!-- Status -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -75,9 +73,10 @@
                     </select>
                 </div>
             </div>
+
             <!-- Tags -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">برچسب‌ها (با کاما جدا کنید)</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2">برچسب‌ها</label>
                 <select name="tag" required 
                         class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">همه تگ ها</option>
@@ -87,6 +86,36 @@
                             </option>
                         @endforeach
                 </select>
+            </div>
+
+            <!-- Key Features Section -->
+            <div class="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">ویژگی‌های کلیدی محصول</h3>
+                </div>
+                
+                <!-- Step 1: Ask for number of key features -->
+                <div id="keyFeaturesCountStep" class="mb-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-3">تعداد ویژگی‌های کلیدی مورد نظر:</label>
+                    <select id="keyFeaturesCountSelect" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                        <option value="0">لطفا تعداد ویژگی‌ها را انتخاب کنید</option>
+                        <option value="1">1 ویژگی</option>
+                        <option value="2">2 ویژگی</option>
+                        <option value="3">3 ویژگی</option>
+                        <option value="4">4 ویژگی</option>
+                        <option value="5">5 ویژگی</option>
+                        <option value="6">6 ویژگی</option>
+                        <option value="7">7 ویژگی</option>
+                        <option value="8">8 ویژگی</option>
+                        <option value="9">9 ویژگی</option>
+                        <option value="10">10 ویژگی</option>
+                    </select>
+                </div>
+                
+                <!-- Step 2: Key features input containers -->
+                <div id="keyFeaturesContainers" class="space-y-4 hidden">
+                    <!-- Key feature input fields will be generated here -->
+                </div>
             </div>
 
             <!-- Image -->
@@ -141,6 +170,42 @@
     <script>
         let maxImages = 0;
         let currentUploaded = 0;
+        
+        // Key Features Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const keyFeaturesCountSelect = document.getElementById('keyFeaturesCountSelect');
+            
+            keyFeaturesCountSelect.addEventListener('change', function() {
+                const selectedCount = parseInt(this.value);
+                generateKeyFeaturesInputs(selectedCount);
+            });
+        });
+        
+        function generateKeyFeaturesInputs(count) {
+            const container = document.getElementById('keyFeaturesContainers');
+            
+            if (count === 0) {
+                container.classList.add('hidden');
+                container.innerHTML = '';
+                return;
+            }
+            
+            container.classList.remove('hidden');
+            container.innerHTML = '';
+            
+            for (let i = 1; i <= count; i++) {
+                const featureDiv = document.createElement('div');
+                featureDiv.className = 'bg-white p-4 rounded-lg border border-gray-200';
+                featureDiv.innerHTML = `
+                    <label class="block text-sm font-medium text-gray-700 mb-2">ویژگی کلیدی ${i}</label>
+                    <input type="text" 
+                           name="key_features[]" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                           placeholder="ویژگی ${i} را وارد کنید (مثال: قابلیت نصب روی ویندوز و مک)">
+                `;
+                container.appendChild(featureDiv);
+            }
+        }
         
         function initImageUpload() {
             const countSelect = document.getElementById('imageCountSelect');
@@ -330,6 +395,14 @@
                     document.getElementById('uploadContainers').appendChild(completionMsg);
                 }
             }
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        function closeErrorAlert() {
+            document.getElementById('errorAlert').style.display = 'none';
         }
     </script>
     @section('js')

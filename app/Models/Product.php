@@ -32,6 +32,7 @@ class Product extends Model
         'price',
         'image_urls',
         'description',
+        'key_features'
     ];
 
     /**
@@ -47,7 +48,8 @@ class Product extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime',
         'deleted_at' => 'datetime',
-        'image_urls' => 'array'
+        'image_urls' => 'array',
+        'key_features' => 'array'
     ];
 
     /**

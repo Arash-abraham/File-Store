@@ -92,6 +92,54 @@
                 </select>
             </div>
 
+            <!-- Key Features Section -->
+            <div class="border border-gray-200 rounded-lg p-6 bg-gray-50">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold text-gray-800">ویژگی‌های کلیدی محصول</h3>
+                    <button type="button" onclick="addNewFeature()" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors text-sm">
+                        <i class="fas fa-plus ml-1"></i>افزودن ویژگی جدید
+                    </button>
+                </div>
+                
+                <!-- Existing Key Features -->
+                <div id="existingKeyFeatures" class="space-y-4 mb-6">
+                    @php
+                        $existingFeatures = $product->key_features ?? [];
+                        $featureCount = count($existingFeatures);
+                    @endphp
+                    
+                    @if($featureCount > 0)
+                        @foreach($existingFeatures as $index => $feature)
+                            <div class="bg-white p-4 rounded-lg border border-gray-200 existing-feature" data-index="{{ $index }}">
+                                <div class="flex items-center justify-between mb-2">
+                                    <label class="block text-sm font-medium text-gray-700">ویژگی کلیدی {{ $index + 1 }}</label>
+                                    <button type="button" onclick="removeFeature(this)" class="text-red-500 hover:text-red-700 text-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                                <input type="text" 
+                                       name="key_features[]" 
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                       placeholder="ویژگی را وارد کنید"
+                                       value="{{ $feature }}">
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="text-center text-gray-500 py-4">
+                            هنوز هیچ ویژگی کلیدی اضافه نشده است.
+                        </div>
+                    @endif
+                </div>
+
+                <!-- New Key Features Container -->
+                <div id="newKeyFeatures" class="space-y-4">
+                    <!-- New features will be added here -->
+                </div>
+
+                <!-- Hidden counter for new features -->
+                <input type="hidden" id="newFeatureCounter" value="0">
+            </div>
+
             <!-- Images -->
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">تصاویر محصول</label>
@@ -153,6 +201,58 @@
         let currentUploaded = 0;
         let existingImageCount = {{ count($product->image_urls ?? []) }};
         const maxTotalImages = 6; // حداکثر تعداد کل تصاویر
+
+        // Key Features Functionality
+        function addNewFeature() {
+            const container = document.getElementById('newKeyFeatures');
+            const counter = document.getElementById('newFeatureCounter');
+            const newIndex = parseInt(counter.value) + 1;
+            
+            const newFeatureDiv = document.createElement('div');
+            newFeatureDiv.className = 'bg-white p-4 rounded-lg border border-gray-200 border-dashed new-feature';
+            newFeatureDiv.innerHTML = `
+                <div class="flex items-center justify-between mb-2">
+                    <label class="block text-sm font-medium text-gray-700">ویژگی جدید ${newIndex}</label>
+                    <button type="button" onclick="removeFeature(this)" class="text-red-500 hover:text-red-700 text-sm">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <input type="text" 
+                       name="key_features[]" 
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                       placeholder="ویژگی جدید را وارد کنید">
+            `;
+            
+            container.appendChild(newFeatureDiv);
+            counter.value = newIndex;
+        }
+
+        function removeFeature(button) {
+            const featureDiv = button.closest('.existing-feature, .new-feature');
+            featureDiv.remove();
+            
+            // Update feature numbers
+            updateFeatureNumbers();
+        }
+
+        function updateFeatureNumbers() {
+            // Update existing features
+            const existingFeatures = document.querySelectorAll('.existing-feature');
+            existingFeatures.forEach((feature, index) => {
+                const label = feature.querySelector('label');
+                label.textContent = `ویژگی کلیدی ${index + 1}`;
+            });
+
+            // Update new features
+            const newFeatures = document.querySelectorAll('.new-feature');
+            newFeatures.forEach((feature, index) => {
+                const label = feature.querySelector('label');
+                label.textContent = `ویژگی جدید ${index + 1}`;
+            });
+
+            // Update counter
+            document.getElementById('newFeatureCounter').value = newFeatures.length;
+        }
 
         // مقداردهی اولیه به گزینه‌های select بر اساس تعداد تصاویر موجود
         document.addEventListener('DOMContentLoaded', function() {
@@ -242,8 +342,6 @@
         function handleImageUpload(index, input) {
             const file = input.files[0];
             if (!file) return;
-
-
 
             const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
             if (!validTypes.includes(file.type)) {
@@ -372,6 +470,10 @@
 
         function goBack() {
             window.history.back();
+        }
+
+        function closeErrorAlert() {
+            document.getElementById('errorAlert').style.display = 'none';
         }
     </script>
 

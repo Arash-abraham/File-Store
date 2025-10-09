@@ -30,14 +30,21 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
                 <!-- Product Image -->
                 <div>
-                    <div class="bg-white rounded-xl shadow-lg p-8">
-                        <img id="productImage" src="{{asset($product->image_urls[0])}}" 
-                             alt="تصویر محصول" class="w-full rounded-lg">
-                        <div class="flex gap-4 mt-6">
-                            @foreach ($product->image_urls as $image)
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <!-- تصویر اصلی با سایز کوچک‌تر -->
+                        <div class="flex justify-center mb-6">
+                            <img id="productImage" src="{{asset($product->image_urls[0])}}" 
+                                 alt="تصویر محصول" class="max-w-full h-80 object-contain rounded-lg">
+                        </div>
+                        
+                        <!-- گالری عکس‌های کوچک -->
+                        <div class="flex gap-3 justify-center flex-wrap">
+                            @foreach ($product->image_urls as $index => $image)
                                 <img src="{{asset($image)}}" 
-                                class="w-20 h-20 rounded-lg cursor-pointer border-2 border-gray-200 hover:border-blue-500 transition-colors"
-                                onclick="changeImage(this.src)">
+                                     data-index="{{$index}}"
+                                     class="w-16 h-16 rounded-lg cursor-pointer border-2 transition-all duration-200 thumbnail 
+                                            {{$index === 0 ? 'border-blue-500 scale-105' : 'border-gray-200 hover:border-blue-400'}}"
+                                     onclick="changeImage(this)">
                             @endforeach
                         </div>
                     </div>
@@ -65,17 +72,16 @@
 
                         <div class="mb-6">
                             <div class="flex items-center gap-4">
-                                <span class="text-3xl font-bold text-green-600">{{$product->original_price}}تومان</span>
+                                <span class="text-3xl font-bold text-green-600">{{number_format($product->original_price)}} تومان</span>
                             </div>
                         </div>
 
                         <div class="mb-6">
                             <h3 class="font-semibold text-gray-800 mb-3">ویژگی‌های کلیدی:</h3>
                             <ul class="space-y-2 text-gray-600">
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 ml-2"></i>ویرایش حرفه‌ای تصاویر</li>
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 ml-2"></i>امکانات هوش مصنوعی</li>
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 ml-2"></i>پشتیبانی از فرمت‌های مختلف</li>
-                                <li class="flex items-center"><i class="fas fa-check text-green-500 ml-2"></i>آپدیت رایگان</li>
+                                @foreach ($product->key_features as $item)
+                                    <li class="flex items-center"><i class="fas fa-check text-green-500 ml-2"></i>{{$item}}</li>
+                                @endforeach
                             </ul>
                         </div>
 
@@ -83,15 +89,6 @@
                             <button class="flex-1 bg-blue-600 text-white py-4 rounded-xl hover:bg-blue-700 transition-colors font-semibold">
                                 <i class="fas fa-shopping-cart ml-2"></i>افزودن به سبد خرید
                             </button>
-                        </div>
-
-                        <div class="border-t pt-6">
-                            <div class="grid grid-cols-2 gap-4 text-sm text-gray-600">
-                                <div><span class="font-semibold">کد محصول:</span> PS2024-001</div>
-                                <div><span class="font-semibold">سازنده:</span> Adobe</div>
-                                <div><span class="font-semibold">زبان:</span> فارسی/انگلیسی</div>
-                                <div><span class="font-semibold">نوع مجوز:</span> کامل</div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -122,22 +119,11 @@
                 <div class="p-8">
                     <!-- Description Tab -->
                     <div id="description" class="tab-content">
-                        <h3 class="text-2xl font-bold mb-4">درباره Adobe Photoshop 2024</h3>
+                        <h3 class="text-2xl font-bold mb-4">درباره {{$product->title}}</h3>
                         <div class="prose max-w-none text-gray-700 leading-relaxed">
                             <p class="mb-4">
-                                Adobe Photoshop 2024 جدیدترین نسخه از معروف‌ترین نرم‌افزار ویرایش تصاویر جهان است که با امکانات پیشرفته و قابلیت‌های جدید هوش مصنوعی، تجربه‌ای بی‌نظیر از ویرایش تصاویر ارائه می‌دهد.
+                                {{$product->description}}
                             </p>
-                            <p class="mb-4">
-                                این نسخه شامل ابزارهای جدید برای حذف پس‌زمینه، تغییر آسمان، ویرایش پرتره و بسیاری از قابلیت‌های دیگر است که کار شما را بسیار ساده‌تر می‌کند.
-                            </p>
-                            <h4 class="text-xl font-bold mb-3">امکانات جدید:</h4>
-                            <ul class="list-disc pr-6 space-y-2">
-                                <li>ابزارهای هوش مصنوعی برای ویرایش خودکار</li>
-                                <li>فیلترهای جدید Neural</li>
-                                <li>بهبود عملکرد و سرعت</li>
-                                <li>رابط کاربری بهینه‌شده</li>
-                                <li>پشتیبانی از فرمت‌های جدید</li>
-                            </ul>
                         </div>
                     </div>
 
@@ -151,7 +137,7 @@
                                         <i class="fas fa-file-archive text-blue-600 text-xl"></i>
                                     </div>
                                     <div>
-                                        <h4 class="font-semibold">Adobe_Photoshop_2024_Setup.zip</h4>
+                                        <h4 class="font-semibold">{{$product->title}}_Setup.zip</h4>
                                         <p class="text-sm text-gray-500">نسخه کامل نرم‌افزار - 2.8 GB</p>
                                     </div>
                                 </div>
@@ -174,159 +160,11 @@
                                     دانلود
                                 </button>
                             </div>
-                            
-                            <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center">
-                                    <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center ml-4">
-                                        <i class="fas fa-book text-orange-600 text-xl"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-semibold">Installation_Guide.pdf</h4>
-                                        <p class="text-sm text-gray-500">راهنمای نصب - 5.2 MB</p>
-                                    </div>
-                                </div>
-                                <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                    دانلود
-                                </button>
-                            </div>
                         </div>
                     </div>
 
-                    <!-- Reviews Tab -->
                     <div id="reviews" class="tab-content hidden">
-                        <div class="flex justify-between items-center mb-6">
-                            <h3 class="text-2xl font-bold">نظرات کاربران</h3>
-                            <button class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
-                                ثبت نظر جدید
-                            </button>
-                        </div>
-                        
-                        <!-- Review Summary -->
-                        <div class="bg-gray-50 rounded-lg p-6 mb-8">
-                            <div class="flex items-center gap-8">
-                                <div class="text-center">
-                                    <div class="text-4xl font-bold text-gray-800 mb-2">4.8</div>
-                                    <div class="flex text-yellow-500 mb-2">
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                        <i class="fas fa-star"></i>
-                                    </div>
-                                    <div class="text-sm text-gray-500">126 نظر</div>
-                                </div>
-                                <div class="flex-1">
-                                    <div class="space-y-2">
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-sm w-8">5</span>
-                                            <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 85%"></div>
-                                            </div>
-                                            <span class="text-sm text-gray-500">107</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-sm w-8">4</span>
-                                            <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 10%"></div>
-                                            </div>
-                                            <span class="text-sm text-gray-500">12</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-sm w-8">3</span>
-                                            <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 4%"></div>
-                                            </div>
-                                            <span class="text-sm text-gray-500">5</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-sm w-8">2</span>
-                                            <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 1%"></div>
-                                            </div>
-                                            <span class="text-sm text-gray-500">1</span>
-                                        </div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="text-sm w-8">1</span>
-                                            <div class="flex-1 bg-gray-200 rounded-full h-2">
-                                                <div class="bg-yellow-500 h-2 rounded-full" style="width: 1%"></div>
-                                            </div>
-                                            <span class="text-sm text-gray-500">1</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Reviews List -->
-                        <div class="space-y-6">
-                            <div class="border-b pb-6">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="flex items-center">
-                                        <img src="https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=100" 
-                                             class="w-12 h-12 rounded-full ml-3">
-                                        <div>
-                                            <h4 class="font-semibold">احمد محمدی</h4>
-                                            <div class="flex text-yellow-500 text-sm">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <span class="text-sm text-gray-500">2 روز پیش</span>
-                                </div>
-                                <p class="text-gray-700 leading-relaxed">
-                                    نرم‌افزار فوق‌العاده‌ای است! امکانات جدید هوش مصنوعی واقعاً کار را راحت کرده. کیفیت بسیار بالا و نصب آسان. پیشنهاد می‌کنم.
-                                </p>
-                                <div class="flex items-center gap-4 mt-4">
-                                    <button class="text-sm text-gray-500 hover:text-blue-600 transition-colors">
-                                        <i class="fas fa-thumbs-up ml-1"></i>مفید (15)
-                                    </button>
-                                    <button class="text-sm text-gray-500 hover:text-red-600 transition-colors">
-                                        <i class="fas fa-flag ml-1"></i>گزارش
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="border-b pb-6">
-                                <div class="flex items-center justify-between mb-4">
-                                    <div class="flex items-center">
-                                        <img src="https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100" 
-                                             class="w-12 h-12 rounded-full ml-3">
-                                        <div>
-                                            <h4 class="font-semibold">مریم اکبری</h4>
-                                            <div class="flex text-yellow-500 text-sm">
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="fas fa-star"></i>
-                                                <i class="far fa-star"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <span class="text-sm text-gray-500">5 روز پیش</span>
-                                </div>
-                                <p class="text-gray-700 leading-relaxed">
-                                    خریدم و راضی هستم. فقط سرعت نصب کمی کند بود اما در کل کیفیت خوبی داره. ابزارهای جدید خیلی کاربردی هستند.
-                                </p>
-                                <div class="flex items-center gap-4 mt-4">
-                                    <button class="text-sm text-gray-500 hover:text-blue-600 transition-colors">
-                                        <i class="fas fa-thumbs-up ml-1"></i>مفید (8)
-                                    </button>
-                                    <button class="text-sm text-gray-500 hover:text-red-600 transition-colors">
-                                        <i class="fas fa-flag ml-1"></i>گزارش
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="text-center mt-8">
-                            <button class="border border-gray-300 px-6 py-3 rounded-lg hover:bg-gray-50 transition-colors">
-                                نمایش نظرات بیشتر
-                            </button>
-                        </div>
+
                     </div>
                 </div>
             </div>
@@ -337,29 +175,61 @@
     <section class="py-12 bg-gray-50">
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-8">محصولات مرتبط</h2>
-            <div id="relatedProducts" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
-                    <img src="${product.image}" alt="${product.title}" class="w-full h-48 object-cover">
-                    <div class="p-4">
-                        <h3 class="font-semibold mb-2 line-clamp-2">${product.title}</h3>
-                        <div class="flex items-center mb-2">
-                            <div class="flex text-yellow-500 text-sm">
-                                ${generateStars(product.rating)}
-                            </div>
-                            <span class="text-gray-500 text-sm mr-1">(${product.reviews})</span>
-                        </div>
-                        <div class="mb-3">
-                            <span class="text-lg font-bold text-green-600">${formatPrice(product.price)} تومان</span>
-                            ${product.originalPrice ? `<br><span class="text-sm text-gray-500 line-through">${formatPrice(product.originalPrice)} تومان</span>` : ''}
-                        </div>
-                        <button onclick="window.location.href='product.html?id=${product.id}'" 
-                                class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                            مشاهده محصول
-                        </button>
-                    </div>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- محتوای محصولات مرتبط -->
             </div>
         </div>
     </section>
 
+@endsection
+
+@section('scripts')
+    <script>
+        function changeImage(clickedImage) {
+            const mainImage = document.getElementById('productImage');
+            mainImage.src = clickedImage.src;
+            
+            const thumbnails = document.querySelectorAll('.thumbnail');
+            thumbnails.forEach(thumb => {
+                thumb.classList.remove('border-blue-500', 'scale-105');
+                thumb.classList.add('border-gray-200');
+            });
+            
+            clickedImage.classList.remove('border-gray-200');
+            clickedImage.classList.add('border-blue-500', 'scale-105');
+            
+
+            mainImage.style.opacity = '0.7';
+            setTimeout(() => {
+                mainImage.style.opacity = '1';
+            }, 150);
+        }
+
+        function showTab(tabName) {
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            const tabButtons = document.querySelectorAll('.tab-button');
+            tabButtons.forEach(button => {
+                button.classList.remove('active', 'border-b-2', 'border-blue-500', 'text-blue-600');
+                button.classList.add('text-gray-600');
+            });
+            
+            document.getElementById(tabName).classList.remove('hidden');
+            
+            event.target.classList.add('active', 'border-b-2', 'border-blue-500', 'text-blue-600');
+            event.target.classList.remove('text-gray-600');
+        }
+
+        // مقداردهی اولیه
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const firstThumbnail = document.querySelector('.thumbnail');
+            if (firstThumbnail) {
+                firstThumbnail.classList.add('border-blue-500', 'scale-105');
+            }
+        });
+    </script>
 @endsection

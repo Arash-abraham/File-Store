@@ -78,33 +78,34 @@
                     <p class="text-gray-600 text-lg">بهترین و پربازدیدترین محصولات ما</p>
                 </div>
                 
-                <div id="productsGrid" class=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                    <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
-                        @foreach ($products as $product)
+                <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    @foreach ($products as $product)
+                        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
                             <div class="relative overflow-hidden">
-                                <a href="{{route('show-product',$product->id)}}">
-                                    <img src="{{$product->image_urls[0]}}">
+                                <a href="{{ route('show-product', $product->id) }}">
+                                    <img src="{{ asset($product->image_urls[0]) }}" alt="{{ $product->title }}" 
+                                         class="w-full h-48 object-cover">
                                 </a>
                                 <div class="p-6">
-                                    <a href="{{route('show-product',$product->id)}}">
+                                    <a href="{{ route('show-product', $product->id) }}">
                                         <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2">{{ $product->title }}</h3>    
                                     </a>                                    
                                     <div class="flex items-center mb-3">
-                                        <span class="text-gray-500 text-sm mr-2">{{$product->category->name}}</span>
+                                        <span class="text-gray-500 text-sm mr-2">{{ $product->category->name }}</span>
                                     </div>
                                     
                                     <div class="flex items-center justify-between mb-4">
                                         <div>
-                                            <span class="text-xl font-bold text-green-600">{{$product->original_price}} تومان</span>                        
+                                            <span class="text-xl font-bold text-green-600">{{ number_format($product->original_price) }} تومان</span>                        
                                         </div>
                                     </div>
                                     
-                                    <div class="flex gap-2 mb-4">
-                                        <button onclick="addToCart(1)" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                    <div class="flex gap-2">
+                                        <button onclick="addToCart({{ $product->id }})" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">
                                             <i class="fas fa-shopping-cart ml-1"></i>
                                             افزودن به سبد
                                         </button>
-                                        <a href="{{route('show-product',$product->id)}}">
+                                        <a href="{{ route('show-product', $product->id) }}">
                                             <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
                                                 <i class="fas fa-eye"></i>
                                             </button>
@@ -112,8 +113,8 @@
                                     </div>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
         </section>
@@ -125,8 +126,7 @@
                     @foreach ($categories as $category)
                         <div class="bg-gradient-to-br from-{{$category->color}}-500 to-{{$category->color}}-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
                             <i class="fas {{$category->icon}} text-5xl mb-4 group-hover:text-{{$category->color}}-100 transition-colors duration-300"></i>
-                            <h3 class="text-xl font-bold mb-2 group-hover:text-white">دوره‌های آموزشی</h3>
-                            <p class="opacity-90 group-hover:opacity-100 transition-opacity duration-300">آموزش‌های تخصصی</p>
+                            <h3 class="text-xl font-bold mb-2 group-hover:text-white">{{$category->name}}</h3>
                             <button class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-200">مشاهده</button>
                         </div>
                     @endforeach
