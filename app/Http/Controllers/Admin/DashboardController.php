@@ -4,7 +4,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-
+use App\Models\Product;
+use App\Models\Ticket;
+use App\Models\User;
 use Illuminate\Http\Request;
 // new update -> Arash-abraham
 
@@ -15,7 +17,10 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return view('admin.index');
+        $user = User::all();
+        $product = Product::all();
+        $ticket = Ticket::all();
+        return view('admin.index',compact('user','product','ticket'));
     }
 
     /**

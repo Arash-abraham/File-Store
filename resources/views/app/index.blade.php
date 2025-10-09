@@ -82,11 +82,11 @@
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
                         @foreach ($products as $product)
                             <div class="relative overflow-hidden">
-                                <a href="">
+                                <a href="{{route('show-product',$product->id)}}">
                                     <img src="{{$product->image_urls[0]}}">
                                 </a>
                                 <div class="p-6">
-                                    <a href="">
+                                    <a href="{{route('show-product',$product->id)}}">
                                         <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2">{{ $product->title }}</h3>    
                                     </a>                                    
                                     <div class="flex items-center mb-3">
@@ -104,9 +104,11 @@
                                             <i class="fas fa-shopping-cart ml-1"></i>
                                             افزودن به سبد
                                         </button>
-                                        <button onclick="viewProduct(1)" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                            <i class="fas fa-eye"></i>
-                                        </button>
+                                        <a href="{{route('show-product',$product->id)}}">
+                                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </a>
                                     </div>
                                 </div>
                             </div>
