@@ -2,92 +2,99 @@
 
 namespace App\Services;
 
-use App\Models\Order;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class PaymentService
 {
-    public function createPaymentRequest(Order $order): array
+    protected $merchantId;
+    protected $callbackUrl;
+    protected $isSandbox;
+
+    public function __construct()
+    {
+        $this->merchantId = env('ZARINPAL_MERCHANT_ID');
+        $this->callbackUrl = route('payment.verify');
+        $this->isSandbox = env('ZARINPAL_SANDBOX', false);
+    }
+
+    public function createPaymentRequest($order)
     {
         try {
-            $amount = $order->final_amount * 10; // تبدیل تومن به ریال
+            $baseUrl = $this->isSandbox
+                ? 'https://sandbox.zarinpal.com/pg/v4/payment/request.json'
+                : 'https://api.zarinpal.com/pg/v4/payment/request.json';
 
-            $merchantId = env('ZARINPAL_MERCHANT_ID', '00000000-0000-0000-0000-000000000000');
-            $isSandbox = filter_var(env('ZARINPAL_SANDBOX', true), FILTER_VALIDATE_BOOLEAN);
+            $response = Http::post($baseUrl, [
+                'merchant_id' => $this->merchantId,
+                'amount' => $order->final_amount * 10, // تبدیل تومان به ریال
+                'currency' => 'IRR',
+                'description' => 'پرداخت سفارش شماره ' . $order->id,
+                'callback_url' => $this->callbackUrl,
+            ]);
 
-            // درخواست پرداخت از زرین‌پال
-            $response = zarinpal()
-                ->merchantId($merchantId)
-                ->amount($amount)
-                ->request()
-                ->description('سفارش شماره ' . $order->id)
-                ->callbackUrl(route('api.payment.callback', [], false)) // URL کامل callback
-                ->mobile($order->user?->phone ?? '09123456789')
-                ->email($order->user?->email ?? 'test@example.com')
-                ->send();
+            $result = $response->json();
 
-            if (!$response->success()) {
-                throw new \Exception('خطا در ایجاد درخواست پرداخت: ' . $response->error()->message());
+            Log::info('Zarinpal Request Response:', $result);
+
+            if ($response->successful() && isset($result['data']['code']) && $result['data']['code'] == 100) {
+                return [
+                    'success' => true,
+                    'payment_url' => $this->isSandbox
+                        ? 'https://sandbox.zarinpal.com/pg/StartPay/' . $result['data']['authority']
+                        : 'https://www.zarinpal.com/pg/StartPay/' . $result['data']['authority'],
+                    'authority' => $result['data']['authority'],
+                ];
             }
 
-            // ذخیره Authority
-            $order->update(['reference' => $response->authority()]);
-
-            // ساخت URL پرداخت
-            $paymentUrl = $isSandbox
-                ? 'https://sandbox.zarinpal.com/pg/StartPay/' . $response->authority()
-                : 'https://www.zarinpal.com/pg/StartPay/' . $response->authority();
-
-            Log::info('درخواست پرداخت موفق', ['authority' => $response->authority(), 'sandbox' => $isSandbox]);
-
             return [
-                'success' => true,
-                'authority' => $response->authority(),
-                'payment_url' => $paymentUrl,
+                'success' => false,
+                'message' => $result['errors']['message'] ?? 'خطا در ایجاد درخواست پرداخت',
             ];
-
         } catch (\Exception $e) {
-            Log::error('خطا در ایجاد پرداخت', ['error' => $e->getMessage(), 'order_id' => $order->id]);
-            return ['success' => false, 'message' => $e->getMessage()];
+            Log::error('Zarinpal Error:', ['message' => $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'خطا در ارتباط با درگاه: ' . $e->getMessage(),
+            ];
         }
     }
 
-    public function verifyPayment(Order $order, string $authority, string $status = 'OK'): array
+    public function verifyPayment($order, $authority, $status)
     {
         try {
-            if ($status !== 'OK' || $order->reference !== $authority) {
-                throw new \Exception('شناسه تراکنش نامعتبر');
+            $baseUrl = $this->isSandbox
+                ? 'https://sandbox.zarinpal.com/pg/v4/payment/verify.json'
+                : 'https://api.zarinpal.com/pg/v4/payment/verify.json';
+
+            $response = Http::post($baseUrl, [
+                'merchant_id' => $this->merchantId,
+                'amount' => $order->final_amount * 10, // تبدیل تومان به ریال
+                'authority' => $authority,
+            ]);
+
+            $result = $response->json();
+
+            Log::info('Zarinpal Verify Response:', $result);
+
+            if ($response->successful() && isset($result['data']['code']) && $result['data']['code'] == 100) {
+                return [
+                    'success' => true,
+                    'ref_id' => $result['data']['ref_id'],
+                    'message' => 'پرداخت با موفقیت تأیید شد',
+                ];
             }
-
-            $amount = $order->final_amount * 10;
-
-            $merchantId = env('ZARINPAL_MERCHANT_ID', '24234b4b-c870-46c7-bfce-b4852cfb0875');
-            $isSandbox = filter_var(env('ZARINPAL_SANDBOX', true), FILTER_VALIDATE_BOOLEAN);
-
-            $response = zarinpal()
-                ->merchantId($merchantId)
-                ->amount($amount)
-                ->verification()
-                ->authority($authority)
-                ->send();
-
-            if (!$response->success()) {
-                throw new \Exception('پرداخت ناموفق: ' . $response->error()->message());
-            }
-
-            $order->update(['transaction_id' => $response->refId()]);
-
-            Log::info('تأیید پرداخت موفق', ['ref_id' => $response->refId(), 'sandbox' => $isSandbox]);
 
             return [
-                'success' => true,
-                'ref_id' => $response->refId(),
-                'message' => 'پرداخت با موفقیت تأیید شد',
+                'success' => false,
+                'message' => $result['errors']['message'] ?? 'خطا در تأیید پرداخت',
             ];
-
         } catch (\Exception $e) {
-            Log::error('خطا در تأیید پرداخت', ['error' => $e->getMessage(), 'order_id' => $order->id]);
-            return ['success' => false, 'message' => $e->getMessage()];
+            Log::error('Zarinpal Verify Error:', ['message' => $e->getMessage()]);
+            return [
+                'success' => false,
+                'message' => 'خطا در ارتباط با درگاه: ' . $e->getMessage(),
+            ];
         }
     }
 }

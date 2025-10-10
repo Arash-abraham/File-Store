@@ -21,7 +21,6 @@ class Cart extends Model
         return $this->hasMany(CartItem::class);
     }
 
-    // محاسبه مجموع سبد خرید
     public function getTotalAttribute()
     {
         return $this->items->sum('subtotal');
@@ -31,5 +30,9 @@ class Cart extends Model
     public function getItemsCountAttribute()
     {
         return $this->items->sum('quantity');
+    }
+    public function clear(): void
+    {
+        $this->items()->delete(); 
     }
 }

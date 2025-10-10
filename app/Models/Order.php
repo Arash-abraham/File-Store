@@ -14,11 +14,13 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
+        'session_token',       
         'status',
         'total_amount',
         'discount_amount',
         'coupon_id',
         'payment_gateway',
+        'payment_authority',    
         'transaction_id',
         'reference',
         'paid_at'
@@ -30,6 +32,7 @@ class Order extends Model
         'paid_at' => 'datetime'
     ];
 
+    // روابط
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -47,7 +50,7 @@ class Order extends Model
 
     public function getFinalAmountAttribute(): int
     {
-        return $this->total_amount - $this->discount_amount;
+        return $this->total_amount - ($this->discount_amount ?? 0);
     }
 
     public function markAsPaid(string $paymentGateway, string $transactionId): void
@@ -55,6 +58,7 @@ class Order extends Model
         $this->update([
             'status' => 'paid',
             'payment_gateway' => $paymentGateway,
+            'payment_authority' => $this->payment_authority ?? null, 
             'transaction_id' => $transactionId,
             'paid_at' => now()
         ]);

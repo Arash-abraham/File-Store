@@ -43,8 +43,8 @@ class Payment extends Model
      */
     protected $casts = [
         'amount' => 'integer',
-        'status' => 'string', // برای اطمینان از اینکه enum به‌صورت string مدیریت می‌شه
-        'meta' => 'array', // برای تبدیل خودکار JSON به آرایه
+        'status' => 'string', 
+        'meta' => 'array', 
         'paid_at' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime',

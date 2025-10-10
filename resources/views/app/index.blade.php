@@ -5,32 +5,56 @@
 @section('content')
     <div id="main-content">
         <!-- Cart Modal and Blur Overlay -->
-        <div id="blur-overlay" class="fixed inset-0 bg-black bg-opacity-50 hidden z-40"></div>
-        <div id="cart-modal" class="fixed w-80 bg-gray-800 text-white rounded-lg shadow-lg p-4 hidden z-50">
-            <div class="flex justify-between items-center mb-2">
+        <div id="cart-modal" class="fixed w-80 bg-white text-gray-800 rounded-xl shadow-2xl p-0 hidden z-50 border border-gray-200">
+            <div class="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-t-xl">
                 <h2 class="text-lg font-bold">سبد خرید</h2>
-                <button id="close-cart" class="text-gray-400 hover:text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button id="close-cart" class="text-white hover:bg-white/20 p-1 rounded-full transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
-            <div id="cart-content" class="max-h-64 overflow-y-auto mb-4">
-                <div class="flex items-center">
-                    <img src="${item.image}" alt="${item.title}" class="w-12 h-12 object-cover rounded mr-2">
-                    <div>
-                        <h3 class="text-sm font-semibold">${item.title}</h3>
-                        <p class="text-xs text-gray-400">${formatPrice(item.price)} تومان</p>
-                    </div>
-                    <button onclick="removeFromCart(${item.id})" class="text-red-500 hover:text-red-700">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </div>
-                <button id="checkout" class="w-full bg-green-600 hover:bg-green-700 text-white py-2 rounded-md">تسویه حساب</button>
+            
+            <div id="cart-content" class="max-h-64 overflow-y-auto p-4 space-y-3">
+                @if ($cartItems->isEmpty())
+                    <p class="text-center text-gray-500 text-sm">سبد خرید خالی است</p>
+                @else
+                    @foreach ($cartItems as $item)
+                        <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                            <div class="flex items-center space-x-3 space-x-reverse">
+                                <img src="{{ asset($item->product->image_urls[0] ?? 'images/placeholder.jpg') }}" 
+                                    alt="{{ $item->product->title }}" class="w-12 h-12 object-cover rounded-lg shadow-sm">
+                                <div>
+                                    <h3 class="text-sm font-semibold">{{ $item->product->title }}</h3>
+                                    <p class="text-xs text-purple-600 font-medium">{{ number_format($item->unit_price) }} تومان</p>
+                                </div>
+                            </div>
+                            <form action="{{ route('cart.remove', $item->id) }}" method="POST" class="inline">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-full transition-colors">
+                                    <i class="fas fa-trash-alt text-sm"></i>
+                                </button>
+                            </form>
+                        </div>
+                    @endforeach
+                @endif
             </div>
-            <div id="cart-actions" class="mt-4"></div>
-        </div>
-
+            
+            <div class="p-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm text-gray-600">جمع کل:</span>
+                    <span class="text-lg font-bold text-purple-700">{{ number_format($total) }} تومان</span>
+                </div>
+                @if (!$cartItems->isEmpty())
+                    <a href="{{ route('checkout.show') }}" 
+                    class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                        <i class="fas fa-credit-card"></i>
+                        تسویه حساب
+                    </a>
+                @endif
+            </div>
+        </div>        
         <!-- Hero Section -->
         <section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
             <div class="container mx-auto px-4 text-center">

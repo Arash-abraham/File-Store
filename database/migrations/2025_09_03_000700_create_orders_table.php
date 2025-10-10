@@ -20,6 +20,8 @@ return new class extends Migration
             $table->string('transaction_id', 191)->nullable();
             $table->string('reference', 191)->nullable();
             $table->timestamp('paid_at')->nullable();
+            $table->string('session_token')->nullable()->after('user_id');
+            $table->string('payment_authority')->nullable()->after('payment_gateway');
             $table->timestamps();
             $table->softDeletes();
 

@@ -28,12 +28,20 @@ Route::prefix('cart')->group(function () {
     Route::post('/update/{cartItemId}', [CartController::class, 'updateCart'])->name('cart.update');
     Route::delete('/remove/{cartItemId}', [CartController::class, 'removeFromCart'])->name('cart.remove');
     Route::post('/clear', [CartController::class, 'clearCart'])->name('cart.clear');
+    Route::post('/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.apply-coupon');
 });
 
 Route::prefix('checkout')->group(function () {
     Route::get('/', [CheckoutController::class, 'showCheckout'])->name('checkout.show');
     Route::post('/process', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
+    Route::match(['get', 'post'], '/verify', [CheckoutController::class, 'verify'])->name('payment.verify');
 });
+
+Route::get('/payment/success/{order_id}', function ($order_id) {
+    $order = \App\Models\Order::findOrFail($order_id);
+    return view('app.payment-success', ['order' => $order]);
+})->name('payment.success');
+
 
 Route::get('/dashboard', function () {
     return view('dashboard');
