@@ -57,14 +57,6 @@
                 <li>
                     <a href="<?php echo e(route('home')); ?>" class="nav-link text-black hover:text-blue-600 transition-colors">خانه</a>
                 </li>
-                <li class="relative group">
-                    <a class="nav-link text-black hover:text-blue-600 transition-colors py-2 px-4 block">دسته‌بندی</a>
-                    <div class="absolute top-full right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300">
-                        <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"><?php echo e($category->name); ?></a>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                    </div>
-                </li>
                 <li>
                     <a href="<?php echo e(route('products')); ?>" class="nav-link text-black hover:text-blue-600 transition-colors">محصولات</a>
                 </li>           

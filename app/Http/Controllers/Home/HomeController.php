@@ -47,9 +47,45 @@ class HomeController extends Controller
     public function category() {
         return view('app.category');
     }
-    public function products() {
+    public function products(Request $request){
+        $query = Product::with('category');
+    
+        if ($request->has('availability') && $request->availability !== 'all') {
+            $query->where('availability', $request->availability === 'available');
+        }
+        
+        if ($request->filled('price_min')) {
+            $minPrice = $request->price_min; 
+            $query->where('original_price', '>=', $minPrice);
+        }
+        
+        if ($request->filled('price_max')) {
+            $maxPrice = $request->price_max; 
+            $query->where('original_price', '<=', $maxPrice);
+        }
+        
+        if ($request->filled('categories')) {
+            $categoryIds = is_array($request->categories) ? $request->categories : [$request->categories];
+            $query->whereIn('category_id', $categoryIds);
+        }
+        
+        $products = $query->paginate(12);
         $categories = Category::all();
-        return view('app.products',compact('categories'));
+        
+        return view('app.products', compact('products', 'categories'));
+    }
+    public function productsWithCategory(Request $request) {
+        $categories = Category::all();
+        $selectedCategory = $request->get('category');
+        
+        $products = Product::where('status', 'active')
+            ->when($selectedCategory, function($query) use ($selectedCategory) {
+                return $query->where('category_id', $selectedCategory);
+            })
+            ->with('category')
+            ->latest()
+            ->get();
+        return view('app.products', compact('categories', 'products', 'selectedCategory'));
     }
     public function faq() {
         $categories = Category::all();

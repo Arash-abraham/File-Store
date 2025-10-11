@@ -50,186 +50,164 @@
             <div class="container mx-auto px-4">
                 <div class="flex flex-col lg:flex-row gap-8">
                     <!-- Sidebar Filters -->
-                    <div class="lg:w-1/4">
-                        <div class="bg-white rounded-xl shadow-lg p-6 sticky top-24">
-                            <h3 class="text-lg font-bold mb-6">فیلترها</h3>
-                            <!-- Availability Filter -->
-                            <div class="mb-6">
-                                <h4 class="font-semibold mb-3">وضعیت موجودی</h4>
-                                <div class="space-y-2">
-                                    <label class="flex items-center">
-                                        <input type="checkbox" id="available-only" class="ml-2 text-blue-600 focus:ring-blue-500">
-                                        <span>فقط موجودها</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" id="unavailable-only" class="ml-2 text-blue-600 focus:ring-blue-500">
-                                        <span>ناموجود</span>
-                                    </label>
-                                </div>
+                    <?php if($products->count() != 0): ?>
+                        <div class="lg:w-1/4">
+                            <div class="bg-white rounded-xl shadow-lg p-6 sticky top-24">
+                                <h3 class="text-lg font-bold mb-6">فیلترها</h3>
+                                
+                                <form id="filter-form" method="GET" action="<?php echo e(route('products')); ?>">
+                                    <!-- Availability Filter -->
+                                    <div class="mb-6">
+                                        <h4 class="font-semibold mb-3">وضعیت موجودی</h4>
+                                        <div class="space-y-2">
+                                            <label class="flex items-center">
+                                                <input type="radio" name="availability" value="available" 
+                                                    <?php echo e(request('availability') === 'available' ? 'checked' : ''); ?>
+
+                                                    class="ml-2 text-blue-600 focus:ring-blue-500">
+                                                <span>فقط موجودها</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="availability" value="unavailable"
+                                                    <?php echo e(request('availability') === 'unavailable' ? 'checked' : ''); ?>
+
+                                                    class="ml-2 text-blue-600 focus:ring-blue-500">
+                                                <span>ناموجود</span>
+                                            </label>
+                                            <label class="flex items-center">
+                                                <input type="radio" name="availability" value="all"
+                                                    <?php echo e(!request('availability') || request('availability') === 'all' ? 'checked' : ''); ?>
+
+                                                    class="ml-2 text-blue-600 focus:ring-blue-500">
+                                                <span>همه</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+
+                                    <div class="mb-6">
+                                        <h4 class="font-semibold mb-3">بازه قیمتی (تومان)</h4>
+                                        <div class="flex flex-wrap items-center gap-2 mb-2">
+                                            <input type="number" name="price_min" 
+                                                value="<?php echo e(request('price_min')); ?>" 
+                                                placeholder="حداقل"
+                                                min="0"
+                                                class="flex-1 min-w-[120px] p-2 border rounded-lg">
+                                            <span class="text-gray-500">تا</span>
+                                            <input type="number" name="price_max" 
+                                                value="<?php echo e(request('price_max')); ?>"
+                                                placeholder="حداکثر"
+                                                min="0" 
+                                                class="flex-1 min-w-[120px] p-2 border rounded-lg">
+                                        </div>
+                                        <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700">
+                                            اعمال فیلتر قیمت
+                                        </button>
+                                    </div>
+                                    <!-- Category Filter -->
+                                    <div class="mb-6">
+                                        <h4 class="font-semibold mb-3">دسته بندی</h4>
+                                        <div class="space-y-2 max-h-60 overflow-y-auto">
+                                            <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                            <label class="flex items-center">
+                                                <input type="checkbox" name="categories[]" 
+                                                    value="<?php echo e($category->id); ?>"
+                                                    <?php echo e(in_array($category->id, (array)request('categories', [])) ? 'checked' : ''); ?>
+
+                                                    class="category-filter ml-2 text-blue-600 focus:ring-blue-500">
+                                                <span><?php echo e($category->name); ?></span>
+                                            </label>
+                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Clear Filters -->
+                                    <a href="<?php echo e(route('products')); ?>" 
+                                    class="block w-full text-center border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+                                        پاک کردن فیلترها
+                                    </a>
+                                </form>
                             </div>
-                            <!-- Price Filter -->
-                            <div class="mb-6">
-                                <h4 class="font-semibold mb-3">بازه قیمتی (تومان)</h4>
-                                <div class="flex flex-wrap items-center gap-2">
-                                    <input type="number" id="price-min" placeholder="حداقل" class="flex-1 min-w-[120px] p-2 border rounded-lg focus:border-blue-500 focus:outline-none">
-                                    <input type="number" id="price-max" placeholder="حداکثر" class="flex-1 min-w-[120px] p-2 border rounded-lg focus:border-blue-500 focus:outline-none">
-                                </div>
-                                <button id="apply-price-filter" class="mt-2 w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors">اعمال فیلتر قیمت</button>
-                            </div>
-                            <!-- Author Filter -->
-                            <div class="mb-6">
-                                <h4 class="font-semibold mb-3">سازنده / نویسنده</h4>
-                                <div class="space-y-2">
-                                    <label class="flex items-center">
-                                        <input type="checkbox" class="author-filter ml-2 text-blue-600 focus:ring-blue-500" value="Adobe">
-                                        <span>Adobe</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" class="author-filter ml-2 text-blue-600 focus:ring-blue-500" value="Microsoft">
-                                        <span>Microsoft</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" class="author-filter ml-2 text-blue-600 focus:ring-blue-500" value="Autodesk">
-                                        <span>Autodesk</span>
-                                    </label>
-                                    <label class="flex items-center">
-                                        <input type="checkbox" class="author-filter ml-2 text-blue-600 focus:ring-blue-500" value="JetBrains">
-                                        <span>JetBrains</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <!-- Clear Filters -->
-                            <button id="clear-filters" class="w-full border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition-colors">
-                                پاک کردن فیلترها
-                            </button>
                         </div>
-                    </div>
+                    <?php endif; ?>
 
                     <!-- Products Grid -->
-                    <div class="lg:w-3/4">
-                        <!-- Sort & View Options -->
-                        <div class="bg-white rounded-xl shadow-lg p-4 mb-6">
-                            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                                <div class="text-gray-600">
-                                    <span id="resultsCount">نمایش 1-3 از 3 محصول</span>
-                                </div>
-                                <div class="flex items-center gap-4">
-                                    <span class="text-gray-600">مرتب‌سازی:</span>
-                                    <select id="sortSelect" class="border border-gray-300 rounded-lg px-3 py-2 focus:border-blue-500 focus:outline-none">
-                                        <option value="popular">پربازدیدترین</option>
-                                        <option value="price-low">ارزان‌ترین</option>
-                                        <option value="price-high">گران‌ترین</option>
-                                        <option value="newest">جدیدترین</option>
-                                        <option value="rating">بهترین امتیاز</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        
+                    <div class="lg:w-3/4">                        
                         <!-- Products -->
                         <div id="productsContainer" class="container mx-auto py-10 px-4">
-                            <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                <!-- محصول 1 - موجود -->
-                                <div class="product-item bg-white rounded-xl shadow-md overflow-hidden" data-available="true" data-price="2500000" data-author="Adobe">
-                                    <div class="relative group">
-                                        <img src="https://images.pexels.com/photos/4348401/pexels-photo-4348401.jpeg?auto=compress&cs=tinysrgb&w=400" alt="Adobe Photoshop 2024" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
-                                        <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">17% تخفیف</span>
+                            <?php if($products->count() == 0): ?>
+                                <div class="fixed inset-0 flex items-center justify-center bg-white z-50">
+                                    <div class="text-center">
+                                        <i class="fas fa-search text-6xl text-gray-400 mb-6"></i>
+                                        <p class="text-2xl font-bold text-gray-700 mb-4">محصولی یافت نشد</p>
+                                        <p class="text-lg text-gray-500 mb-8">لطفاً دسته بندی خود را تغییر دهید</p>
+                                        <a href="<?php echo e(route('products')); ?>" 
+                                        class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors text-lg">
+                                            مشاهده همه محصولات
+                                        </a>
                                     </div>
-                                    <div class="p-4">
-                                        <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2">Adobe Photoshop 2024</h3>
-                                        <div class="flex items-center mb-2 text-sm text-gray-500">
-                                            <span>(126)</span>
-                                        </div>
-                                        <div class="flex items-center justify-between mb-3">
-                                            <div>
-                                                <span class="text-xl font-bold text-green-600">۲٬۵۰۰٬۰۰۰ تومان</span>
-                                                <span class="ml-2 text-sm text-gray-500 line-through">۳٬۰۰۰٬۰۰۰ تومان</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex gap-2">
-                                            <button onclick="addToCart(1)" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-1">
-                                                <i class="fas fa-shopping-cart"></i> افزودن به سبد
-                                            </button>
-                                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                    
-                                <!-- محصول 2 - موجود -->
-                                <div class="product-item bg-white rounded-xl shadow-md overflow-hidden" data-available="true" data-price="450000" data-author="Microsoft">
-                                    <div class="relative group">
-                                        <img src="https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=400" alt="دوره کامل آموزش React JS" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
-                                        <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">10% تخفیف</span>
-                                    </div>
-                                    <div class="p-4">
-                                        <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2">دوره کامل آموزش React JS</h3>
-                                        <div class="flex items-center mb-2 text-sm text-gray-500">
-                                            <span>(85)</span>
-                                        </div>
-                                        <div class="flex items-center justify-between mb-3">
-                                            <div>
-                                                <span class="text-xl font-bold text-green-600">۴۵۰٬۰۰۰ تومان</span>
-                                                <span class="ml-2 text-sm text-gray-500 line-through">۵۰۰٬۰۰۰ تومان</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex gap-2">
-                                            <button onclick="addToCart(2)" class="flex-1 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-1">
-                                                <i class="fas fa-shopping-cart"></i> افزودن به سبد
-                                            </button>
-                                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- محصول 3 - ناموجود -->
-                                <div class="product-item bg-white rounded-xl shadow-md overflow-hidden" data-available="false" data-price="3000000" data-author="Autodesk">
-                                    <div class="relative group">
-                                        <img src="https://images.pexels.com/photos/4348401/pexels-photo-4348401.jpeg?auto=compress&cs=tinysrgb&w=400" alt="AutoCAD 2024" class="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105">
-                                        <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">ناموجود</span>
-                                    </div>
-                                    <div class="p-4">
-                                        <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2">AutoCAD 2024</h3>
-                                        <div class="flex items-center mb-2 text-sm text-gray-500">
-                                            <span>(50)</span>
-                                        </div>
-                                        <div class="flex items-center justify-between mb-3">
-                                            <div>
-                                                <span class="text-xl font-bold text-green-600">۳٬۰۰۰٬۰۰۰ تومان</span>
-                                            </div>
-                                        </div>
-                                        <div class="flex gap-2">
-                                            <button class="flex-1 bg-gray-400 text-white py-2 rounded-lg cursor-not-allowed flex items-center justify-center gap-1">
-                                                <i class="fas fa-shopping-cart"></i> افزودن به سبد
-                                            </button>
-                                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors flex items-center">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
+                            <?php else: ?>
+                                <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
+                                            <div class="relative overflow-hidden">
+                                                <a href="<?php echo e(route('show-product', $product->id)); ?>">
+                                                    <img src="<?php echo e(asset($product->image_urls[0])); ?>" alt="<?php echo e($product->title); ?>" 
+                                                        class="w-full h-48 object-cover">
+                                                    <?php if(!$product->availability): ?>
+                                                        <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">ناموجود</span>
+                                                    <?php endif; ?>
+                                                    </a>
+                                                <div class="p-6">
+                                                    <a href="<?php echo e(route('show-product', $product->id)); ?>">
+                                                        <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2"><?php echo e($product->title); ?></h3>    
+                                                    </a>                                    
+                                                    <div class="flex items-center mb-3">
+                                                        <span class="text-gray-500 text-sm mr-2"><?php echo e($product->category->name); ?></span>
+                                                    </div>
+                                                    
+                                                    <div class="flex items-center justify-between mb-4">
+                                                        <div>
+                                                            <span class="text-xl font-bold text-green-600"><?php echo e(number_format($product->original_price)); ?> تومان</span>                        
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="flex gap-2">
+                                                        <?php if($product->availability): ?>
+                                                            <form action="<?php echo e(route('cart.add')); ?>" method="POST" class="flex-1">
+                                                                <?php echo csrf_field(); ?>
+                                                                <input type="hidden" name="product_id" value="<?php echo e($product->id); ?>">
+                                                                <button type="submit" 
+                                                                        class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                                                                    <i class="fas fa-shopping-cart"></i>
+                                                                    افزودن به سبد
+                                                                </button>
+                                                            </form>
+                                                            <a href="<?php echo e(route('show-product', $product->id)); ?>">
+                                                                <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </button>
+                                                            </a>
+                                                        <?php else: ?> 
+                                                            <button class="w-full flex-1 bg-gray-400 text-white py-2 rounded-lg cursor-not-allowed flex items-center justify-center gap-1">
+                                                                <i class="fas fa-shopping-cart"></i> افزودن به سبد
+                                                            </button>
+                                                            <a href="<?php echo e(route('show-product', $product->id)); ?>">
+                                                                <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </button>
+                                                            </a>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                </div>
+                            <?php endif; ?>
                         </div>
                         
-                        <!-- Pagination -->
-                        <div class="mt-8 flex justify-center">
-                            <nav class="flex items-center space-x-2">
-                                <button class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50" disabled>
-                                    قبلی
-                                </button>
-                                <button class="px-3 py-2 bg-blue-600 text-white rounded-lg">1</button>
-                                <button class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">2</button>
-                                <button class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">3</button>
-                                <span class="px-3 py-2">...</span>
-                                <button class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">13</button>
-                                <button class="px-3 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                    بعدی
-                                </button>
-                            </nav>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -239,5 +217,6 @@
 
 <?php $__env->startSection('scripts'); ?>
     <script src="<?php echo e(asset('js/products.js')); ?>"></script>
+
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('app.layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /opt/lampp/htdocs/File-Store/resources/views/app/products.blade.php ENDPATH**/ ?>

@@ -14,6 +14,7 @@ use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Middleware\AdminMiddleware;
+use App\Models\Order;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -21,7 +22,7 @@ Route::get('/category', [HomeController::class, 'category'])->name('category');
 Route::get('/product', [HomeController::class, 'products'])->name('products');
 Route::get('/faq', [HomeController::class, 'faq'])->name('faq');
 Route::get('/show-product/{id}/product', [HomeController::class, 'showProduct'])->name('show-product');
-
+Route::get('/product/category', [HomeController::class, 'productsWithCategory'])->name('productsWithCategory');
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartController::class, 'showCart'])->name('cart.show');
     Route::post('/add', [CartController::class, 'addToCart'])->name('cart.add');
@@ -38,7 +39,7 @@ Route::prefix('checkout')->group(function () {
 });
 
 Route::get('/payment/success/{order_id}', function ($order_id) {
-    $order = \App\Models\Order::findOrFail($order_id);
+    $order = Order::findOrFail($order_id);
     return view('app.payment-success', ['order' => $order]);
 })->name('payment.success');
 

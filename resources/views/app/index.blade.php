@@ -167,7 +167,7 @@
                 <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">دسته‌بندی محصولات</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     @foreach ($categories as $category)
-                        <a href="{{ route('products', ['category' => $category->id]) }}" 
+                        <a href="{{ route('productsWithCategory', ['category' => $category->id]) }}" 
                            class="bg-gradient-to-br from-{{$category->color}}-500 to-{{$category->color}}-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group cursor-pointer">
                             <i class="fas {{$category->icon}} text-5xl mb-4 group-hover:text-{{$category->color}}-100 transition-colors duration-300"></i>
                             <h3 class="text-xl font-bold mb-2 group-hover:text-white">{{$category->name}}</h3>
