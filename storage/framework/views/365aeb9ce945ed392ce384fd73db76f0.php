@@ -1,0 +1,119 @@
+<?php $__env->startSection('content'); ?>
+    <div id="tickets" class="content-section">
+        <div class="bg-white rounded-xl shadow-lg p-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">مدیریت تیکت‌های پشتیبانی</h2>
+            </div>
+            
+            <!-- Ticket Stats -->
+            <?php if(session('success')): ?>
+                <div class="card border-success mb-4 shadow-lg" id="successAlert">
+                    <div class="card-header bg-gradient bg-success text-white py-3 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span class="fw-bold fs-6">عملیات موفق</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" onclick="closeSuccessAlert()" aria-label="Close"></button>
+                    </div>
+                    <div class="card-body bg-light py-3">
+                        <ul class="mb-0 text-success fs-7">
+                            <li class="mb-1">
+                                <i class="fas fa-check me-2 small"></i>
+                                <?php echo e(session('success')); ?>
+
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            <?php endif; ?>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+                <div class="bg-yellow-50 rounded-lg p-6 text-center">
+                    <i class="fas fa-ticket-alt text-yellow-600 text-3xl mb-3"></i>
+                    <h3 class="text-2xl font-bold text-gray-800" id="totalTickets"><?php echo e(count($tickets)); ?></h3>
+                    <p class="text-gray-600">کل تیکت‌ها</p>
+                </div>
+                <div class="bg-red-50 rounded-lg p-6 text-center">
+                    <i class="fas fa-clock text-red-600 text-3xl mb-3"></i>
+                    <h3 class="text-2xl font-bold text-gray-800" id="openTickets"><?php echo e($open_count); ?></h3>
+                    <p class="text-gray-600">باز</p>
+                </div>
+                <div class="bg-blue-50 rounded-lg p-6 text-center">
+                    <i class="fas fa-sync-alt text-blue-600 text-3xl mb-3"></i>
+                    <h3 class="text-2xl font-bold text-gray-800" id="urgentTickets"><?php echo e($progress_count); ?></h3>
+                    <p class="text-gray-600">در حال بررسی</p>
+                </div>
+                <div class="bg-green-50 rounded-lg p-6 text-center">
+                    <i class="fas fa-check-circle text-green-600 text-3xl mb-3"></i>
+                    <h3 class="text-2xl font-bold text-gray-800" id="closedTickets"><?php echo e($close_count); ?></h3>
+                    <p class="text-gray-600">بسته شده</p>
+                </div>
+            </div>
+            
+            <!-- Tickets Table -->
+            <div class="overflow-x-auto">
+                <table class="w-full table-auto">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">شناسه</th>
+                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">کاربر</th>
+                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">موضوع</th>
+                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">دسته‌بندی</th>
+                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">وضعیت</th>
+                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">تاریخ ایجاد</th>
+                            <th class="px-6 py-4 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">عملیات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketsTableBody" class="bg-white divide-y divide-gray-200">
+                        <?php $__currentLoopData = $tickets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ticket): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                            <tr class="hover:bg-gray-50">
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-blue-600 font-bold"><?php echo e($ticket->id); ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div>
+                                        <div class="text-sm font-medium text-gray-900"><?php echo e($ticket->user->name); ?></div>
+                                        <div class="text-sm text-gray-500"><?php echo e($ticket->user->email); ?></div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900"><?php echo e($ticket->subject); ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><?php echo e($ticket->assigned_to); ?></td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <?php if($ticket->status == 'open'): ?>
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                            باز
+                                        </span>
+                                    <?php elseif($ticket->status == 'in_progress'): ?>
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                            درحال بررسی
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                            بسته شد
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                    <?php echo e(\Morilog\Jalali\Jalalian::fromCarbon(\Carbon\Carbon::parse($ticket->created_at)->tz('Asia/Tehran'))->format('Y-m-d H:i:s')); ?>
+
+                                </td>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                    <div class="flex gap-2">
+                                        <a href="<?php echo e(route('admin.ticket.show',$ticket->id)); ?>">
+                                            <button class="text-blue-600 hover:text-blue-800" title="مشاهده">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <?php $__env->startSection('js'); ?>
+        <script src="<?php echo e(asset('js/admin/category.js')); ?>"></script>
+    <?php $__env->stopSection(); ?>
+<?php $__env->stopSection(); ?>
+<?php echo $__env->make('admin.layouts.partials.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /opt/lampp/htdocs/File-Store/resources/views/admin/layouts/sections/tickets/tickets.blade.php ENDPATH**/ ?>

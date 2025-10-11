@@ -1,0 +1,1 @@
+<?php /**PATH /opt/lampp/htdocs/File-Store/resources/views/app/layouts/partials/cart-item.blade.php ENDPATH**/ ?>
