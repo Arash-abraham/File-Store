@@ -59,3 +59,4 @@ auth.json
 .idea/  # PhpStorm
 .vscode/  # VS Code
 *.sublime-project  # Sublime Text
+storage/logs/*.log
