@@ -157,15 +157,23 @@
         </section>
 
         <!-- Categories -->
+        <?php
+            
+        ?>
         <section class="py-16 bg-gray-50">
             <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">دسته‌بندی محصولات</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <div class="bg-gradient-to-br from-<?php echo e($category->color); ?>-500 to-<?php echo e($category->color); ?>-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
+                        <a href="<?php echo e(route('products', ['category' => $category->id])); ?>" 
+                           class="bg-gradient-to-br from-<?php echo e($category->color); ?>-500 to-<?php echo e($category->color); ?>-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group cursor-pointer">
                             <i class="fas <?php echo e($category->icon); ?> text-5xl mb-4 group-hover:text-<?php echo e($category->color); ?>-100 transition-colors duration-300"></i>
                             <h3 class="text-xl font-bold mb-2 group-hover:text-white"><?php echo e($category->name); ?></h3>
-                            <button class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-200">مشاهده</button>
-                        </div>
+                            <span class="text-sm opacity-90"><?php echo e($category->products_count); ?> محصول</span>
+                            <div class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full inline-block group-hover:bg-opacity-30 transition-all duration-200">
+                                مشاهده محصولات
+                            </div>
+                        </a>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
             </div>

@@ -159,15 +159,23 @@
         </section>
 
         <!-- Categories -->
+        @php
+            
+        @endphp
         <section class="py-16 bg-gray-50">
             <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">دسته‌بندی محصولات</h2>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                     @foreach ($categories as $category)
-                        <div class="bg-gradient-to-br from-{{$category->color}}-500 to-{{$category->color}}-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group">
+                        <a href="{{ route('products', ['category' => $category->id]) }}" 
+                           class="bg-gradient-to-br from-{{$category->color}}-500 to-{{$category->color}}-600 rounded-xl p-6 text-white text-center hover:shadow-xl hover:-translate-y-2 transition-all duration-300 group cursor-pointer">
                             <i class="fas {{$category->icon}} text-5xl mb-4 group-hover:text-{{$category->color}}-100 transition-colors duration-300"></i>
                             <h3 class="text-xl font-bold mb-2 group-hover:text-white">{{$category->name}}</h3>
-                            <button class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full hover:bg-opacity-30 transition-all duration-200">مشاهده</button>
-                        </div>
+                            <span class="text-sm opacity-90">{{ $category->products_count }} محصول</span>
+                            <div class="mt-4 bg-white bg-opacity-20 text-white px-4 py-2 rounded-full inline-block group-hover:bg-opacity-30 transition-all duration-200">
+                                مشاهده محصولات
+                            </div>
+                        </a>
                     @endforeach
                 </div>
             </div>

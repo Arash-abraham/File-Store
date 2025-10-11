@@ -34,7 +34,7 @@ class HomeController extends Controller
         }
 
         $products = Product::where('status', 'active')->take(8)->get(); 
-        $categories = Category::all(); 
+        $categories = Category::withCount('products')->get();
 
         return view('app.index', [
             'cartItems' => $cartItems,
