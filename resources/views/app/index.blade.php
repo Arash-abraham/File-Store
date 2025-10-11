@@ -118,8 +118,11 @@
                             <div class="relative overflow-hidden">
                                 <a href="{{ route('show-product', $product->id) }}">
                                     <img src="{{ asset($product->image_urls[0]) }}" alt="{{ $product->title }}" 
-                                         class="w-full h-48 object-cover">
-                                </a>
+                                        class="w-full h-48 object-cover">
+                                    @if (!$product->availability)
+                                        <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">ناموجود</span>
+                                    @endif
+                                    </a>
                                 <div class="p-6">
                                     <a href="{{ route('show-product', $product->id) }}">
                                         <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2">{{ $product->title }}</h3>    
@@ -135,20 +138,31 @@
                                     </div>
                                     
                                     <div class="flex gap-2">
-                                        <form action="{{ route('cart.add') }}" method="POST" class="flex-1">
-                                            @csrf
-                                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-                                            <button type="submit" 
-                                                    class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
-                                                <i class="fas fa-shopping-cart"></i>
-                                                افزودن به سبد
+                                        @if ($product->availability)
+                                            <form action="{{ route('cart.add') }}" method="POST" class="flex-1">
+                                                @csrf
+                                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                                <button type="submit" 
+                                                        class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2">
+                                                    <i class="fas fa-shopping-cart"></i>
+                                                    افزودن به سبد
+                                                </button>
+                                            </form>
+                                            <a href="{{ route('show-product', $product->id) }}">
+                                                <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </a>
+                                        @else 
+                                            <button class="w-full flex-1 bg-gray-400 text-white py-2 rounded-lg cursor-not-allowed flex items-center justify-center gap-1">
+                                                <i class="fas fa-shopping-cart"></i> افزودن به سبد
                                             </button>
-                                        </form>
-                                        <a href="{{ route('show-product', $product->id) }}">
-                                            <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                        </a>
+                                            <a href="{{ route('show-product', $product->id) }}">
+                                                <button class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </a>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -211,41 +225,5 @@
 @endsection
 
 @section('scripts')
-<script>
-    const cartToggle = document.getElementById('cart-toggle');
-    const cartModal = document.getElementById('cart-modal');
-    const closeCart = document.getElementById('close-cart');
-    const cartContent = document.getElementById('cart-content');
-    const cartCount = document.getElementById('cart-count');
-    const cartActions = document.getElementById('cart-actions');
-    const blurOverlay = document.getElementById('blur-overlay');
-        // Toggle cart modal
-    cartToggle.addEventListener('click', () => {
-        cartModal.classList.toggle('show');
-        blurOverlay.classList.toggle('show');
-        if (cartModal.classList.contains('show')) {
-            renderCart();
-            positionCartModal();
-        }
-    });
-    // Position cart modal
-    function positionCartModal() {
-        cartModal.style.top = '80px';
-        cartModal.style.left = '20px';
-    }
-    // Close cart modal
-    closeCart.addEventListener('click', () => {
-        cartModal.classList.remove('show');
-        blurOverlay.classList.remove('show');
-    });
-
-    // Close cart modal on overlay click
-    blurOverlay.addEventListener('click', () => {
-        cartModal.classList.remove('show');
-        blurOverlay.classList.remove('show');
-    });
-    function formatPrice(price) {
-        return new Intl.NumberFormat('fa-IR').format(price);
-    }
-</script>
+    <script src="{{asset('js/modal.js')}}"></script>
 @endsection

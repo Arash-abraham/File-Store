@@ -48,8 +48,24 @@ class HomeController extends Controller
         return view('app.category');
     }
     public function products(Request $request){
+        $cart = $this->cartService->getCart(auth()->id(), session()->getId());
+        $cartItems = collect();
+        $total = 0;
+        $discount = 0;
+    
+        if ($cart) {
+            $cartItems = $cart->items()->with('product')->get();
+            $total = $cart->total;
+            $discount = session('discount', 0);
+        }
+        
         $query = Product::with('category');
     
+        // اگر category در URL وجود داشت
+        if ($request->has('category')) {
+            $query->where('category_id', $request->category);
+        }
+        
         if ($request->has('availability') && $request->availability !== 'all') {
             $query->where('availability', $request->availability === 'available');
         }
@@ -71,10 +87,23 @@ class HomeController extends Controller
         
         $products = $query->paginate(12);
         $categories = Category::all();
+        $selectedCategory = $request->get('category'); // اضافه شد
         
-        return view('app.products', compact('products', 'categories'));
+        return view('app.products', compact('products', 'categories', 'cartItems', 'total', 'discount', 'selectedCategory'));
     }
+
     public function productsWithCategory(Request $request) {
+        $cart = $this->cartService->getCart(auth()->id(), session()->getId());
+        $cartItems = collect();
+        $total = 0;
+        $discount = 0;
+
+        if ($cart) {
+            $cartItems = $cart->items()->with('product')->get();
+            $total = $cart->total;
+            $discount = session('discount', 0);
+        }
+
         $categories = Category::all();
         $selectedCategory = $request->get('category');
         
@@ -85,17 +114,39 @@ class HomeController extends Controller
             ->with('category')
             ->latest()
             ->get();
-        return view('app.products', compact('categories', 'products', 'selectedCategory'));
+        return view('app.products', compact('products', 'categories','cartItems','total','discount','selectedCategory'));
     }
     public function faq() {
         $categories = Category::all();
+        $cart = $this->cartService->getCart(auth()->id(), session()->getId());
+        $cartItems = collect();
+        $total = 0;
+        $discount = 0;
+    
+        if ($cart) {
+            $cartItems = $cart->items()->with('product')->get();
+            $total = $cart->total;
+            $discount = session('discount', 0);
+        }
+
         $faqs = Faq::all();
-        return view('app.faq',compact('faqs','categories'));
+        return view('app.faq',compact('faqs','categories','discount','cartItems', 'total'));
     }
     public function showProduct(string $id) {
+        $cart = $this->cartService->getCart(auth()->id(), session()->getId());
+        $cartItems = collect();
+        $total = 0;
+        $discount = 0;
+    
+        if ($cart) {
+            $cartItems = $cart->items()->with('product')->get();
+            $total = $cart->total;
+            $discount = session('discount', 0);
+        }
+        
         $product = Product::findOrFail($id);
         $tag = Tag::findOrFail($product['tag_id']);
         $categories = Category::all();
-        return view('app.show-product',compact('product','categories','tag'));
+        return view('app.show-product',compact('product','categories','tag','cartItems', 'total', 'discount'));
     }
 }

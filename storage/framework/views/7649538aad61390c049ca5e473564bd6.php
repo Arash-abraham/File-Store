@@ -6,21 +6,57 @@
 
 <?php $__env->startSection('content'); ?>
     <div id="main-content">
-        <div id="blur-overlay" class="hidden"></div>
-        <div id="cart-modal" class="w-80 bg-gray-800 text-white rounded-lg shadow-lg p-4 hidden z-50">
-            <div class="flex justify-between items-center mb-2">
+
+        <div id="cart-modal" class="fixed w-80 bg-white text-gray-800 rounded-xl shadow-2xl p-0 hidden z-50 border border-gray-200">
+            <div class="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-t-xl">
                 <h2 class="text-lg font-bold">سبد خرید</h2>
-                <button id="close-cart" class="text-gray-400 hover:text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button id="close-cart" class="text-white hover:bg-white/20 p-1 rounded-full transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
             </div>
-            <div id="cart-content" class="max-h-64 overflow-y-auto mb-4">
-                <!-- محتوای سبد خرید اینجا رندر می‌شود -->
+            
+            <div id="cart-content" class="max-h-64 overflow-y-auto p-4 space-y-3">
+                <?php if($cartItems->isEmpty()): ?>
+                    <p class="text-center text-gray-500 text-sm">سبد خرید خالی است</p>
+                <?php else: ?>
+                    <?php $__currentLoopData = $cartItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <div class="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
+                            <div class="flex items-center space-x-3 space-x-reverse">
+                                <img src="<?php echo e(asset($item->product->image_urls[0] ?? 'images/placeholder.jpg')); ?>" 
+                                    alt="<?php echo e($item->product->title); ?>" class="w-12 h-12 object-cover rounded-lg shadow-sm">
+                                <div>
+                                    <h3 class="text-sm font-semibold"><?php echo e($item->product->title); ?></h3>
+                                    <p class="text-xs text-purple-600 font-medium"><?php echo e(number_format($item->unit_price)); ?> تومان</p>
+                                </div>
+                            </div>
+                            <form action="<?php echo e(route('cart.remove', $item->id)); ?>" method="POST" class="inline">
+                                <?php echo csrf_field(); ?>
+                                <?php echo method_field('DELETE'); ?>
+                                <button type="submit" class="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-full transition-colors">
+                                    <i class="fas fa-trash-alt text-sm"></i>
+                                </button>
+                            </form>
+                        </div>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endif; ?>
             </div>
-            <div id="cart-actions" class="mt-4"></div>
-        </div>
+            
+            <div class="p-4 border-t border-gray-200 bg-gray-50 rounded-b-xl">
+                <div class="flex justify-between items-center mb-2">
+                    <span class="text-sm text-gray-600">جمع کل:</span>
+                    <span class="text-lg font-bold text-purple-700"><?php echo e(number_format($total)); ?> تومان</span>
+                </div>
+                <?php if(!$cartItems->isEmpty()): ?>
+                    <a href="<?php echo e(route('checkout.show')); ?>" 
+                    class="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white py-3 rounded-lg font-semibold transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2">
+                        <i class="fas fa-credit-card"></i>
+                        تسویه حساب
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>     
 
         <!-- Breadcrumb -->
         <section class="bg-white py-4">
@@ -56,6 +92,11 @@
                                 <h3 class="text-lg font-bold mb-6">فیلترها</h3>
                                 
                                 <form id="filter-form" method="GET" action="<?php echo e(route('products')); ?>">
+                                    <!-- فیلد مخفی برای حفظ category -->
+                                    <?php if($selectedCategory): ?>
+                                        <input type="hidden" name="category" value="<?php echo e($selectedCategory); ?>">
+                                    <?php endif; ?>
+                                    
                                     <!-- Availability Filter -->
                                     <div class="mb-6">
                                         <h4 class="font-semibold mb-3">وضعیت موجودی</h4>
@@ -83,8 +124,7 @@
                                             </label>
                                         </div>
                                     </div>
-                                    
-
+                    
                                     <div class="mb-6">
                                         <h4 class="font-semibold mb-3">بازه قیمتی (تومان)</h4>
                                         <div class="flex flex-wrap items-center gap-2 mb-2">
@@ -104,22 +144,25 @@
                                             اعمال فیلتر قیمت
                                         </button>
                                     </div>
-                                    <!-- Category Filter -->
-                                    <div class="mb-6">
-                                        <h4 class="font-semibold mb-3">دسته بندی</h4>
-                                        <div class="space-y-2 max-h-60 overflow-y-auto">
-                                            <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                            <label class="flex items-center">
-                                                <input type="checkbox" name="categories[]" 
-                                                    value="<?php echo e($category->id); ?>"
-                                                    <?php echo e(in_array($category->id, (array)request('categories', [])) ? 'checked' : ''); ?>
+                                    
+                                    <!-- Category Filter - فقط وقتی که category در URL نیست -->
+                                    <?php if(!$selectedCategory): ?>
+                                        <div class="mb-6">
+                                            <h4 class="font-semibold mb-3">دسته بندی</h4>
+                                            <div class="space-y-2 max-h-60 overflow-y-auto">
+                                                <?php $__currentLoopData = $categories; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $category): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                <label class="flex items-center">
+                                                    <input type="checkbox" name="categories[]" 
+                                                        value="<?php echo e($category->id); ?>"
+                                                        <?php echo e(in_array($category->id, (array)request('categories', [])) ? 'checked' : ''); ?>
 
-                                                    class="category-filter ml-2 text-blue-600 focus:ring-blue-500">
-                                                <span><?php echo e($category->name); ?></span>
-                                            </label>
-                                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                        class="category-filter ml-2 text-blue-600 focus:ring-blue-500">
+                                                    <span><?php echo e($category->name); ?></span>
+                                                </label>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                            </div>
                                         </div>
-                                    </div>
+                                    <?php endif; ?>
                                     
                                     <!-- Clear Filters -->
                                     <a href="<?php echo e(route('products')); ?>" 
@@ -130,7 +173,6 @@
                             </div>
                         </div>
                     <?php endif; ?>
-
                     <!-- Products Grid -->
                     <div class="lg:w-3/4">                        
                         <!-- Products -->
@@ -217,6 +259,7 @@
 
 <?php $__env->startSection('scripts'); ?>
     <script src="<?php echo e(asset('js/products.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/modal.js')); ?>"></script>
 
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('app.layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /opt/lampp/htdocs/File-Store/resources/views/app/products.blade.php ENDPATH**/ ?>

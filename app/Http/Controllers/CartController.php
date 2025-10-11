@@ -52,7 +52,7 @@ class CartController extends Controller
                 ]);
             }
     
-            return redirect()->route('home')->with('success', 'محصول به سبد خرید اضافه شد');
+            return redirect()->back()->with('success', 'محصول به سبد خرید اضافه شد');
         } catch (\Exception $e) {
             if ($request->ajax()) {
                 return response()->json([
