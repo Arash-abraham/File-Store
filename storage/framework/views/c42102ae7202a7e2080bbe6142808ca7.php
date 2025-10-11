@@ -114,25 +114,6 @@
                             </div>
                             
                             <div class="flex items-center gap-4">
-                                <!-- فرم بروزرسانی تعداد -->
-                                <form action="<?php echo e(route('cart.update', $item->id)); ?>" method="POST" class="flex items-center">
-                                    <?php echo csrf_field(); ?>
-                                    <?php echo method_field('PATCH'); ?>
-                                    <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
-                                        <button type="button" class="decrement-btn px-3 py-1 bg-gray-100 hover:bg-gray-200 transition-colors">
-                                            <i class="fas fa-minus text-gray-600"></i>
-                                        </button>
-                                        <input type="number" name="quantity" value="<?php echo e($item->quantity); ?>" min="1" 
-                                               class="w-16 text-center border-0 focus:ring-0">
-                                        <button type="button" class="increment-btn px-3 py-1 bg-gray-100 hover:bg-gray-200 transition-colors">
-                                            <i class="fas fa-plus text-gray-600"></i>
-                                        </button>
-                                    </div>
-                                    <button type="submit" class="text-blue-500 hover:text-blue-700 mr-3 transition-colors">
-                                        <i class="fas fa-sync-alt"></i>
-                                    </button>
-                                </form>
-                                
                                 <!-- فرم حذف محصول -->
                                 <form action="<?php echo e(route('cart.remove', $item->id)); ?>" method="POST">
                                     <?php echo csrf_field(); ?>

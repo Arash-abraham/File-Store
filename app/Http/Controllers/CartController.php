@@ -64,46 +64,6 @@ class CartController extends Controller
         }
     }
 
-    public function updateCart(Request $request, $cartItemId)
-    {
-        $request->validate([
-            'quantity' => 'required|integer|min:1'
-        ]);
-    
-        try {
-            $this->cartService->updateQuantity($cartItemId, $request->quantity);
-    
-            if ($request->ajax()) {
-                $cart = $this->cartService->getCart(auth()->id(), session()->getId());
-                $cartItems = $cart ? $cart->items()->with('product')->get() : collect();
-                $total = $cart ? $cart->total : 0;
-                $discount = session('discount', 0);
-    
-                return response()->json([
-                    'success' => true,
-                    'message' => 'تعداد محصول بروزرسانی شد',
-                    'cartItems' => $cartItems,
-                    'total' => $total,
-                    'discount' => $discount,
-                    'html' => view('app.partials.cart-content', [
-                        'cartItems' => $cartItems,
-                        'total' => $total,
-                        'discount' => $discount
-                    ])->render()
-                ]);
-            }
-    
-            return redirect()->route('cart.show')->with('success', 'تعداد محصول بروزرسانی شد');
-        } catch (\Exception $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage() ?: 'خطا در بروزرسانی سبد خرید'
-                ], 400);
-            }
-            return back()->with('error', $e->getMessage() ?: 'خطا در بروزرسانی سبد خرید');
-        }
-    }
     
 
     public function removeFromCart(Request $request, $cartItemId)
@@ -131,7 +91,7 @@ class CartController extends Controller
                 ]);
             }
     
-            return redirect()->route('cart.show')->with('success', 'محصول از سبد خرید حذف شد');
+            return redirect()->back()->with('success', 'محصول از سبد خرید حذف شد');
         } catch (\Exception $e) {
             if ($request->ajax()) {
                 return response()->json([

@@ -26,11 +26,14 @@ class HomeController extends Controller
         $cartItems = collect();
         $total = 0;
         $discount = 0;
+        $count = 0;
 
         if ($cart) {
             $cartItems = $cart->items()->with('product')->get();
             $total = $cart->total;
             $discount = session('discount', 0);
+            $count = count($cartItems);
+
         }
 
         $products = Product::where('status', 'active')->take(8)->get(); 
@@ -42,26 +45,26 @@ class HomeController extends Controller
             'discount' => $discount,
             'products' => $products,
             'categories' => $categories,
+            'count' => $count
         ]);
     }
-    public function category() {
-        return view('app.category');
-    }
+
     public function products(Request $request){
         $cart = $this->cartService->getCart(auth()->id(), session()->getId());
         $cartItems = collect();
         $total = 0;
         $discount = 0;
-    
+        $count = 0;
+
         if ($cart) {
             $cartItems = $cart->items()->with('product')->get();
             $total = $cart->total;
             $discount = session('discount', 0);
+            $count = count($cartItems);
         }
         
         $query = Product::with('category');
     
-        // اگر category در URL وجود داشت
         if ($request->has('category')) {
             $query->where('category_id', $request->category);
         }
@@ -89,7 +92,7 @@ class HomeController extends Controller
         $categories = Category::all();
         $selectedCategory = $request->get('category'); // اضافه شد
         
-        return view('app.products', compact('products', 'categories', 'cartItems', 'total', 'discount', 'selectedCategory'));
+        return view('app.products', compact('products', 'categories', 'cartItems', 'total', 'discount', 'count' ,'selectedCategory'));
     }
 
     public function productsWithCategory(Request $request) {
@@ -97,11 +100,13 @@ class HomeController extends Controller
         $cartItems = collect();
         $total = 0;
         $discount = 0;
+        $count = 0;
 
         if ($cart) {
             $cartItems = $cart->items()->with('product')->get();
             $total = $cart->total;
             $discount = session('discount', 0);
+            $count = count($cartItems);
         }
 
         $categories = Category::all();
@@ -114,7 +119,7 @@ class HomeController extends Controller
             ->with('category')
             ->latest()
             ->get();
-        return view('app.products', compact('products', 'categories','cartItems','total','discount','selectedCategory'));
+        return view('app.products', compact('products', 'categories','cartItems','total','discount','count','selectedCategory'));
     }
     public function faq() {
         $categories = Category::all();
@@ -122,31 +127,34 @@ class HomeController extends Controller
         $cartItems = collect();
         $total = 0;
         $discount = 0;
-    
+        $count = 0;
+
         if ($cart) {
             $cartItems = $cart->items()->with('product')->get();
             $total = $cart->total;
             $discount = session('discount', 0);
+            $count = count($cartItems);
         }
 
         $faqs = Faq::all();
-        return view('app.faq',compact('faqs','categories','discount','cartItems', 'total'));
+        return view('app.faq',compact('faqs','categories','discount','cartItems', 'total','count'));
     }
     public function showProduct(string $id) {
         $cart = $this->cartService->getCart(auth()->id(), session()->getId());
         $cartItems = collect();
         $total = 0;
         $discount = 0;
-    
-        if ($cart) {
+        $count = 0;
+        if ($cartItems) {
             $cartItems = $cart->items()->with('product')->get();
             $total = $cart->total;
+            $count = count($cartItems);
             $discount = session('discount', 0);
         }
         
         $product = Product::findOrFail($id);
         $tag = Tag::findOrFail($product['tag_id']);
         $categories = Category::all();
-        return view('app.show-product',compact('product','categories','tag','cartItems', 'total', 'discount'));
+        return view('app.show-product',compact('product','categories','tag','cartItems', 'total', 'discount','count'));
     }
 }

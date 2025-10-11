@@ -45,7 +45,7 @@
                 <div class="flex items-center gap-4"> 
                     <button id="cart-toggle" class="relative p-3 text-gray-600 hover:text-blue-600 transition-colors">
                         <i class="fas fa-shopping-cart text-xl"></i>
-                        <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">0</span>
+                        <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center"><?php echo e($count); ?></span>
                     </button>
                 </div>
             </div>
