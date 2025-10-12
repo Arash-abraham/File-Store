@@ -25,7 +25,7 @@
                 <i class="fas fa-percent w-5 ml-3"></i>
                 <span>کدهای تخفیف</span>
             </a>
-            <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="comments">
+            <a href="{{route('admin.review.index')}}" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="comments">
                 <i class="fas fa-comments w-5 ml-3"></i>
                 <span>نظرات</span>
             </a>

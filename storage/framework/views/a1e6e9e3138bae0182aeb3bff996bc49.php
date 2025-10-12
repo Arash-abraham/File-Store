@@ -110,12 +110,7 @@
                         </div>
                         
                         <h1 class="text-3xl font-bold text-gray-800 mb-4"><?php echo e($product->title); ?></h1>
-                        
-                        <div class="flex items-center gap-4 mb-6">
-                            <div class="flex items-center text-yellow-500">
-                                <span class="text-gray-600 mr-2">126 نظر</span>
-                            </div>
-                        </div>
+                    
 
                         <div class="mb-6">
                             <div class="flex items-center gap-4">
@@ -167,7 +162,7 @@
                             فایل‌های مرتبط
                         </button>
                         <button class="tab-button px-8 py-4 font-semibold text-gray-600 hover:text-blue-600 transition-colors" onclick="showTab('reviews')">
-                            نظرات (126)
+                            نظرات
                         </button>
                     </nav>
                 </div>
@@ -215,7 +210,94 @@
                     </div>
 
                     <div id="reviews" class="tab-content hidden">
-                        <!-- محتوای نظرات -->
+                        <h3 class="text-2xl font-bold mb-6">نظرات کاربران</h3>
+                        
+                        <!-- Submit Review Form (Only for logged-in users) -->
+                        <?php if(auth()->guard()->check()): ?>
+                            <div class="bg-blue-50 rounded-lg p-6 mb-8">
+                                <h4 class="text-xl font-bold mb-4">ثبت نظر شما</h4>
+
+                                <form action="<?php echo e(route('review.store')); ?>" method="POST">
+                                    <?php echo csrf_field(); ?>
+                                    <input type="hidden" name="product_id" value="<?php echo e($product->id); ?>">
+
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700 font-semibold mb-2">نظر شما:</label>
+                                        <textarea name="body" rows="5" 
+                                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                                placeholder="نظر خود را درباره این محصول بنویسید... (حداقل 10 کاراکتر)"
+                                                required><?php echo e(old('body')); ?></textarea>
+                                        <?php $__errorArgs = ['body'];
+$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
+if ($__bag->has($__errorArgs[0])) :
+if (isset($message)) { $__messageOriginal = $message; }
+$message = $__bag->first($__errorArgs[0]); ?>
+                                            <span class="text-red-500 text-sm"><?php echo e($message); ?></span>
+                                        <?php unset($message);
+if (isset($__messageOriginal)) { $message = $__messageOriginal; }
+endif;
+unset($__errorArgs, $__bag); ?>
+                                    </div>
+
+                                    <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                                        <i class="fas fa-paper-plane ml-2"></i>ارسال نظر
+                                    </button>
+                                </form>
+                            </div>
+                        <?php else: ?>
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8 text-center">
+                                <i class="fas fa-info-circle text-yellow-600 text-3xl mb-3"></i>
+                                <p class="text-gray-700 mb-4">برای ثبت نظر ابتدا باید وارد حساب کاربری خود شوید</p>
+                                <a href="<?php echo e(route('login')); ?>" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                                    ورود به حساب کاربری
+                                </a>
+                            </div>
+                        <?php endif; ?>
+
+                        <!-- Reviews List -->
+                        <div class="space-y-6">
+                            <?php $__empty_1 = true; $__currentLoopData = $product->approvedReviews()->latest()->get(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $review): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                                <div class="border rounded-lg p-6 hover:shadow-md transition">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h5 class="font-bold text-gray-800"><?php echo e($review->user->name ?? 'کاربر'); ?></h5>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <span class="text-sm text-gray-500">
+                                                    <?php echo e(\Morilog\Jalali\Jalalian::forge($review->created_at)->format('Y/m/d')); ?>
+
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="text-gray-700 leading-relaxed mb-4"><?php echo e($review->body); ?></p>
+                                    
+                                    <?php if(auth()->guard()->check()): ?>
+                                        <div class="flex gap-4 text-sm">
+                                            <form action="<?php echo e(route('review.helpful', $review->id)); ?>" method="POST" class="inline">
+                                                <?php echo csrf_field(); ?>
+                                                <button type="submit" class="text-gray-600 hover:text-green-600 transition">
+                                                    <i class="far fa-thumbs-up ml-1"></i>
+                                                    مفید بود (<?php echo e($review->helpful_count); ?>)
+                                                </button>
+                                            </form>
+                                            <form action="<?php echo e(route('review.report', $review->id)); ?>" method="POST" class="inline">
+                                                <?php echo csrf_field(); ?>
+                                                <button type="submit" class="text-gray-600 hover:text-red-600 transition"
+                                                        >
+                                                    <i class="far fa-flag ml-1"></i>گزارش
+                                                </button>
+                                            </form>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                                <div class="text-center py-12 text-gray-500">
+                                    <i class="fas fa-comments text-5xl mb-4"></i>
+                                    <p>هنوز نظری ثبت نشده است. اولین نفر باشید!</p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -255,8 +337,14 @@
                 button.classList.remove('active', 'border-b-2', 'border-blue-500', 'text-blue-600');
                 button.classList.add('text-gray-600');
             });
-            document.getElementById(tabName).classList.remove('hidden');
-            event.target.classList.add('active', 'border-b-2', 'border-blue-500', 'text-blue-600');
+            const activeTab = document.getElementById(tabName);
+            if (activeTab) {
+                activeTab.classList.remove('hidden');
+                const activeButton = document.querySelector(`button[onclick="showTab('${tabName}')"]`);
+                if (activeButton) {
+                    activeButton.classList.add('active', 'border-b-2', 'border-blue-500', 'text-blue-600');
+                }
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -264,10 +352,22 @@
             if (firstThumbnail) {
                 firstThumbnail.classList.add('border-blue-500', 'scale-105');
             }
+
+            // چک کردن sessionStorage یا URL برای فعال کردن تب
+            const savedTab = sessionStorage.getItem('activeTab') || window.location.hash.replace('#', '');
+            const tabToShow = (savedTab === 'reviews' || savedTab === 'description' || savedTab === 'files') ? savedTab : 'description';
+            showTab(tabToShow);
+
+            // اضافه کردن #reviews به فرم ثبت نظر
+            const reviewForm = document.querySelector('form[action="<?php echo e(route('review.store')); ?>"]');
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', function() {
+                    sessionStorage.setItem('activeTab', 'reviews'); // ذخیره تب فعال
+                    window.location.hash = 'reviews'; // اضافه کردن #reviews به URL
+                });
+            }
         });
-        
     </script>
     <script src="<?php echo e(asset('js/modal.js')); ?>"></script>
-
 <?php $__env->stopSection(); ?>
 <?php echo $__env->make('app.layouts.master', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /opt/lampp/htdocs/File-Store/resources/views/app/show-product.blade.php ENDPATH**/ ?>

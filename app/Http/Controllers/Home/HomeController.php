@@ -23,138 +23,103 @@ class HomeController extends Controller
     public function index()
     {
         $cart = $this->cartService->getCart(auth()->id(), session()->getId());
-        $cartItems = collect();
-        $total = 0;
-        $discount = 0;
-        $count = 0;
+        $cartItems = $cart ? $cart->items()->with('product')->get() : collect();
+        $total = $cart ? $cart->total : 0;
+        $discount = session('discount', 0);
+        $count = $cartItems->count();
 
-        if ($cart) {
-            $cartItems = $cart->items()->with('product')->get();
-            $total = $cart->total;
-            $discount = session('discount', 0);
-            $count = count($cartItems);
-
-        }
-
-        $products = Product::where('status', 'active')->take(8)->get(); 
+        $products = Product::where('status', 'active')->take(8)->get();
         $categories = Category::withCount('products')->get();
 
-        return view('app.index', [
-            'cartItems' => $cartItems,
-            'total' => $total,
-            'discount' => $discount,
-            'products' => $products,
-            'categories' => $categories,
-            'count' => $count
-        ]);
+        return view('app.index', compact('cartItems', 'total', 'discount', 'products', 'categories', 'count'));
     }
 
-    public function products(Request $request){
+    public function products(Request $request)
+    {
         $cart = $this->cartService->getCart(auth()->id(), session()->getId());
-        $cartItems = collect();
-        $total = 0;
-        $discount = 0;
-        $count = 0;
+        $cartItems = $cart ? $cart->items()->with('product')->get() : collect();
+        $total = $cart ? $cart->total : 0;
+        $discount = session('discount', 0);
+        $count = $cartItems->count();
 
-        if ($cart) {
-            $cartItems = $cart->items()->with('product')->get();
-            $total = $cart->total;
-            $discount = session('discount', 0);
-            $count = count($cartItems);
-        }
-        
         $query = Product::with('category');
-    
+
         if ($request->has('category')) {
             $query->where('category_id', $request->category);
         }
-        
+
         if ($request->has('availability') && $request->availability !== 'all') {
             $query->where('availability', $request->availability === 'available');
         }
-        
+
         if ($request->filled('price_min')) {
-            $minPrice = $request->price_min; 
-            $query->where('original_price', '>=', $minPrice);
+            $query->where('original_price', '>=', $request->price_min);
         }
-        
+
         if ($request->filled('price_max')) {
-            $maxPrice = $request->price_max; 
-            $query->where('original_price', '<=', $maxPrice);
+            $query->where('original_price', '<=', $request->price_max);
         }
-        
+
         if ($request->filled('categories')) {
             $categoryIds = is_array($request->categories) ? $request->categories : [$request->categories];
             $query->whereIn('category_id', $categoryIds);
         }
-        
+
         $products = $query->paginate(12);
         $categories = Category::all();
-        $selectedCategory = $request->get('category'); // اضافه شد
-        
-        return view('app.products', compact('products', 'categories', 'cartItems', 'total', 'discount', 'count' ,'selectedCategory'));
+        $selectedCategory = $request->get('category');
+
+        return view('app.products', compact('products', 'categories', 'cartItems', 'total', 'discount', 'count', 'selectedCategory'));
     }
 
-    public function productsWithCategory(Request $request) {
+    public function productsWithCategory(Request $request)
+    {
         $cart = $this->cartService->getCart(auth()->id(), session()->getId());
-        $cartItems = collect();
-        $total = 0;
-        $discount = 0;
-        $count = 0;
-
-        if ($cart) {
-            $cartItems = $cart->items()->with('product')->get();
-            $total = $cart->total;
-            $discount = session('discount', 0);
-            $count = count($cartItems);
-        }
+        $cartItems = $cart ? $cart->items()->with('product')->get() : collect();
+        $total = $cart ? $cart->total : 0;
+        $discount = session('discount', 0);
+        $count = $cartItems->count();
 
         $categories = Category::all();
         $selectedCategory = $request->get('category');
-        
+
         $products = Product::where('status', 'active')
-            ->when($selectedCategory, function($query) use ($selectedCategory) {
+            ->when($selectedCategory, function ($query) use ($selectedCategory) {
                 return $query->where('category_id', $selectedCategory);
             })
             ->with('category')
             ->latest()
             ->get();
-        return view('app.products', compact('products', 'categories','cartItems','total','discount','count','selectedCategory'));
+
+        return view('app.products', compact('products', 'categories', 'cartItems', 'total', 'discount', 'count', 'selectedCategory'));
     }
-    public function faq() {
-        $categories = Category::all();
+
+    public function faq()
+    {
         $cart = $this->cartService->getCart(auth()->id(), session()->getId());
-        $cartItems = collect();
-        $total = 0;
-        $discount = 0;
-        $count = 0;
+        $cartItems = $cart ? $cart->items()->with('product')->get() : collect();
+        $total = $cart ? $cart->total : 0;
+        $discount = session('discount', 0);
+        $count = $cartItems->count();
 
-        if ($cart) {
-            $cartItems = $cart->items()->with('product')->get();
-            $total = $cart->total;
-            $discount = session('discount', 0);
-            $count = count($cartItems);
-        }
-
+        $categories = Category::all();
         $faqs = Faq::all();
-        return view('app.faq',compact('faqs','categories','discount','cartItems', 'total','count'));
+
+        return view('app.faq', compact('faqs', 'categories', 'cartItems', 'total', 'discount', 'count'));
     }
-    public function showProduct(string $id) {
+
+    public function showProduct(string $id)
+    {
         $cart = $this->cartService->getCart(auth()->id(), session()->getId());
-        $cartItems = collect();
-        $total = 0;
-        $discount = 0;
-        $count = 0;
-        if ($cartItems) {
-            $cartItems = $cart->items()->with('product')->get();
-            $total = $cart->total;
-            $count = count($cartItems);
-            $discount = session('discount', 0);
-        }
-        
+        $cartItems = $cart ? $cart->items()->with('product')->get() : collect();
+        $total = $cart ? $cart->total : 0;
+        $discount = session('discount', 0);
+        $count = $cartItems->count();
+
         $product = Product::findOrFail($id);
-        $tag = Tag::findOrFail($product['tag_id']);
+        $tag = Tag::findOrFail($product->tag_id);
         $categories = Category::all();
-        return view('app.show-product',compact('product','categories','tag','cartItems', 'total', 'discount','count'));
+
+        return view('app.show-product', compact('product', 'categories', 'tag', 'cartItems', 'total', 'discount', 'count'));
     }
 }

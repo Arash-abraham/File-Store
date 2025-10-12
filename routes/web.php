@@ -2,6 +2,7 @@
 // new update -> Arash-abraham
 
 use App\Http\Controllers\Admin\AdminCategoryController;
+use App\Http\Controllers\Admin\AdminCommentController;
 use App\Http\Controllers\Admin\AdminFaqController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminTagController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Home\HomeController;
+use App\Http\Controllers\ReviewController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Models\Order;
 use Illuminate\Support\Facades\Route;
@@ -58,6 +60,14 @@ Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('a
     Route::get('ticket/{process}/process' , [AdminTicketController::class,'process'])->name('ticket.process');
     Route::get('ticket/{closed}/closed' , [AdminTicketController::class,'closed'])->name('ticket.closed');
     Route::resource('product',AdminProductController::class);
+    Route::resource('review', AdminCommentController::class)->only(['index', 'show', 'destroy'])->names([
+        'index' => 'review.index',
+        'show' => 'review.show',
+        'destroy' => 'review.destroy',
+    ]);
+    Route::put('review/{review}/status', [AdminCommentController::class, 'updateStatus'])->name('review.updateStatus');
+    Route::get('review/filter/{status}', [AdminCommentController::class, 'filterByStatus'])->name('review.filter');
+    
 });
 
 Route::get('/login-email', [OtpLoginController::class, 'showEmailForm'])->name('login.email'); // show view 
@@ -71,5 +81,11 @@ Route::middleware('web')->group(function () {
     Route::post('/send-code', [VerificationController::class, 'sendCode'])->middleware('throttle:5,1')->name('sms.send');
     Route::post('/verify-code', [VerificationController::class, 'verifyCode'])->name('sms.verify-code');
 });
+
+Route::post('/reviews', [ReviewController::class, 'store'])->name('review.store');
+Route::post('/reviews/{review}/helpful', [ReviewController::class, 'markHelpful'])->name('review.helpful');
+Route::post('/reviews/{review}/report', [ReviewController::class, 'report'])->name('review.report');
+Route::put('/reviews/{review}/status', [ReviewController::class, 'updateStatus'])->name('review.updateStatus')->middleware('admin');
+
 
 require __DIR__.'/auth.php';

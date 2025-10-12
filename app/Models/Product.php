@@ -97,6 +97,26 @@ class Product extends Model
     }
 
     
+    protected $appends = ['reviews_count', 'average_rating'];
 
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function approvedReviews()
+    {
+        return $this->reviews()->approved();
+    }
+
+    public function getReviewsCountAttribute()
+    {
+        return $this->reviews()->approved()->count();
+    }
+
+    public function getAverageRatingAttribute()
+    {
+        return $this->reviews()->approved()->average('rating') ?? 0;
+    }
 
 }

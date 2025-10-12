@@ -112,12 +112,7 @@
                         </div>
                         
                         <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ $product->title }}</h1>
-                        
-                        <div class="flex items-center gap-4 mb-6">
-                            <div class="flex items-center text-yellow-500">
-                                <span class="text-gray-600 mr-2">126 نظر</span>
-                            </div>
-                        </div>
+                    
 
                         <div class="mb-6">
                             <div class="flex items-center gap-4">
@@ -169,7 +164,7 @@
                             فایل‌های مرتبط
                         </button>
                         <button class="tab-button px-8 py-4 font-semibold text-gray-600 hover:text-blue-600 transition-colors" onclick="showTab('reviews')">
-                            نظرات (126)
+                            نظرات
                         </button>
                     </nav>
                 </div>
@@ -217,7 +212,86 @@
                     </div>
 
                     <div id="reviews" class="tab-content hidden">
-                        <!-- محتوای نظرات -->
+                        <h3 class="text-2xl font-bold mb-6">نظرات کاربران</h3>
+                        
+                        <!-- Submit Review Form (Only for logged-in users) -->
+                        @auth
+                            <div class="bg-blue-50 rounded-lg p-6 mb-8">
+                                <h4 class="text-xl font-bold mb-4">ثبت نظر شما</h4>
+
+                                <form action="{{ route('review.store') }}" method="POST">
+                                    @csrf
+                                    <input type="hidden" name="product_id" value="{{ $product->id }}">
+
+                                    <div class="mb-4">
+                                        <label class="block text-gray-700 font-semibold mb-2">نظر شما:</label>
+                                        <textarea name="body" rows="5" 
+                                                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" 
+                                                placeholder="نظر خود را درباره این محصول بنویسید... (حداقل 10 کاراکتر)"
+                                                required>{{ old('body') }}</textarea>
+                                        @error('body')
+                                            <span class="text-red-500 text-sm">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+
+                                    <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                                        <i class="fas fa-paper-plane ml-2"></i>ارسال نظر
+                                    </button>
+                                </form>
+                            </div>
+                        @else
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-8 text-center">
+                                <i class="fas fa-info-circle text-yellow-600 text-3xl mb-3"></i>
+                                <p class="text-gray-700 mb-4">برای ثبت نظر ابتدا باید وارد حساب کاربری خود شوید</p>
+                                <a href="{{ route('login') }}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition">
+                                    ورود به حساب کاربری
+                                </a>
+                            </div>
+                        @endauth
+
+                        <!-- Reviews List -->
+                        <div class="space-y-6">
+                            @forelse($product->approvedReviews()->latest()->get() as $review)
+                                <div class="border rounded-lg p-6 hover:shadow-md transition">
+                                    <div class="flex justify-between items-start mb-4">
+                                        <div>
+                                            <h5 class="font-bold text-gray-800">{{ $review->user->name ?? 'کاربر' }}</h5>
+                                            <div class="flex items-center gap-2 mt-1">
+                                                <span class="text-sm text-gray-500">
+                                                    {{ \Morilog\Jalali\Jalalian::forge($review->created_at)->format('Y/m/d') }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <p class="text-gray-700 leading-relaxed mb-4">{{ $review->body }}</p>
+                                    
+                                    @auth
+                                        <div class="flex gap-4 text-sm">
+                                            <form action="{{ route('review.helpful', $review->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" class="text-gray-600 hover:text-green-600 transition">
+                                                    <i class="far fa-thumbs-up ml-1"></i>
+                                                    مفید بود ({{ $review->helpful_count }})
+                                                </button>
+                                            </form>
+                                            <form action="{{ route('review.report', $review->id) }}" method="POST" class="inline">
+                                                @csrf
+                                                <button type="submit" class="text-gray-600 hover:text-red-600 transition"
+                                                        >
+                                                    <i class="far fa-flag ml-1"></i>گزارش
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endauth
+                                </div>
+                            @empty
+                                <div class="text-center py-12 text-gray-500">
+                                    <i class="fas fa-comments text-5xl mb-4"></i>
+                                    <p>هنوز نظری ثبت نشده است. اولین نفر باشید!</p>
+                                </div>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
             </div>
@@ -257,8 +331,14 @@
                 button.classList.remove('active', 'border-b-2', 'border-blue-500', 'text-blue-600');
                 button.classList.add('text-gray-600');
             });
-            document.getElementById(tabName).classList.remove('hidden');
-            event.target.classList.add('active', 'border-b-2', 'border-blue-500', 'text-blue-600');
+            const activeTab = document.getElementById(tabName);
+            if (activeTab) {
+                activeTab.classList.remove('hidden');
+                const activeButton = document.querySelector(`button[onclick="showTab('${tabName}')"]`);
+                if (activeButton) {
+                    activeButton.classList.add('active', 'border-b-2', 'border-blue-500', 'text-blue-600');
+                }
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -266,9 +346,21 @@
             if (firstThumbnail) {
                 firstThumbnail.classList.add('border-blue-500', 'scale-105');
             }
-        });
-        
-    </script>
-    <script src="{{asset('js/modal.js')}}"></script>
 
+            // چک کردن sessionStorage یا URL برای فعال کردن تب
+            const savedTab = sessionStorage.getItem('activeTab') || window.location.hash.replace('#', '');
+            const tabToShow = (savedTab === 'reviews' || savedTab === 'description' || savedTab === 'files') ? savedTab : 'description';
+            showTab(tabToShow);
+
+            // اضافه کردن #reviews به فرم ثبت نظر
+            const reviewForm = document.querySelector('form[action="{{ route('review.store') }}"]');
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', function() {
+                    sessionStorage.setItem('activeTab', 'reviews'); // ذخیره تب فعال
+                    window.location.hash = 'reviews'; // اضافه کردن #reviews به URL
+                });
+            }
+        });
+    </script>
+    <script src="{{ asset('js/modal.js') }}"></script>
 @endsection
