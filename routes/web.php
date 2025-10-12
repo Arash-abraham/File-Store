@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\AdminCommentController;
 use App\Http\Controllers\Admin\AdminFaqController;
 use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\Admin\AdminProductController;
+use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminTagController;
 use App\Http\Controllers\Admin\AdminTicketController;
 use App\Http\Controllers\Admin\DashboardController;
@@ -71,6 +72,10 @@ Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('a
     
     Route::resource('menu', AdminMenuController::class);
     Route::get('menu/{id}/toggle-status', [AdminMenuController::class, 'toggleStatus'])->name('menu.toggle-status');
+
+    Route::get('web-setting/',[AdminSettingController::class , 'index'])->name('web-setting.index');
+    Route::get('web-setting/set',[AdminSettingController::class , 'set'])->name('web-setting.set');
+    Route::post('web-setting/update',[AdminSettingController::class , 'update'])->name('web-setting.update');
 
 });
 

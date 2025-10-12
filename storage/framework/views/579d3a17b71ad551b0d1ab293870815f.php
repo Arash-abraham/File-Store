@@ -33,7 +33,7 @@
                 <i class="fas fa-bars w-5 ml-3"></i>
                 <span>منوهای سایت</span>
             </a>
-            <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="settings">
+            <a href="<?php echo e(route('admin.web-setting.index')); ?>" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="settings">
                 <i class="fas fa-cogs w-5 ml-3"></i>
                 <span>تنظیمات سایت</span>
             </a>
