@@ -27,7 +27,7 @@
                 <div class="flex items-center">
                     <img src="https://images.pexels.com/photos/1181533/pexels-photo-1181533.jpeg?auto=compress&cs=tinysrgb&w=100" 
                          alt="لوگو فروشگاه" class="h-12 w-12 rounded-lg ml-3">
-                    <h1 class="text-2xl font-bold text-gray-800">فروشگاه آنلاین</h1>
+                    <h1 class="text-2xl font-bold text-gray-800">فایل استور</h1>
                 </div>
                 
                 <!-- Search Bar -->
@@ -54,15 +54,18 @@
         <!-- Navigation Menu -->
         <nav class="border-t border-gray-200 py-4">
             <ul class="flex justify-center gap-8 items-center">
-                <li>
-                    <a href="{{ route('home') }}" class="nav-link text-black hover:text-blue-600 transition-colors">خانه</a>
-                </li>
-                <li>
-                    <a href="{{ route('products') }}" class="nav-link text-black hover:text-blue-600 transition-colors">محصولات</a>
-                </li>           
-                <li>
-                    <a href="{{ route('faq') }}" class="nav-link text-black hover:text-blue-600 transition-colors">سوالات متداول</a>
-                </li>         
+
+                @if(isset($menus) && count($menus) > 0)
+                    @foreach($menus as $menu)
+                        <li>
+                            <a href="{{ $menu->url }}" 
+                            target="{{ $menu->target }}"
+                            class="nav-link text-black hover:text-blue-600 transition-colors">
+                                {{ $menu->title }}
+                            </a>
+                        </li>
+                    @endforeach
+                @endif
             </ul>
         </nav>
     </div>

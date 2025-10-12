@@ -27,7 +27,7 @@
                 <div class="flex items-center">
                     <img src="https://images.pexels.com/photos/1181533/pexels-photo-1181533.jpeg?auto=compress&cs=tinysrgb&w=100" 
                          alt="لوگو فروشگاه" class="h-12 w-12 rounded-lg ml-3">
-                    <h1 class="text-2xl font-bold text-gray-800">فروشگاه آنلاین</h1>
+                    <h1 class="text-2xl font-bold text-gray-800">فایل استور</h1>
                 </div>
                 
                 <!-- Search Bar -->
@@ -54,15 +54,19 @@
         <!-- Navigation Menu -->
         <nav class="border-t border-gray-200 py-4">
             <ul class="flex justify-center gap-8 items-center">
-                <li>
-                    <a href="<?php echo e(route('home')); ?>" class="nav-link text-black hover:text-blue-600 transition-colors">خانه</a>
-                </li>
-                <li>
-                    <a href="<?php echo e(route('products')); ?>" class="nav-link text-black hover:text-blue-600 transition-colors">محصولات</a>
-                </li>           
-                <li>
-                    <a href="<?php echo e(route('faq')); ?>" class="nav-link text-black hover:text-blue-600 transition-colors">سوالات متداول</a>
-                </li>         
+
+                <?php if(isset($menus) && count($menus) > 0): ?>
+                    <?php $__currentLoopData = $menus; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $menu): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li>
+                            <a href="<?php echo e($menu->url); ?>" 
+                            target="<?php echo e($menu->target); ?>"
+                            class="nav-link text-black hover:text-blue-600 transition-colors">
+                                <?php echo e($menu->title); ?>
+
+                            </a>
+                        </li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                <?php endif; ?>
             </ul>
         </nav>
     </div>

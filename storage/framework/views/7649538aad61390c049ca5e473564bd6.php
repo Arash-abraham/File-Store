@@ -64,7 +64,7 @@
                 <nav class="text-sm text-gray-600">
                     <ol class="list-none p-0 inline-flex">
                         <li class="flex items-center">
-                            <a href="index.html" class="hover:text-blue-600">خانه</a>
+                            <a href="<?php echo e(route('home')); ?>" class="hover:text-blue-600">خانه</a>
                             <i class="fas fa-chevron-left mx-2"></i>
                         </li>
                         <li id="breadcrumbCategory" class="text-gray-500">محصولات</li>

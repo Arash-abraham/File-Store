@@ -65,7 +65,7 @@
                 <nav class="text-sm text-gray-600">
                     <ol class="list-none p-0 inline-flex">
                         <li class="flex items-center">
-                            <a href="index.html" class="hover:text-blue-600">خانه</a>
+                            <a href="{{route('home')}}" class="hover:text-blue-600">خانه</a>
                             <i class="fas fa-chevron-left mx-2"></i>
                         </li>
                         <li class="text-gray-500">سوالات متداول</li>

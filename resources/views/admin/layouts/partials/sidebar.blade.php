@@ -29,7 +29,7 @@
                 <i class="fas fa-comments w-5 ml-3"></i>
                 <span>نظرات</span>
             </a>
-            <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="menus">
+            <a href="{{ route('admin.menu.index') }}" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="menus">
                 <i class="fas fa-bars w-5 ml-3"></i>
                 <span>منوهای سایت</span>
             </a>

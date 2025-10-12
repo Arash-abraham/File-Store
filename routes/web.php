@@ -4,6 +4,7 @@
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminCommentController;
 use App\Http\Controllers\Admin\AdminFaqController;
+use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminTagController;
 use App\Http\Controllers\Admin\AdminTicketController;
@@ -68,6 +69,9 @@ Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('a
     Route::put('review/{review}/status', [AdminCommentController::class, 'updateStatus'])->name('review.updateStatus');
     Route::get('review/filter/{status}', [AdminCommentController::class, 'filterByStatus'])->name('review.filter');
     
+    Route::resource('menu', AdminMenuController::class);
+    Route::get('menu/{id}/toggle-status', [AdminMenuController::class, 'toggleStatus'])->name('menu.toggle-status');
+
 });
 
 Route::get('/login-email', [OtpLoginController::class, 'showEmailForm'])->name('login.email'); // show view 
