@@ -3,11 +3,24 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class WebSetting extends Model
 {
-    use SoftDeletes;
+    protected $fillable = [
+        'site_title',
+        'site_description',
+        'phone',
+        'email',
+        'address',
+        'logo_path',
+        'icon_path',
+    ];
 
-    protected $fillable = ['title', 'description' , 'keywords' , 'logo' , 'icon'];
+    protected $casts = [
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+    ];
+
+
+    public $timestamps = true;
 }

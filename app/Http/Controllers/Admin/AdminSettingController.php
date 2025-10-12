@@ -3,79 +3,124 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Setting;
 use App\Models\WebSetting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\File;
 
 class AdminSettingController extends Controller
 {
-    public function index() {
+    public function index()
+    {
+        $settings = WebSetting::first();
+        
+        if (!$settings) {
+            $settings = new WebSetting();
+        }
+        
+        return view('admin.layouts.sections.setting', compact('settings'));
+    }
 
-        return view('admin.layouts.sections.setting');
-    }
-    public function set() {
-        $details = WebSetting::all();
-        return view('admin.web-setting.set',compact('details'));
-    }
-    public function update(Request $request) {
-        $details = WebSetting::first();
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string|max:500',
-            'keywords' => 'nullable|string|max:255',
-            'logo' => 'nullable|image|mimes:png,jpg,jpeg|max:2048', 
-            'icon' => 'nullable|image|mimes:png,jpg,jpeg|max:2048', 
+    public function update(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'site_title' => 'required|string|max:255',
+            'site_description' => 'nullable|string',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email',
+            'address' => 'nullable|string|max:500',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,ico|max:1024',
         ]);
 
-        $uploadPath = public_path('uploads');
-        $logoFileName = 'logo.png';
-        $iconFileName = 'icon.png';
-        $logoPath = 'uploads/' . $logoFileName;
-        $iconPath = 'uploads/' . $iconFileName;
-
-        if (!file_exists($uploadPath)) {
-            mkdir($uploadPath, 0755, true);
+        if ($validator->fails()) {
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
         }
-        if ($details) {
-            if ($request->hasFile('logo')) {
 
-                if ($details->logo && file_exists(public_path($details->logo))) {
-                    unlink(public_path($details->logo));
-                }
-                $request->file('logo')->move($uploadPath, $logoFileName);
-                $validated['logo'] = $logoPath;
-            } 
-            else {
-                $validated['logo'] = $details->logo; 
-            }
-
-            if ($request->hasFile('icon')) {
-                if ($details->icon && file_exists(public_path($details->icon))) {
-                    unlink(public_path($details->icon));
-                }
-                $request->file('icon')->move($uploadPath, $iconFileName);
-                $validated['icon'] = $iconPath;
-            } else {
-                $validated['icon'] = $details->icon; 
-            }
-
-            $details->update($validated);
-
-            return redirect()->route('admin.web-setting.index')->with('success', 'Settings updated successfully');
+        $settings = WebSetting::first();
+        
+        if (!$settings) {
+            $settings = new WebSetting();
         }
-        else {
 
-            if ($request->hasFile('logo')) {
-                $request->file('logo')->move($uploadPath, $logoFileName);
-                $validated['logo'] = $logoPath;
-            }
-            if ($request->hasFile('icon')) {
-                $request->file('icon')->move($uploadPath, $iconFileName);
-                $validated['icon'] = $iconPath;
+        // Handle logo upload - ذخیره در public
+        if ($request->hasFile('logo')) {
+            // ایجاد پوشه اگر وجود نداشت
+            $logoDirectory = public_path('uploads/settings/logo');
+            if (!File::exists($logoDirectory)) {
+                File::makeDirectory($logoDirectory, 0755, true);
             }
 
-            WebSetting::create($validated);
-
-            return redirect()->route('admin.web-setting.index')->with('success', 'Settings created successfully');
+            // حذف لوگوی قبلی اگر وجود داشت
+            if ($settings->logo_path && File::exists(public_path($settings->logo_path))) {
+                File::delete(public_path($settings->logo_path));
+            }
+            
+            // آپلود فایل جدید
+            $logoFile = $request->file('logo');
+            $logoFileName = 'logo_' . time() . '.' . $logoFile->getClientOriginalExtension();
+            $logoFile->move($logoDirectory, $logoFileName);
+            
+            $settings->logo_path = 'uploads/settings/logo/' . $logoFileName;
         }
+
+        // Handle icon upload - ذخیره در public
+        if ($request->hasFile('icon')) {
+            // ایجاد پوشه اگر وجود نداشت
+            $iconDirectory = public_path('uploads/settings/icon');
+            if (!File::exists($iconDirectory)) {
+                File::makeDirectory($iconDirectory, 0755, true);
+            }
+
+            // حذف آیکون قبلی اگر وجود داشت
+            if ($settings->icon_path && File::exists(public_path($settings->icon_path))) {
+                File::delete(public_path($settings->icon_path));
+            }
+            
+            // آپلود فایل جدید
+            $iconFile = $request->file('icon');
+            $iconFileName = 'icon_' . time() . '.' . $iconFile->getClientOriginalExtension();
+            $iconFile->move($iconDirectory, $iconFileName);
+            
+            $settings->icon_path = 'uploads/settings/icon/' . $iconFileName;
+        }
+
+        // Update other settings
+        $settings->site_title = $request->site_title;
+        $settings->site_description = $request->site_description;
+        $settings->phone = $request->phone;
+        $settings->email = $request->email;
+        $settings->address = $request->address;
+        
+        $settings->save();
+
+        return redirect()->back()->with('success', 'تنظیمات با موفقیت به روز شد.');
+    }
+
+    // متد جدید برای حذف تصاویر
+    public function removeImage(Request $request)
+    {
+        $request->validate([
+            'image_type' => 'required|in:logo,icon'
+        ]);
+
+        $settings = WebSetting::first();
+        
+        if ($settings) {
+            $imageType = $request->image_type;
+            $pathField = $imageType . '_path';
+            
+            if ($settings->$pathField && File::exists(public_path($settings->$pathField))) {
+                File::delete(public_path($settings->$pathField));
+                $settings->$pathField = null;
+                $settings->save();
+            }
+        }
+
+        return response()->json(['success' => true]);
     }
 }

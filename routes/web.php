@@ -75,7 +75,8 @@ Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('a
 
     Route::get('web-setting/',[AdminSettingController::class , 'index'])->name('web-setting.index');
     Route::get('web-setting/set',[AdminSettingController::class , 'set'])->name('web-setting.set');
-    Route::post('web-setting/update',[AdminSettingController::class , 'update'])->name('web-setting.update');
+    Route::put('web-setting/update',[AdminSettingController::class , 'update'])->name('web-setting.update');
+
 
 });
 

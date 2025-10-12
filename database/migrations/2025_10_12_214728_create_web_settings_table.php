@@ -23,7 +23,7 @@ return new class extends Migration
 
         // Insert default settings
         DB::table('web_settings')->insert([
-            'site_title' => 'فروشگاه آنلاین',
+            'site_title' => 'فایل استور',
             'site_description' => 'بهترین و معتبرترین فروشگاه محصولات دیجیتال در ایران',
             'phone' => '021-12345678',
             'email' => 'info@shop.com',
