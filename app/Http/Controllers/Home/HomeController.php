@@ -86,8 +86,9 @@ class HomeController extends Controller
         $categories = Category::all();
         $selectedCategory = $request->get('category');
         $menus = Menu::all();
+        $setting = WebSetting::all();
 
-        return view('app.products', compact('menus','products', 'categories', 'cartItems', 'total', 'discount', 'count', 'selectedCategory'));
+        return view('app.products', compact('setting','menus','products', 'categories', 'cartItems', 'total', 'discount', 'count', 'selectedCategory'));
     }
 
     public function productsWithCategory(Request $request)
@@ -110,8 +111,9 @@ class HomeController extends Controller
             ->get();
         
         $menus = Menu::all();
+        $setting = WebSetting::all();
 
-        return view('app.products', compact('menus','products', 'categories', 'cartItems', 'total', 'discount', 'count', 'selectedCategory'));
+        return view('app.products', compact('setting','menus','products', 'categories', 'cartItems', 'total', 'discount', 'count', 'selectedCategory'));
     }
 
     public function faq()
@@ -125,8 +127,9 @@ class HomeController extends Controller
         $categories = Category::all();
         $faqs = Faq::all();
         $menus = Menu::all();
+        $setting = WebSetting::all();
 
-        return view('app.faq', compact('menus','faqs', 'categories', 'cartItems', 'total', 'discount', 'count'));
+        return view('app.faq', compact('setting','menus','faqs', 'categories', 'cartItems', 'total', 'discount', 'count'));
     }
 
     public function showProduct(string $id)
@@ -141,7 +144,8 @@ class HomeController extends Controller
         $tag = Tag::findOrFail($product->tag_id);
         $categories = Category::all();
         $menus = Menu::all();
+        $setting = WebSetting::all();
 
-        return view('app.show-product', compact('menus','product', 'categories', 'tag', 'cartItems', 'total', 'discount', 'count'));
+        return view('app.show-product', compact('setting','menus','product', 'categories', 'tag', 'cartItems', 'total', 'discount', 'count'));
     }
 }

@@ -119,13 +119,16 @@
                 <h2 class="text-3xl font-bold mb-4">سوال خود را پیدا نکردید؟</h2>
                 <p class="text-gray-300 mb-8">با تیم پشتیبانی ما در ارتباط باشید</p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="tel:02112345678" class="bg-blue-600 px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
-                        <i class="fas fa-phone ml-2"></i>تماس تلفنی
-                    </a>
-                    <a href="mailto:support@shop.com" class="bg-green-600 px-8 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
-                        <i class="fas fa-envelope ml-2"></i>ارسال ایمیل
-                    </a>
-                    <a href="dashboard.html#tickets" class="bg-purple-600 px-8 py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold">
+                    @foreach ($setting as $item)
+                        <a href="tel:{{$item->phone}}" class="bg-blue-600 px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
+                            <i class="fas fa-phone ml-2"></i>تماس تلفنی
+                        </a>
+                        <a href="mailto:{{$item->email}}" class="bg-green-600 px-8 py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
+                            <i class="fas fa-envelope ml-2"></i>ارسال ایمیل
+                        </a>
+                    @endforeach
+
+                    <a href="{{route('dashboard')}}#tickets" class="bg-purple-600 px-8 py-3 rounded-lg hover:bg-purple-700 transition-colors font-semibold">
                         <i class="fas fa-ticket-alt ml-2"></i>ثبت تیکت
                     </a>
                 </div>
