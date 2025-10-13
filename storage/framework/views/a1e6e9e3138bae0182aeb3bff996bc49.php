@@ -172,7 +172,6 @@
                         <form action="<?php echo e(route('cart.add')); ?>" method="POST" class="flex gap-4 mb-6">
                             <?php echo csrf_field(); ?>
                             <input type="hidden" name="product_id" value="<?php echo e($product->id); ?>">
-                            <input type="number" name="quantity" value="1" min="1" class="w-20 p-2 border rounded">
                             <button type="submit" class="flex-1 bg-blue-600 text-white py-4 rounded-xl hover:bg-blue-700 transition-colors font-semibold <?php echo e(!$product->availability ? 'opacity-50 cursor-not-allowed' : ''); ?>" 
                                     <?php echo e(!$product->availability ? 'disabled' : ''); ?>>
                                 <i class="fas fa-shopping-cart ml-2"></i>افزودن به سبد خرید
