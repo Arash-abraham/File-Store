@@ -217,44 +217,98 @@
                         </div>
                     </div>
 
-                    <div id="files" class="tab-content hidden">
-                        <h3 class="text-2xl font-bold mb-6">فایل‌های قابل دانلود</h3>
-                        <div class="space-y-4">
-                            <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center">
-                                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center ml-4">
-                                        <i class="fas fa-file-archive text-blue-600 text-xl"></i>
+                        <?php
+                        $hasPurchased = auth()->check() && 
+                                        \App\Models\Payment::where('user_id', auth()->id())
+                                            ->whereHas('order.items', function($query) use ($product) {
+                                                $query->where('product_id', $product->id);
+                                            })
+                                            ->where('status', 'completed')
+                                            ->exists();
+                    ?>
+                    
+                    <?php if($hasPurchased): ?>
+                        <div id="files" class="tab-content hidden">
+                            <h3 class="text-2xl font-bold mb-6">فایل‌های قابل دانلود</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center ml-4">
+                                            <i class="fas fa-file-archive text-blue-600 text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold"><?php echo e($product->title); ?>_Setup.zip</h4>
+                                            <p class="text-sm text-gray-500">نسخه کامل نرم‌افزار - 2.8 GB</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 class="font-semibold"><?php echo e($product->title); ?>_Setup.zip</h4>
-                                        <p class="text-sm text-gray-500">نسخه کامل نرم‌افزار - 2.8 GB</p>
-                                    </div>
+                                    <a href="" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                        دانلود
+                                    </a>
                                 </div>
-                                <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                    دانلود
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                                <div class="flex items-center">
-                                    <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center ml-4">
-                                        <i class="fas fa-key text-green-600 text-xl"></i>
+                                <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-center">
+                                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center ml-4">
+                                            <i class="fas fa-key text-green-600 text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-semibold">License_Key.txt</h4>
+                                            <p class="text-sm text-gray-500">کلید فعالسازی - 1 KB</p>
+                                        </div>
                                     </div>
-                                    <div>
-                                        <h4 class="font-semibold">License_Key.txt</h4>
-                                        <p class="text-sm text-gray-500">کلید فعالسازی - 1 KB</p>
-                                    </div>
+                                    <a href="" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                                        دانلود
+                                    </a>
                                 </div>
-                                <button class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                    دانلود
-                                </button>
                             </div>
                         </div>
-                    </div>
+                    <?php else: ?>
+                        <!-- کاربر نخریده -->
+                        <div id="files" class="tab-content hidden">
+                            <div class="text-center py-12">
+                                <?php if(auth()->guard()->check()): ?>
+                                    <div class="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <i class="fas fa-lock text-yellow-600 text-3xl"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-800 mb-4">دسترسی محدود</h3>
+                                    <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                                        برای دسترسی به فایل‌های دانلودی، باید این محصول را خریداری کرده باشید.
+                                    </p>
+                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-md mx-auto">
+                                        <h4 class="font-semibold text-blue-800 mb-3">شما این محصول را خریداری نکرده‌اید</h4>
+                                        <p class="text-blue-700 text-sm mb-4">
+                                            پس از خرید محصول، فایل‌های دانلودی در این بخش در دسترس شما قرار خواهند گرفت.
+                                        </p>
+                                        <form action="<?php echo e(route('cart.add')); ?>" method="POST" class="flex gap-2">
+                                            <?php echo csrf_field(); ?>
+                                            <input type="hidden" name="product_id" value="<?php echo e($product->id); ?>">
+                                            <button type="submit" 
+                                                    class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold <?php echo e(!$product->availability ? 'opacity-50 cursor-not-allowed' : ''); ?>" 
+                                                    <?php echo e(!$product->availability ? 'disabled' : ''); ?>>
+                                                <i class="fas fa-shopping-cart ml-2"></i>خرید محصول
+                                            </button>
+                                        </form>
+                                    </div>
+                                <?php else: ?>
+                                    <div class="w-24 h-24 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                        <i class="fas fa-user-lock text-yellow-600 text-3xl"></i>
+                                    </div>
+                                    <h3 class="text-2xl font-bold text-gray-800 mb-4">لطفاً وارد شوید</h3>
+                                    <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                                        برای مشاهده وضعیت خرید و دسترسی به فایل‌ها، باید وارد حساب کاربری خود شوید.
+                                    </p>
+                                    <div class="flex gap-3 justify-center">
+                                        <a href="<?php echo e(route('login')); ?>" class="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors">
+                                            ورود
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endif; ?>
 
                     <div id="reviews" class="tab-content hidden">
                         <h3 class="text-2xl font-bold mb-6">نظرات کاربران</h3>
                         
-                        <!-- Submit Review Form (Only for logged-in users) -->
                         <?php if(auth()->guard()->check()): ?>
                             <div class="bg-blue-50 rounded-lg p-6 mb-8">
                                 <h4 class="text-xl font-bold mb-4">ثبت نظر شما</h4>
