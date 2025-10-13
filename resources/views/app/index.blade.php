@@ -3,6 +3,9 @@
 @section('title', 'خانه')
 
 @section('content')
+    @if (session('success'))       
+        <x-add-to-cart></x-add-to-cart>
+    @endif
     <div id="main-content">
         <!-- Cart Modal and Blur Overlay -->
         <div id="cart-modal" class="fixed w-80 bg-white text-gray-800 rounded-xl shadow-2xl p-0 hidden z-50 border border-gray-200">

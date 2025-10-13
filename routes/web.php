@@ -19,6 +19,7 @@ use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Models\Order;
+use Application\Controllers\Home;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -35,6 +36,8 @@ Route::prefix('cart')->group(function () {
     Route::post('/clear', [CartController::class, 'clearCart'])->name('cart.clear');
     Route::post('/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.apply-coupon');
 });
+
+Route::get('about',[HomeController::class,'about'])->name('about');
 
 Route::prefix('checkout')->group(function () {
     Route::get('/', [CheckoutController::class, 'showCheckout'])->name('checkout.show');

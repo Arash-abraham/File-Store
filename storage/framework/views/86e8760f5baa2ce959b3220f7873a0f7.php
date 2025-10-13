@@ -1,6 +1,27 @@
 <?php $__env->startSection('title', 'خانه'); ?>
 
 <?php $__env->startSection('content'); ?>
+    <?php if(session('success')): ?>       
+        <?php if (isset($component)) { $__componentOriginal433d0650de850ca88957850e1fcee89b = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal433d0650de850ca88957850e1fcee89b = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.add-to-cart','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('add-to-cart'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?> <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal433d0650de850ca88957850e1fcee89b)): ?>
+<?php $attributes = $__attributesOriginal433d0650de850ca88957850e1fcee89b; ?>
+<?php unset($__attributesOriginal433d0650de850ca88957850e1fcee89b); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal433d0650de850ca88957850e1fcee89b)): ?>
+<?php $component = $__componentOriginal433d0650de850ca88957850e1fcee89b; ?>
+<?php unset($__componentOriginal433d0650de850ca88957850e1fcee89b); ?>
+<?php endif; ?>
+    <?php endif; ?>
     <div id="main-content">
         <!-- Cart Modal and Blur Overlay -->
         <div id="cart-modal" class="fixed w-80 bg-white text-gray-800 rounded-xl shadow-2xl p-0 hidden z-50 border border-gray-200">

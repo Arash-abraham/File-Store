@@ -9,6 +9,7 @@ use App\Models\Faq;
 use App\Models\Menu;
 use App\Models\Product;
 use App\Models\Tag;
+use App\Models\WebSetting;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 
@@ -32,7 +33,22 @@ class HomeController extends Controller
         $products = Product::where('status', 'active')->take(8)->get();
         $categories = Category::withCount('products')->get();
         $menus = Menu::all();
-        return view('app.index', compact('menus','cartItems', 'total', 'discount', 'products', 'categories', 'count'));
+        $setting = WebSetting::all();
+        return view('app.index', compact('setting','menus','cartItems', 'total', 'discount', 'products', 'categories', 'count'));
+    }
+
+    public function about() {
+        $cart = $this->cartService->getCart(auth()->id(), session()->getId());
+        $cartItems = $cart ? $cart->items()->with('product')->get() : collect();
+        $total = $cart ? $cart->total : 0;
+        $discount = session('discount', 0);
+        $count = $cartItems->count();
+        $products = Product::where('status', 'active')->take(8)->get();
+        $categories = Category::withCount('products')->get();
+        $menus = Menu::all();
+        $setting = WebSetting::all();
+        return view('app.about', compact('setting','menus','cartItems', 'total', 'discount', 'products', 'categories', 'count'));
+
     }
 
     public function products(Request $request)
