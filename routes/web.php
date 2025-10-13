@@ -3,6 +3,7 @@
 
 use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminCommentController;
+use App\Http\Controllers\Admin\AdminCouponController;
 use App\Http\Controllers\Admin\AdminFaqController;
 use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\Admin\AdminProductController;
@@ -80,7 +81,10 @@ Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('a
     Route::get('web-setting/',[AdminSettingController::class , 'index'])->name('web-setting.index');
     Route::get('web-setting/set',[AdminSettingController::class , 'set'])->name('web-setting.set');
     Route::put('web-setting/update',[AdminSettingController::class , 'update'])->name('web-setting.update');
-
+    
+    Route::resource('coupon', AdminCouponController::class);
+    Route::get('coupon/{id}/toggle-status', [AdminCouponController::class, 'toggleStatus'])->name('coupon.toggle-status');
+    
 
 });
 

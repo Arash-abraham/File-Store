@@ -21,7 +21,7 @@
                 <i class="fas fa-tag w-5 ml-3"></i>
                 <span>برچسب‌ها</span>
             </a>
-            <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="coupons">
+            <a href="<?php echo e(route('admin.coupon.index')); ?>" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="coupons">
                 <i class="fas fa-percent w-5 ml-3"></i>
                 <span>کدهای تخفیف</span>
             </a>
