@@ -25,9 +25,9 @@
             <div class="flex items-center justify-between">
                 <!-- Logo -->
                 <div class="flex items-center">
-                    <img src="https://images.pexels.com/photos/1181533/pexels-photo-1181533.jpeg?auto=compress&cs=tinysrgb&w=100" 
-                         alt="لوگو فروشگاه" class="h-12 w-12 rounded-lg ml-3">
-                    <h1 class="text-2xl font-bold text-gray-800">فایل استور</h1>
+                    <?php $__currentLoopData = $setting; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <h1 class="text-2xl font-bold text-gray-800"><?php echo e($item->site_title); ?></h1>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
                 
                 <!-- Search Bar -->

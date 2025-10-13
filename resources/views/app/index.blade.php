@@ -65,8 +65,10 @@
         <!-- Hero Section -->
         <section class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
             <div class="container mx-auto px-4 text-center">
-                <h2 class="text-5xl font-bold mb-6">فروشگاه دیجیتال برتر</h2>
-                <p class="text-xl mb-8 opacity-90">بهترین نرم‌افزارها، دوره‌های آموزشی و محصولات دیجیتال را از ما بخرید</p>
+                @foreach ($setting as $item)
+                <h2 class="text-5xl font-bold mb-6">فروشگاه {{$item->site_title}}</h2>
+                <p class="text-xl mb-8 opacity-90">{{$item->site_description}}</p>
+                @endforeach
                 <a href="{{ route('products') }}">
                     <button class="bg-white text-blue-600 px-8 py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transition-all transform hover:scale-105 shadow-lg">
                         مشاهده محصولات
