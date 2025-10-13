@@ -140,12 +140,20 @@ class HomeController extends Controller
         $discount = session('discount', 0);
         $count = $cartItems->count();
 
-        $product = Product::findOrFail($id);
+        $product = Product::with(['category', 'approvedReviews.user'])->findOrFail($id);
+    
+        $relatedProducts = Product::where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id) 
+            ->where('availability', true) 
+            ->inRandomOrder() 
+            ->limit(4)
+            ->get();
+
         $tag = Tag::findOrFail($product->tag_id);
         $categories = Category::all();
         $menus = Menu::all();
         $setting = WebSetting::all();
 
-        return view('app.show-product', compact('setting','menus','product', 'categories', 'tag', 'cartItems', 'total', 'discount', 'count'));
+        return view('app.show-product', compact('relatedProducts','setting','menus','product', 'categories', 'tag', 'cartItems', 'total', 'discount', 'count'));
     }
 }

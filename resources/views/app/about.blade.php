@@ -7,6 +7,13 @@
 @endsection
 
 @section('content')
+    @if (session('success'))       
+        <x-add-to-cart></x-add-to-cart>
+    @endif
+    @if($errors->any())
+        <x-error></x-adderror>
+    @endif
+
     <div id="cart-modal" class="fixed w-80 bg-white text-gray-800 rounded-xl shadow-2xl p-0 hidden z-50 border border-gray-200">
         <div class="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-t-xl">
             <h2 class="text-lg font-bold">سبد خرید</h2>

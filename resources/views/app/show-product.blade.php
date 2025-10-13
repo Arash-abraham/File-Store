@@ -7,6 +7,12 @@
 @endsection
 
 @section('content')
+    @if (session('success'))       
+        <x-add-to-cart></x-add-to-cart>
+    @endif
+    @if($errors->any())
+        <x-error></x-adderror>
+    @endif
 
     <div id="cart-modal" class="fixed w-80 bg-white text-gray-800 rounded-xl shadow-2xl p-0 hidden z-50 border border-gray-200">
         <div class="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-t-xl">
@@ -303,7 +309,52 @@
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-8">محصولات مرتبط</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- محتوای محصولات مرتبط -->
+                @foreach($relatedProducts as $relatedProduct)
+                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                        <div class="relative overflow-hidden">
+                            <img src="{{ asset($relatedProduct->image_urls[0] ?? 'images/placeholder.jpg') }}" 
+                                alt="{{ $relatedProduct->title }}"
+                                class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                            <div class="absolute top-3 left-3">
+                                @if($relatedProduct->availability)
+                                    <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">موجود</span>
+                                @else
+                                    <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">ناموجود</span>
+                                @endif
+                            </div>
+                        </div>
+                        
+                        <div class="p-4">
+                            <h3 class="font-bold text-gray-800 mb-2 line-clamp-2 h-12">
+                                <a href="{{ route('show-product', $relatedProduct->id) }}" 
+                                class="hover:text-blue-600 transition-colors">
+                                    {{ $relatedProduct->title }}
+                                </a>
+                            </h3>
+                            
+                            <div class="flex items-center justify-between mt-3">
+                                <span class="text-lg font-bold text-green-600">
+                                    {{ number_format($relatedProduct->original_price) }} تومان
+                                </span>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <a href="{{ route('show-product', $relatedProduct->id) }}" 
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2">
+                                    <i class="fas fa-eye text-xs"></i>
+                                    مشاهده محصول
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @endforeach
+                
+                @if($relatedProducts->isEmpty())
+                    <div class="col-span-full text-center py-8">
+                        <i class="fas fa-box-open text-4xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-500 text-lg">محصول مرتبطی یافت نشد</p>
+                    </div>
+                @endif
             </div>
         </div>
     </section>

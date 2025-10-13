@@ -5,6 +5,48 @@
 <?php $__env->stopSection(); ?>
 
 <?php $__env->startSection('content'); ?>
+    <?php if(session('success')): ?>       
+        <?php if (isset($component)) { $__componentOriginal433d0650de850ca88957850e1fcee89b = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal433d0650de850ca88957850e1fcee89b = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.add-to-cart','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('add-to-cart'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?> <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal433d0650de850ca88957850e1fcee89b)): ?>
+<?php $attributes = $__attributesOriginal433d0650de850ca88957850e1fcee89b; ?>
+<?php unset($__attributesOriginal433d0650de850ca88957850e1fcee89b); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal433d0650de850ca88957850e1fcee89b)): ?>
+<?php $component = $__componentOriginal433d0650de850ca88957850e1fcee89b; ?>
+<?php unset($__componentOriginal433d0650de850ca88957850e1fcee89b); ?>
+<?php endif; ?>
+    <?php endif; ?>
+    <?php if($errors->any()): ?>
+        <?php if (isset($component)) { $__componentOriginal26e98e8e5cc4164d9d54ab94efc26e46 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal26e98e8e5cc4164d9d54ab94efc26e46 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.error','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('error'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?> <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal26e98e8e5cc4164d9d54ab94efc26e46)): ?>
+<?php $attributes = $__attributesOriginal26e98e8e5cc4164d9d54ab94efc26e46; ?>
+<?php unset($__attributesOriginal26e98e8e5cc4164d9d54ab94efc26e46); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal26e98e8e5cc4164d9d54ab94efc26e46)): ?>
+<?php $component = $__componentOriginal26e98e8e5cc4164d9d54ab94efc26e46; ?>
+<?php unset($__componentOriginal26e98e8e5cc4164d9d54ab94efc26e46); ?>
+<?php endif; ?>
+    <?php endif; ?>
 
     <div id="cart-modal" class="fixed w-80 bg-white text-gray-800 rounded-xl shadow-2xl p-0 hidden z-50 border border-gray-200">
         <div class="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-t-xl">
@@ -309,7 +351,53 @@ unset($__errorArgs, $__bag); ?>
         <div class="container mx-auto px-4">
             <h2 class="text-3xl font-bold text-center mb-8">محصولات مرتبط</h2>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <!-- محتوای محصولات مرتبط -->
+                <?php $__currentLoopData = $relatedProducts; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $relatedProduct): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 overflow-hidden group">
+                        <div class="relative overflow-hidden">
+                            <img src="<?php echo e(asset($relatedProduct->image_urls[0] ?? 'images/placeholder.jpg')); ?>" 
+                                alt="<?php echo e($relatedProduct->title); ?>"
+                                class="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300">
+                            <div class="absolute top-3 left-3">
+                                <?php if($relatedProduct->availability): ?>
+                                    <span class="bg-green-500 text-white text-xs px-2 py-1 rounded-full">موجود</span>
+                                <?php else: ?>
+                                    <span class="bg-red-500 text-white text-xs px-2 py-1 rounded-full">ناموجود</span>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4">
+                            <h3 class="font-bold text-gray-800 mb-2 line-clamp-2 h-12">
+                                <a href="<?php echo e(route('show-product', $relatedProduct->id)); ?>" 
+                                class="hover:text-blue-600 transition-colors">
+                                    <?php echo e($relatedProduct->title); ?>
+
+                                </a>
+                            </h3>
+                            
+                            <div class="flex items-center justify-between mt-3">
+                                <span class="text-lg font-bold text-green-600">
+                                    <?php echo e(number_format($relatedProduct->original_price)); ?> تومان
+                                </span>
+                            </div>
+                            
+                            <div class="mt-4">
+                                <a href="<?php echo e(route('show-product', $relatedProduct->id)); ?>" 
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2">
+                                    <i class="fas fa-eye text-xs"></i>
+                                    مشاهده محصول
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                
+                <?php if($relatedProducts->isEmpty()): ?>
+                    <div class="col-span-full text-center py-8">
+                        <i class="fas fa-box-open text-4xl text-gray-400 mb-4"></i>
+                        <p class="text-gray-500 text-lg">محصول مرتبطی یافت نشد</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </section>
