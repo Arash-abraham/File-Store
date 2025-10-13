@@ -244,20 +244,7 @@
                                         دانلود
                                     </a>
                                 </div>
-                                <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                                    <div class="flex items-center">
-                                        <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center ml-4">
-                                            <i class="fas fa-key text-green-600 text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-semibold">License_Key.txt</h4>
-                                            <p class="text-sm text-gray-500">کلید فعالسازی - 1 KB</p>
-                                        </div>
-                                    </div>
-                                    <a href="" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                        دانلود
-                                    </a>
-                                </div>
+
                             </div>
                         </div>
                     <?php else: ?>
