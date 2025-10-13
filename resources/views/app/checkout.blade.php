@@ -3,55 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>سبد خرید و پرداخت</title>
-    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> <!-- اضافه کردن Axios -->
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&display=swap');
-        
+
         body {
             font-family: 'Vazirmatn', sans-serif;
         }
-        
+
         .cart-item {
             transition: all 0.3s ease;
         }
-        
+
         .cart-item:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
-        
+
         .btn-primary {
             background: linear-gradient(135deg, #3b82f6, #1d4ed8);
             transition: all 0.3s ease;
         }
-        
+
         .btn-primary:hover {
             background: linear-gradient(135deg, #1d4ed8, #1e40af);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
-        
+
         .btn-success {
             background: linear-gradient(135deg, #10b981, #059669);
             transition: all 0.3s ease;
         }
-        
+
         .btn-success:hover {
             background: linear-gradient(135deg, #059669, #047857);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
         }
-        
-        .discount-badge {
-            background: linear-gradient(135deg, #f59e0b, #d97706);
-        }
-        
+
         .empty-cart-icon {
             font-size: 4rem;
             color: #d1d5db;
+        }
+
+        .btn-orange {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            transition: all 0.3s ease;
+        }
+
+        .btn-orange:hover {
+            background: linear-gradient(135deg, #d97706, #b45309);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
         }
     </style>
 </head>
@@ -133,15 +141,25 @@
                     <form action="{{ route('cart.apply-coupon') }}" method="POST" class="flex gap-2">
                         @csrf
                         <div class="flex-1 relative">
-                            <input type="text" name="coupon_code" placeholder="کد تخفیف خود را وارد کنید" 
-                                   class="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                            <input type="text" name="coupon_code" id="coupon_code" 
+                                   value="{{ old('coupon_code', $appliedCoupon ?? '') }}"
+                                   placeholder="کد تخفیف خود را وارد کنید" 
+                                   class="w-full p-3 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 @error('coupon_code') border-red-500 @enderror"
+                                   {{ isset($appliedCoupon) && $appliedCoupon ? 'readonly' : '' }}>
                             <i class="fas fa-ticket-alt absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
-                        <button type="submit" class="discount-badge text-white px-6 py-3 rounded-lg font-semibold flex items-center">
+                        <button type="submit" class="btn-orange px-6 py-3 rounded-lg font-semibold flex items-center">
                             <i class="fas fa-gift ml-2"></i>
                             اعمال تخفیف
                         </button>
                     </form>
+                    
+                    @error('coupon_code')
+                        <div class="mt-2 text-red-500 text-sm flex items-center">
+                            <i class="fas fa-exclamation-triangle ml-2"></i>
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
                 
                 <!-- خلاصه سفارش -->
@@ -149,7 +167,7 @@
                     <div class="max-w-md mr-auto space-y-3">
                         <div class="flex justify-between items-center">
                             <span class="text-gray-600">جمع کل:</span>
-                            <span id="totalAmount" class="text-xl font-bold text-gray-800">{{ number_format($total) }} تومان</span>
+                            <span class="text-xl font-bold text-gray-800">{{ number_format($total) }} تومان</span>
                         </div>
                         
                         @if ($discount > 0)
@@ -188,62 +206,24 @@
     </div>
 
     <script>
-        // مدیریت افزایش و کاهش تعداد محصول
-        document.querySelectorAll('.increment-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const input = this.parentNode.querySelector('input[type=number]');
-                input.value = parseInt(input.value) + 1;
-            });
-        });
-        
-        document.querySelectorAll('.decrement-btn').forEach(button => {
-            button.addEventListener('click', function() {
-                const input = this.parentNode.querySelector('input[type=number]');
-                if (parseInt(input.value) > 1) {
-                    input.value = parseInt(input.value) - 1;
-                }
-            });
-        });
-        
-        // مدیریت فرم پرداخت
-        document.getElementById('paymentForm')?.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const submitBtn = this.querySelector('button[type="submit"]');
-            const originalText = submitBtn.innerHTML;
-            
-            // نمایش حالت لودینگ
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin ml-2"></i> در حال انتقال به درگاه پرداخت...';
-            submitBtn.disabled = true;
-            
-            fetch(this.action, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                },
-                body: JSON.stringify({
-                    session_token: this.querySelector('input[name="session_token"]').value,
-                    payment_gateway: 'zarinpal'
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // جلوگیری از سابمیت معمولی فرم
+
+            axios.post(this.action, new FormData(this))
+                .then(response => {
+                    if (response.data.success) {
+                        // هدایت به URL پرداخت
+                        window.location.href = response.data.data.payment_url;
+                    } else {
+                        alert(response.data.message);
+                    }
                 })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success && data.data.payment_url) {
-                    window.location.href = data.data.payment_url;
-                } else {
-                    alert('خطا در ایجاد پرداخت: ' + data.message);
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.disabled = false;
-                }
-            })
-            .catch(error => {
-                console.error('خطا:', error);
-                alert('خطا در اتصال به سرور');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            });
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('خطا در پردازش پرداخت. لطفاً دوباره تلاش کنید.');
+                });
         });
+        
     </script>
 </body>
 </html>

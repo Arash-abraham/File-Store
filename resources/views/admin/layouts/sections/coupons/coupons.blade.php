@@ -127,19 +127,13 @@
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     
-                                    <a href="{{ route('admin.coupon.toggle-status', $coupon->id) }}" 
-                                       class="p-2 {{ $coupon->status === 'active' ? 'bg-gray-100 text-gray-600' : 'bg-green-100 text-green-600' }} rounded-lg hover:opacity-80 transition"
-                                       title="{{ $coupon->status === 'active' ? 'غیرفعال کردن' : 'فعال کردن' }}">
-                                        <i class="fas fa-power-off"></i>
-                                    </a>
-                                    
                                     <form action="{{ route('admin.coupon.destroy', $coupon->id) }}" method="POST" class="inline">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" 
                                                 class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition"
                                                 title="حذف"
-                                                onclick="return confirm('آیا از حذف این کد تخفیف اطمینان دارید؟')">
+                                                >
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>

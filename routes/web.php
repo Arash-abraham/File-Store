@@ -46,6 +46,7 @@ Route::prefix('checkout')->group(function () {
     Route::post('/process', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
     Route::match(['get', 'post'], '/verify', [CheckoutController::class, 'verify'])->name('payment.verify');
 });
+Route::post('/cart/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.apply-coupon');
 
 Route::get('/payment/success/{order_id}', function ($order_id) {
     $order = Order::findOrFail($order_id);
