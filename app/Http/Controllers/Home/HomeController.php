@@ -156,4 +156,76 @@ class HomeController extends Controller
 
         return view('app.show-product', compact('relatedProducts','setting','menus','product', 'categories', 'tag', 'cartItems', 'total', 'discount', 'count'));
     }
+
+    public function search(Request $request) {
+        $query = Product::query()->with('category');
+        
+
+        // dd('Search request:', $request->all());
+        
+        if ($request->filled('q')) {
+            $searchTerm = trim($request->q);
+            // dd('Search term:', ['term' => $searchTerm]);
+
+            
+            if ($request->filled('q')) {
+                $searchTerm = trim($request->q);
+                if (!empty($searchTerm)) {
+                    $query->where(function($q) use ($searchTerm) {
+                        $q->where('title', 'LIKE', "%{$searchTerm}%")
+                          ->orWhere('description', 'LIKE', "%{$searchTerm}%");
+                    });
+                }
+            }
+        }
+        
+        // بقیه فیلترها...
+        if ($request->has('category') && $request->category) {
+            $query->where('category_id', $request->category);
+        }
+        
+        if ($request->has('price') && $request->price) {
+            $priceRange = $request->price;
+            if (str_contains($priceRange, '-')) {
+                [$min, $max] = explode('-', $priceRange);
+                $query->whereBetween('original_price', [(int)$min, (int)$max]);
+            } else {
+                $query->where('original_price', '>=', (int)$priceRange);
+            }
+        }
+        
+        if ($request->has('availability') && !is_null($request->availability)) {
+            $availability = (int)$request->availability;
+            $query->where('availability', $availability);
+        }
+        $sortBy = $request->get('sort', 'newest');
+        switch ($sortBy) {
+            case 'oldest':
+                $query->orderBy('created_at', 'asc');
+                break;
+            case 'price_low':
+                $query->orderBy('original_price', 'asc');
+                break;
+            case 'price_high':
+                $query->orderBy('original_price', 'desc');
+                break;
+            case 'popular':
+                $query->orderBy('views', 'desc');
+                break;
+            default:
+                $query->orderBy('created_at', 'desc');
+        }
+        
+        $products = $query->paginate(12);
+        $categories = Category::all();
+        
+        $cart = $this->cartService->getCart(auth()->id(), session()->getId());
+        $cartItems = $cart ? $cart->items()->with('product')->get() : collect();
+        $total = $cart ? $cart->total : 0;
+        $discount = session('discount', 0);
+        $count = $cartItems->count();
+        $setting = WebSetting::all();
+        
+        return view('app.search', compact('setting','cartItems','total','discount','count','products', 'categories'));
+    }
 }

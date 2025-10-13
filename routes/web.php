@@ -38,6 +38,7 @@ Route::prefix('cart')->group(function () {
 });
 
 Route::get('about',[HomeController::class,'about'])->name('about');
+Route::get('search',[HomeController::class,'search'])->name('search');
 
 Route::prefix('checkout')->group(function () {
     Route::get('/', [CheckoutController::class, 'showCheckout'])->name('checkout.show');
