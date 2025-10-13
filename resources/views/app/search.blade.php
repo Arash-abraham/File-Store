@@ -271,7 +271,7 @@
                                 <i class="fas fa-search text-6xl text-gray-400 mb-4"></i>
                                 <h3 class="text-2xl font-bold text-gray-600 mb-2">محصولی یافت نشد</h3>
                                 <p class="text-gray-500 mb-6">لطفاً فیلترهای جستجو را تغییر دهید یا عبارت دیگری را امتحان کنید</p>
-                                <a href="{{ route('search') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors">
+                                <a href="{{ route('product') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors">
                                     مشاهده همه محصولات
                                 </a>
                             </div>
