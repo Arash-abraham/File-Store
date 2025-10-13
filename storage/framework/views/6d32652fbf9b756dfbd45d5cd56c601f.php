@@ -23,7 +23,7 @@
 
     <!-- Edit Menu Modal -->    
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="<?php echo e(asset('js/admin.js')); ?>"></script>
+
     <script src="<?php echo e(asset('js/ckeditor/ckeditor.js')); ?>"></script>
     <script src="<?php echo e(asset('js/jalalidatepicker/persian-date.min.js')); ?>"></script>
     <script src="<?php echo e(asset('js/jalalidatepicker/persian-datepicker.min.js')); ?>"></script>
