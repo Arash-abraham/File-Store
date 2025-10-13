@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Cart;
+use App\Models\Payment;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 
@@ -17,54 +18,63 @@ class CartController extends Controller
 
     public function addToCart(Request $request)
     {
+        if (!auth()->check()) {
+            $message = 'برای افزودن محصول به سبد خرید، وارد حساب کاربری خود شوید';
+            
+            
+            return redirect()->back()->withErrors(['error' => $message])->withInput();
+
+        }
+
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'quantity' => 'sometimes|integer|min:1'
         ]);
     
         try {
+            $userId = auth()->id();
+            $productId = $request->product_id;
+
+            $hasPurchased = Payment::where('user_id', $userId)
+                ->whereHas('order.items', function($query) use ($productId) {
+                    $query->where('product_id', $productId);
+                })
+                ->where('status', 'completed') 
+                ->exists();
+
+            if ($hasPurchased) {
+                $message = 'شما قبلاً این محصول را خریداری کرده‌اید';
+                return redirect()->back()->withErrors(['error' => $message])->withInput();
+
+            }
+    
+            $cart = $this->cartService->getCart($userId, session()->getId());
+            if ($cart) {
+                $existingCartItem = $cart->items()
+                    ->where('product_id', $productId)
+                    ->first();
+    
+                if ($existingCartItem) {
+                    $message = 'این محصول در حال حاضر در سبد خرید شما موجود است';
+                    return redirect()->back()->withErrors(['error' => $message])->withInput();
+
+                }
+            }
+    
             $data = [
-                'user_id' => auth()->id(),
+                'user_id' => $userId,
                 'session_token' => session()->getId(),
-                'product_id' => $request->product_id,
+                'product_id' => $productId,
                 'quantity' => $request->quantity ?? 1,
             ];
     
             $this->cartService->addToCart($data);
     
-            if ($request->ajax()) {
-                $cart = $this->cartService->getCart(auth()->id(), session()->getId());
-                $cartItems = $cart ? $cart->items()->with('product')->get() : collect();
-                $total = $cart ? $cart->total : 0;
-                $discount = session('discount', 0);
-    
-                return response()->json([
-                    'success' => true,
-                    'message' => 'محصول به سبد خرید اضافه شد',
-                    'cartItems' => $cartItems,
-                    'total' => $total,
-                    'discount' => $discount,
-                    'html' => view('app.partials.cart-content', [
-                        'cartItems' => $cartItems,
-                        'total' => $total,
-                        'discount' => $discount
-                    ])->render()
-                ]);
-            }
-    
             return redirect()->back()->with('success', 'محصول به سبد خرید اضافه شد');
         } catch (\Exception $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage() ?: 'خطا در افزودن به سبد خرید'
-                ], 400);
-            }
             return back()->with('error', $e->getMessage() ?: 'خطا در افزودن به سبد خرید');
         }
     }
-
-    
 
     public function removeFromCart(Request $request, $cartItemId)
     {
@@ -93,18 +103,16 @@ class CartController extends Controller
     
             return redirect()->back()->with('success', 'محصول از سبد خرید حذف شد');
         } catch (\Exception $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage() ?: 'خطا در حذف محصول'
-                ], 400);
-            }
             return back()->with('error', $e->getMessage() ?: 'خطا در حذف محصول');
         }
     }
 
     public function showCart()
     {
+        if (!auth()->check()) {
+            return redirect()->route('login');
+        }
+
         $cart = $this->cartService->getCart(auth()->id(), session()->getId());
         $cartItems = collect();
         $total = 0;
@@ -122,8 +130,19 @@ class CartController extends Controller
             'discount' => $discount
         ]);
     }
+
     public function clearCart(Request $request)
     {
+        if (!auth()->check()) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'برای مدیریت سبد وارد حساب کاربری خود شوید'
+                ], 401);
+            }
+            return redirect()->route('login')->with('error', 'برای مدیریت سبد وارد حساب کاربری خود شوید');
+        }
+
         try {
             $cart = $this->cartService->getCart(auth()->id(), session()->getId());
             if ($cart) {
@@ -153,19 +172,22 @@ class CartController extends Controller
 
             return redirect()->route('cart.show')->with('success', 'سبد خرید خالی شد');
         } catch (\Exception $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage() ?: 'خطا در خالی کردن سبد خرید'
-                ], 400);
-            }
             return back()->with('error', $e->getMessage() ?: 'خطا در خالی کردن سبد خرید');
         }
     }
 
-
     public function applyCoupon(Request $request)
     {
+        if (!auth()->check()) {
+            if ($request->ajax()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'برای اعمال کد وارد حساب کاربری خود شوید'
+                ], 401);
+            }
+            return redirect()->route('login')->with('error', 'برای اعمال کد وارد حساب کاربری خود شوید');
+        }
+
         $request->validate([
             'coupon_code' => 'required|string'
         ]);
@@ -201,20 +223,9 @@ class CartController extends Controller
                 return redirect()->route('cart.show')->with('success', $couponResult['message']);
             }
 
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $couponResult['message']
-                ], 400);
-            }
             return back()->with('error', $couponResult['message']);
         } catch (\Exception $e) {
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => $e->getMessage() ?: 'خطا در اعمال کد تخفیف'
-                ], 400);
-            }
+
             return back()->with('error', $e->getMessage() ?: 'خطا در اعمال کد تخفیف');
         }
     }

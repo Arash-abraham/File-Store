@@ -22,6 +22,28 @@
 <?php unset($__componentOriginal433d0650de850ca88957850e1fcee89b); ?>
 <?php endif; ?>
     <?php endif; ?>
+    <?php if($errors->any()): ?>
+        <?php if (isset($component)) { $__componentOriginal26e98e8e5cc4164d9d54ab94efc26e46 = $component; } ?>
+<?php if (isset($attributes)) { $__attributesOriginal26e98e8e5cc4164d9d54ab94efc26e46 = $attributes; } ?>
+<?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.error','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>
+<?php $component->withName('error'); ?>
+<?php if ($component->shouldRender()): ?>
+<?php $__env->startComponent($component->resolveView(), $component->data()); ?>
+<?php if (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag): ?>
+<?php $attributes = $attributes->except(\Illuminate\View\AnonymousComponent::ignoredParameterNames()); ?>
+<?php endif; ?>
+<?php $component->withAttributes([]); ?> <?php echo $__env->renderComponent(); ?>
+<?php endif; ?>
+<?php if (isset($__attributesOriginal26e98e8e5cc4164d9d54ab94efc26e46)): ?>
+<?php $attributes = $__attributesOriginal26e98e8e5cc4164d9d54ab94efc26e46; ?>
+<?php unset($__attributesOriginal26e98e8e5cc4164d9d54ab94efc26e46); ?>
+<?php endif; ?>
+<?php if (isset($__componentOriginal26e98e8e5cc4164d9d54ab94efc26e46)): ?>
+<?php $component = $__componentOriginal26e98e8e5cc4164d9d54ab94efc26e46; ?>
+<?php unset($__componentOriginal26e98e8e5cc4164d9d54ab94efc26e46); ?>
+<?php endif; ?>
+    <?php endif; ?>
+
     <div id="main-content">
         <!-- Cart Modal and Blur Overlay -->
         <div id="cart-modal" class="fixed w-80 bg-white text-gray-800 rounded-xl shadow-2xl p-0 hidden z-50 border border-gray-200">
