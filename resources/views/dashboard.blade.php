@@ -6,7 +6,7 @@
 
 <body class="font-sans bg-gray-50">
     @include('layouts.partials.header')
-
+    
     <div class="container mx-auto px-4 py-8">
         <div class="flex flex-col lg:flex-row gap-8">
             @include('layouts.partials.sidebar')
