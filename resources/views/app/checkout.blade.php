@@ -166,6 +166,7 @@
                     <form action="{{ route('cart.apply-coupon') }}" method="POST" class="flex gap-2">
                         @csrf
                         <div class="flex-1 relative">
+                            <input type="text" value="{{$item->unit_price}}" name="price" hidden>
                             <input type="text" name="coupon_code" id="coupon_code" 
                                    value="{{ old('coupon_code', $appliedCoupon ?? '') }}"
                                    placeholder="کد تخفیف خود را وارد کنید" 
@@ -193,28 +194,26 @@
                         </div>
                     @enderror
                 </div>
-                
-                <div class="px-6 py-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-gray-100">
-                    <div class="max-w-md mr-auto space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">جمع کل:</span>
-                            <span class="text-xl font-bold text-gray-800">{{ number_format($total) }} تومان</span>
+                <div class="px-6 py-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-200 rounded-lg shadow-sm">
+                    <div class="max-w-md ml-auto space-y-4">
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-gray-700 font-medium">جمع کل:</span>
+                            <span class="text-xl font-bold text-gray-900">{{ number_format($total) }} تومان</span>
                         </div>
                         
                         @if ($discount > 0)
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600">تخفیف:</span>
+                            <div class="flex justify-between items-center py-2">
+                                <span class="text-gray-700 font-medium">تخفیف:</span>
                                 <span class="text-lg font-bold text-green-600">{{ number_format($discount) }} تومان</span>
                             </div>
                             
-                            <div class="flex justify-between items-center pt-3 border-t border-gray-200">
-                                <span class="text-gray-700 font-semibold">مبلغ قابل پرداخت:</span>
-                                <span class="text-xl font-bold text-blue-600">{{ number_format($total - $discount) }} تومان</span>
+                            <div class="flex justify-between items-center pt-4 border-t border-gray-300 border-dashed">
+                                <span class="text-gray-800 font-semibold text-lg">مبلغ قابل پرداخت:</span>
+                                <span class="text-xl font-bold text-blue-700">{{ number_format($total - $discount) }} تومان</span>
                             </div>
                         @endif
                     </div>
                 </div>
-            </div>
 
             <div class="text-center">
                 <form id="paymentForm" action="{{ route('checkout.process') }}" method="POST">

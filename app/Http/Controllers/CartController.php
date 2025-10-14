@@ -162,7 +162,21 @@ class CartController extends Controller
             }
 
             $discountAmount = $coupon->calculateDiscount($cart->total);
+            // dd($discountAmount);
+            // dd($request);
+            // dd($coupon->max_discount < $discountAmount);
 
+            if($coupon->max_discount < $request->price) {
+                // dd($coupon->max_discount < $request->price);
+                $max = $coupon->max_discount;
+                return redirect()->back()->withErrors(['coupon_code' => 'حداکثر مبلغ خرید برای استفاده از کد تخفیف '.number_format($max).' تومان است'])->withInput();
+            }
+
+            if($coupon->min_order > $request->price) {
+                $order = $coupon->min_order;
+                return redirect()->back()->withErrors(['coupon_code' => 'حداقل مبلغ خرید برای استفاده از کد تخفیف '.number_format($order).' تومان است'])->withInput();
+            }
+            
             $cart->update([
                 'discount' => $discountAmount,
                 'coupon_code' => $request->coupon_code

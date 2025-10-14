@@ -14,8 +14,6 @@
                     <span>موجودی: <span class="font-semibold text-green-600">250,000 تومان</span></span>
                 </div>
                 <div class="flex items-center">
-                    <img src="https://images.pexels.com/photos/771742/pexels-photo-771742.jpeg?auto=compress&cs=tinysrgb&w=100" 
-                         class="w-10 h-10 rounded-full ml-3">
                     <div>
                         <div class="text-sm font-semibold">{{ auth()->user()->name }}</div>
                     </div>

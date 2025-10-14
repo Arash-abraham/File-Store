@@ -128,19 +128,17 @@
         <!-- Navigation Menu -->
         <nav class="border-t border-gray-200 py-4">
             <ul class="flex justify-center gap-8 items-center">
+                @foreach($menus as $menu)
+                    <li>
+                        <a href="{{ asset($menu->url) }}" 
+                        class="nav-link text-black hover:text-blue-600 transition-colors">
+                            {{ $menu->title }}
+                        </a>
+                    </li>
+            @endforeach
 
-                @if(isset($menus) && count($menus) > 0)
-                    @foreach($menus as $menu)
-                        <li>
-                            <a href="{{ $menu->url }}" 
-                            target="{{ $menu->target }}"
-                            class="nav-link text-black hover:text-blue-600 transition-colors">
-                                {{ $menu->title }}
-                            </a>
-                        </li>
-                    @endforeach
-                @endif
             </ul>
+            <a href=""></a>
         </nav>
     </div>
     <script>

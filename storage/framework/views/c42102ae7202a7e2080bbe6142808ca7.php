@@ -91,13 +91,11 @@
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
     <div class="container mx-auto p-4 max-w-4xl">
-        <!-- هدر صفحه -->
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">سبد خرید شما</h1>
             <p class="text-gray-600">مدیریت و بررسی محصولات انتخابی</p>
         </div>
 
-        <!-- پیام‌های سیستم -->
         <?php if(session('success')): ?>
             <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center">
                 <i class="fas fa-check-circle ml-2 text-green-500"></i>
@@ -118,7 +116,6 @@
         <?php endif; ?>
 
         <?php if($cartItems->isEmpty()): ?>
-            <!-- حالت سبد خرید خالی -->
             <div class="bg-white rounded-2xl shadow-sm p-8 text-center">
                 <div class="empty-cart-icon mb-4">
                     <i class="fas fa-shopping-cart"></i>
@@ -131,9 +128,7 @@
                 </a>
             </div>
         <?php else: ?>
-            <!-- محتوای سبد خرید -->
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-6">
-                <!-- لیست محصولات -->
                 <div class="divide-y divide-gray-100">
                     <?php $__currentLoopData = $cartItems; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="cart-item p-6 flex items-center justify-between">
@@ -154,7 +149,6 @@
                             </div>
                             
                             <div class="flex items-center gap-4">
-                                <!-- فرم حذف محصول -->
                                 <form action="<?php echo e(route('cart.remove', $item->id)); ?>" method="POST">
                                     <?php echo csrf_field(); ?>
                                     <?php echo method_field('DELETE'); ?>
@@ -169,11 +163,11 @@
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                 </div>
                 
-                <!-- بخش کد تخفیف -->
                 <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
                     <form action="<?php echo e(route('cart.apply-coupon')); ?>" method="POST" class="flex gap-2">
                         <?php echo csrf_field(); ?>
                         <div class="flex-1 relative">
+                            <input type="text" value="<?php echo e($item->unit_price); ?>" name="price" hidden>
                             <input type="text" name="coupon_code" id="coupon_code" 
                                    value="<?php echo e(old('coupon_code', $appliedCoupon ?? '')); ?>"
                                    placeholder="کد تخفیف خود را وارد کنید" 
@@ -216,31 +210,27 @@ if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
                 </div>
-                
-                <!-- خلاصه سفارش -->
-                <div class="px-6 py-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-gray-100">
-                    <div class="max-w-md mr-auto space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-gray-600">جمع کل:</span>
-                            <span class="text-xl font-bold text-gray-800"><?php echo e(number_format($total)); ?> تومان</span>
+                <div class="px-6 py-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-gray-200 rounded-lg shadow-sm">
+                    <div class="max-w-md ml-auto space-y-4">
+                        <div class="flex justify-between items-center py-2">
+                            <span class="text-gray-700 font-medium">جمع کل:</span>
+                            <span class="text-xl font-bold text-gray-900"><?php echo e(number_format($total)); ?> تومان</span>
                         </div>
                         
                         <?php if($discount > 0): ?>
-                            <div class="flex justify-between items-center">
-                                <span class="text-gray-600">تخفیف:</span>
+                            <div class="flex justify-between items-center py-2">
+                                <span class="text-gray-700 font-medium">تخفیف:</span>
                                 <span class="text-lg font-bold text-green-600"><?php echo e(number_format($discount)); ?> تومان</span>
                             </div>
                             
-                            <div class="flex justify-between items-center pt-3 border-t border-gray-200">
-                                <span class="text-gray-700 font-semibold">مبلغ قابل پرداخت:</span>
-                                <span class="text-xl font-bold text-blue-600"><?php echo e(number_format($total - $discount)); ?> تومان</span>
+                            <div class="flex justify-between items-center pt-4 border-t border-gray-300 border-dashed">
+                                <span class="text-gray-800 font-semibold text-lg">مبلغ قابل پرداخت:</span>
+                                <span class="text-xl font-bold text-blue-700"><?php echo e(number_format($total - $discount)); ?> تومان</span>
                             </div>
                         <?php endif; ?>
                     </div>
                 </div>
-            </div>
 
-            <!-- دکمه پرداخت -->
             <div class="text-center">
                 <form id="paymentForm" action="<?php echo e(route('checkout.process')); ?>" method="POST">
                     <?php echo csrf_field(); ?>

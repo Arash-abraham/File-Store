@@ -129,20 +129,18 @@
         <!-- Navigation Menu -->
         <nav class="border-t border-gray-200 py-4">
             <ul class="flex justify-center gap-8 items-center">
+                <?php $__currentLoopData = $menus; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $menu): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <li>
+                        <a href="<?php echo e(asset($menu->url)); ?>" 
+                        class="nav-link text-black hover:text-blue-600 transition-colors">
+                            <?php echo e($menu->title); ?>
 
-                <?php if(isset($menus) && count($menus) > 0): ?>
-                    <?php $__currentLoopData = $menus; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $menu): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <li>
-                            <a href="<?php echo e($menu->url); ?>" 
-                            target="<?php echo e($menu->target); ?>"
-                            class="nav-link text-black hover:text-blue-600 transition-colors">
-                                <?php echo e($menu->title); ?>
+                        </a>
+                    </li>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                            </a>
-                        </li>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                <?php endif; ?>
             </ul>
+            <a href=""></a>
         </nav>
     </div>
     <script>
