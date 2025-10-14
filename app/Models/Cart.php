@@ -12,9 +12,16 @@ class Cart extends Model
 
     protected $fillable = [
         'user_id',
-        'session_token',
-        'status'
+        'session_token', 
+        'discount',
+        'coupon_code'
     ];
+
+    protected $casts = [
+        'total' => 'decimal:2',
+        'discount' => 'decimal:2',
+    ];
+
 
     public function items(): HasMany
     {
@@ -26,7 +33,6 @@ class Cart extends Model
         return $this->items->sum('subtotal');
     }
 
-    // محاسبه تعداد آیتم‌ها
     public function getItemsCountAttribute()
     {
         return $this->items->sum('quantity');

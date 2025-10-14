@@ -61,6 +61,32 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
         }
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 2px solid #3498db;
+            width: 20px;
+            height: 20px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn-loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
@@ -76,6 +102,12 @@
             <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center">
                 <i class="fas fa-check-circle ml-2 text-green-500"></i>
                 <span><?php echo e(session('success')); ?></span>
+            </div>
+        <?php endif; ?>
+        <?php if(session('applied')): ?>
+            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center">
+                <i class="fas fa-check-circle ml-2 text-green-500"></i>
+                <span><?php echo e(session('applied')); ?></span>
             </div>
         <?php endif; ?>
         <?php if(session('error')): ?>
@@ -156,10 +188,17 @@ unset($__errorArgs, $__bag); ?>"
                                    <?php echo e(isset($appliedCoupon) && $appliedCoupon ? 'readonly' : ''); ?>>
                             <i class="fas fa-ticket-alt absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
-                        <button type="submit" class="btn-orange px-6 py-3 rounded-lg font-semibold flex items-center">
-                            <i class="fas fa-gift ml-2"></i>
-                            اعمال تخفیف
-                        </button>
+                        <?php if(session('applied')): ?>
+                            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center">
+                                <p>اعمال شد</p>                                
+                            </div>
+                        <?php else: ?> 
+                            <button type="submit" class="btn-orange px-6 py-3 rounded-lg font-semibold flex items-center">
+                                <i class="fas fa-gift ml-2"></i>
+                                اعمال تخفیف
+                            </button>
+                        <?php endif; ?>
+
                     </form>
                     
                     <?php $__errorArgs = ['coupon_code'];
@@ -207,9 +246,10 @@ unset($__errorArgs, $__bag); ?>
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="session_token" value="<?php echo e(session()->getId()); ?>">
                     <input type="hidden" name="payment_gateway" value="zarinpal">
-                    <button type="submit" class="btn-success text-white px-8 py-4 rounded-xl font-bold text-lg inline-flex items-center shadow-lg">
+                    <button type="submit" id="paymentButton" class="btn-success text-white px-8 py-4 rounded-xl font-bold text-lg inline-flex items-center shadow-lg">
                         <i class="fas fa-credit-card ml-2"></i>
-                        پرداخت و تکمیل سفارش
+                        <span id="buttonText">پرداخت و تکمیل سفارش</span>
+                        <div id="buttonSpinner" class="spinner mr-2" style="display: none;"></div>
                     </button>
                 </form>
                 
@@ -220,26 +260,41 @@ unset($__errorArgs, $__bag); ?>
             </div>
         <?php endif; ?>
     </div>
-
     <script>
         document.getElementById('paymentForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // جلوگیری از سابمیت معمولی فرم
-
+            e.preventDefault();
+            
+            const paymentButton = document.getElementById('paymentButton');
+            const buttonText = document.getElementById('buttonText');
+            const buttonSpinner = document.getElementById('buttonSpinner');
+            
+            paymentButton.classList.add('btn-loading');
+            paymentButton.disabled = true;
+            buttonText.textContent = 'در حال انتقال به درگاه...';
+            buttonSpinner.style.display = 'inline-block';
+            
             axios.post(this.action, new FormData(this))
                 .then(response => {
                     if (response.data.success) {
-                        // هدایت به URL پرداخت
                         window.location.href = response.data.data.payment_url;
                     } else {
+                        resetButton();
                         alert(response.data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    resetButton();
                     alert('خطا در پردازش پرداخت. لطفاً دوباره تلاش کنید.');
                 });
+                
+            function resetButton() {
+                paymentButton.classList.remove('btn-loading');
+                paymentButton.disabled = false;
+                buttonText.textContent = 'پرداخت و تکمیل سفارش';
+                buttonSpinner.style.display = 'none';
+            }
         });
-        
     </script>
 </body>
 </html><?php /**PATH /opt/lampp/htdocs/File-Store/resources/views/app/checkout.blade.php ENDPATH**/ ?>

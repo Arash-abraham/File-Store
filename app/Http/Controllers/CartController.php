@@ -88,20 +88,28 @@ class CartController extends Controller
         if (!auth()->check()) {
             return redirect()->route('login');
         }
-
+    
         $cart = $this->cartService->getCart(auth()->id(), session()->getId());
         $cartItems = collect();
         $total = 0;
         $discount = 0;
         $appliedCoupon = '';
-
+    
         if ($cart) {
             $cartItems = $cart->items()->with('product')->get();
             $total = $cart->total ?? 0;
             $discount = $cart->discount ?? 0;
             $appliedCoupon = $cart->coupon_code ?? '';
+            
+            // DEBUG
+            // dd('Cart Data', [
+            //     'cart_id' => $cart->id,
+            //     'total' => $total,
+            //     'discount' => $discount,
+            //     'coupon_code' => $appliedCoupon
+            // ]);
         }
-
+    
         return view('app.checkout', [
             'cartItems' => $cartItems,
             'total' => $total,
@@ -159,8 +167,7 @@ class CartController extends Controller
                 'discount' => $discountAmount,
                 'coupon_code' => $request->coupon_code
             ]);
-
-            return redirect()->route('cart.show')->with('success', 'کد تخفیف با موفقیت اعمال شد');
+            return redirect()->route('cart.show')->with('applied', 'کد تخفیف با موفقیت اعمال شد');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage() ?: 'خطا در اعمال کد تخفیف');
         }

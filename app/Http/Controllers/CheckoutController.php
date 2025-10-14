@@ -49,35 +49,52 @@ class CheckoutController extends Controller
             'session_token' => 'required|string',
             'payment_gateway' => 'sometimes|string|in:zarinpal',
         ]);
-
+    
         $cart = $this->cartService->getCart(auth()->id(), $request->session_token);
-
+    
         if (!$cart || $cart->items->isEmpty()) {
             return response()->json([
                 'success' => false,
                 'message' => 'سبد خرید خالی است'
             ], 400);
         }
-
+    
         try {
+            $discountAmount = $cart->discount ?? 0;
+            $finalAmount = max(0, $cart->total - $discountAmount);
+            
+            Log::info('Checkout process started', [
+                'cart_id' => $cart->id,
+                'cart_total' => $cart->total,
+                'discount' => $discountAmount,
+                'final_amount' => $finalAmount,
+                'coupon_code' => $cart->coupon_code
+            ]);
+    
             $orderData = [
                 'payment_gateway' => $request->payment_gateway ?? 'zarinpal',
-                'discount_amount' => session('discount', 0),
+                'discount_amount' => $discountAmount,
+                'coupon_code' => $cart->coupon_code,
             ];
-
+    
             $order = $this->cartService->convertToOrder($cart, $orderData);
             $paymentResponse = $this->paymentService->createPaymentRequest($order);
-
+    
             if (!$paymentResponse['success']) {
                 return response()->json([
                     'success' => false,
                     'message' => $paymentResponse['message']
                 ], 400);
             }
-
-            // ذخیره payment_authority
+    
             $order->update(['payment_authority' => $paymentResponse['authority']]);
-
+    
+            Log::info('Payment request created', [
+                'order_id' => $order->id,
+                'authority' => $paymentResponse['authority'],
+                'payment_url' => $paymentResponse['payment_url']
+            ]);
+    
             return response()->json([
                 'success' => true,
                 'message' => 'سفارش با موفقیت ایجاد شد',
@@ -87,8 +104,14 @@ class CheckoutController extends Controller
                     'authority' => $paymentResponse['authority']
                 ]
             ], 201);
-
+    
         } catch (\Exception $e) {
+            Log::error('Checkout process error: ' . $e->getMessage(), [
+                'user_id' => auth()->id(),
+                'session_token' => $request->session_token,
+                'trace' => $e->getTraceAsString()
+            ]);
+            
             return response()->json([
                 'success' => false,
                 'message' => 'خطا در ایجاد سفارش: ' . $e->getMessage()

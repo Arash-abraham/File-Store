@@ -61,21 +61,51 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
         }
+        .spinner {
+            border: 2px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 2px solid #3498db;
+            width: 20px;
+            height: 20px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-left: 8px;
+        }
+
+        @-webkit-keyframes spin {
+            0% { -webkit-transform: rotate(0deg); }
+            100% { -webkit-transform: rotate(360deg); }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .btn-loading {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
     <div class="container mx-auto p-4 max-w-4xl">
-        <!-- هدر صفحه -->
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold text-gray-800 mb-2">سبد خرید شما</h1>
             <p class="text-gray-600">مدیریت و بررسی محصولات انتخابی</p>
         </div>
 
-        <!-- پیام‌های سیستم -->
         @if (session('success'))
             <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center">
                 <i class="fas fa-check-circle ml-2 text-green-500"></i>
                 <span>{{ session('success') }}</span>
+            </div>
+        @endif
+        @if (session('applied'))
+            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center">
+                <i class="fas fa-check-circle ml-2 text-green-500"></i>
+                <span>{{ session('applied') }}</span>
             </div>
         @endif
         @if (session('error'))
@@ -86,7 +116,6 @@
         @endif
 
         @if ($cartItems->isEmpty())
-            <!-- حالت سبد خرید خالی -->
             <div class="bg-white rounded-2xl shadow-sm p-8 text-center">
                 <div class="empty-cart-icon mb-4">
                     <i class="fas fa-shopping-cart"></i>
@@ -99,9 +128,7 @@
                 </a>
             </div>
         @else
-            <!-- محتوای سبد خرید -->
             <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-6">
-                <!-- لیست محصولات -->
                 <div class="divide-y divide-gray-100">
                     @foreach ($cartItems as $item)
                         <div class="cart-item p-6 flex items-center justify-between">
@@ -121,7 +148,6 @@
                             </div>
                             
                             <div class="flex items-center gap-4">
-                                <!-- فرم حذف محصول -->
                                 <form action="{{ route('cart.remove', $item->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
@@ -136,7 +162,6 @@
                     @endforeach
                 </div>
                 
-                <!-- بخش کد تخفیف -->
                 <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
                     <form action="{{ route('cart.apply-coupon') }}" method="POST" class="flex gap-2">
                         @csrf
@@ -148,10 +173,17 @@
                                    {{ isset($appliedCoupon) && $appliedCoupon ? 'readonly' : '' }}>
                             <i class="fas fa-ticket-alt absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
                         </div>
-                        <button type="submit" class="btn-orange px-6 py-3 rounded-lg font-semibold flex items-center">
-                            <i class="fas fa-gift ml-2"></i>
-                            اعمال تخفیف
-                        </button>
+                        @if (session('applied'))
+                            <div class="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6 flex items-center">
+                                <p>اعمال شد</p>                                
+                            </div>
+                        @else 
+                            <button type="submit" class="btn-orange px-6 py-3 rounded-lg font-semibold flex items-center">
+                                <i class="fas fa-gift ml-2"></i>
+                                اعمال تخفیف
+                            </button>
+                        @endif
+
                     </form>
                     
                     @error('coupon_code')
@@ -162,7 +194,6 @@
                     @enderror
                 </div>
                 
-                <!-- خلاصه سفارش -->
                 <div class="px-6 py-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-gray-100">
                     <div class="max-w-md mr-auto space-y-3">
                         <div class="flex justify-between items-center">
@@ -185,15 +216,15 @@
                 </div>
             </div>
 
-            <!-- دکمه پرداخت -->
             <div class="text-center">
                 <form id="paymentForm" action="{{ route('checkout.process') }}" method="POST">
                     @csrf
                     <input type="hidden" name="session_token" value="{{ session()->getId() }}">
                     <input type="hidden" name="payment_gateway" value="zarinpal">
-                    <button type="submit" class="btn-success text-white px-8 py-4 rounded-xl font-bold text-lg inline-flex items-center shadow-lg">
+                    <button type="submit" id="paymentButton" class="btn-success text-white px-8 py-4 rounded-xl font-bold text-lg inline-flex items-center shadow-lg">
                         <i class="fas fa-credit-card ml-2"></i>
-                        پرداخت و تکمیل سفارش
+                        <span id="buttonText">پرداخت و تکمیل سفارش</span>
+                        <div id="buttonSpinner" class="spinner mr-2" style="display: none;"></div>
                     </button>
                 </form>
                 
@@ -204,26 +235,41 @@
             </div>
         @endif
     </div>
-
     <script>
         document.getElementById('paymentForm').addEventListener('submit', function(e) {
-            e.preventDefault(); // جلوگیری از سابمیت معمولی فرم
-
+            e.preventDefault();
+            
+            const paymentButton = document.getElementById('paymentButton');
+            const buttonText = document.getElementById('buttonText');
+            const buttonSpinner = document.getElementById('buttonSpinner');
+            
+            paymentButton.classList.add('btn-loading');
+            paymentButton.disabled = true;
+            buttonText.textContent = 'در حال انتقال به درگاه...';
+            buttonSpinner.style.display = 'inline-block';
+            
             axios.post(this.action, new FormData(this))
                 .then(response => {
                     if (response.data.success) {
-                        // هدایت به URL پرداخت
                         window.location.href = response.data.data.payment_url;
                     } else {
+                        resetButton();
                         alert(response.data.message);
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    resetButton();
                     alert('خطا در پردازش پرداخت. لطفاً دوباره تلاش کنید.');
                 });
+                
+            function resetButton() {
+                paymentButton.classList.remove('btn-loading');
+                paymentButton.disabled = false;
+                buttonText.textContent = 'پرداخت و تکمیل سفارش';
+                buttonSpinner.style.display = 'none';
+            }
         });
-        
     </script>
 </body>
 </html>
