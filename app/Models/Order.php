@@ -47,12 +47,15 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
-
     public function getFinalAmountAttribute(): int
     {
         return $this->total_amount - ($this->discount_amount ?? 0);
     }
-
+    
+    public function product()
+    {
+        return $this->belongsTo(Product::class);
+    }
     public function markAsPaid(string $paymentGateway, string $transactionId): void
     {
         $this->update([
@@ -62,5 +65,11 @@ class Order extends Model
             'transaction_id' => $transactionId,
             'paid_at' => now()
         ]);
+    }
+    public function getTotalAmountAttribute()
+    {
+        return $this->items->sum(function ($item) {
+            return $item->quantity * $item->price;
+        });
     }
 }

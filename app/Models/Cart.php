@@ -41,4 +41,5 @@ class Cart extends Model
     {
         $this->items()->delete(); 
     }
+    
 }

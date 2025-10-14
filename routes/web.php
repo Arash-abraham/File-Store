@@ -19,7 +19,9 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Middleware\AdminMiddleware;
+use App\Models\Cart;
 use App\Models\Order;
+use App\Models\Payment;
 use Application\Controllers\Home;
 use Illuminate\Support\Facades\Route;
 
@@ -53,10 +55,28 @@ Route::get('/payment/success/{order_id}', function ($order_id) {
     return view('app.payment-success', ['order' => $order]);
 })->name('payment.success');
 
-
 Route::get('/dashboard', function () {
-    return view('dashboard');
+    $user = auth()->user();
+
+    $purchases = Payment::where('user_id', $user->id)
+        ->where('status', 'completed')
+        ->with([
+            'order.items.product' => function($query) {
+                $query->select('id', 'title', 'original_price', 'image_urls');
+            }
+        ])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    // دیباگ: چک کن داده‌ها لود شدن
+    // dd($purchases->first() ? $purchases->first()->order->items : 'No purchases');
+
+    return view('dashboard', compact('purchases'));
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+// Route::prefix('dashboard')->middleware(['auth', 'verified'])->name('dashboard.')->group(function() {
+//     // Route::get('/', [HomeDashboardControlle::class, 'index'])->name('index');
+// });
 
 Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('admin.')->group(function() {
     Route::get('/', [DashboardController::class, 'index'])->name('index');
