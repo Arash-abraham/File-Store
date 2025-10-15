@@ -225,7 +225,8 @@ class HomeController extends Controller
         $discount = session('discount', 0);
         $count = $cartItems->count();
         $setting = WebSetting::all();
-        
-        return view('app.search', compact('setting','cartItems','total','discount','count','products', 'categories'));
+        $menus = Menu::all();
+
+        return view('app.search', compact('menus','setting','cartItems','total','discount','count','products', 'categories'));
     }
 }

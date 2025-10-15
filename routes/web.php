@@ -68,7 +68,6 @@ Route::get('/dashboard', function () {
         ->orderBy('created_at', 'desc')
         ->get();
 
-    // دیباگ: چک کن داده‌ها لود شدن
     // dd($purchases->first() ? $purchases->first()->order->items : 'No purchases');
 
     return view('dashboard', compact('purchases'));

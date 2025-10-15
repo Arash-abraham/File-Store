@@ -263,19 +263,28 @@ unset($__errorArgs, $__bag); ?>
             buttonText.textContent = 'در حال انتقال به درگاه...';
             buttonSpinner.style.display = 'inline-block';
             
+            console.log('Sending checkout request...', {
+                session_token: document.querySelector('input[name="session_token"]').value,
+                payment_gateway: document.querySelector('input[name="payment_gateway"]').value
+            });
+            
             axios.post(this.action, new FormData(this))
                 .then(response => {
+                    console.log('Checkout response:', response.data);
+                    
                     if (response.data.success) {
                         window.location.href = response.data.data.payment_url;
                     } else {
                         resetButton();
-                        alert(response.data.message);
+                        alert('خطا: ' + (response.data.message || 'خطای ناشناخته'));
                     }
                 })
                 .catch(error => {
-                    console.error('Error:', error);
+                    console.error('Checkout error:', error);
+                    console.error('Error response:', error.response?.data);
+                    
                     resetButton();
-                    alert('خطا در پردازش پرداخت. لطفاً دوباره تلاش کنید.');
+                    alert('خطا در پردازش پرداخت: ' + (error.response?.data?.message || 'لطفاً دوباره تلاش کنید'));
                 });
                 
             function resetButton() {

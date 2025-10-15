@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory;
 
     protected $fillable = [
         'user_id',
@@ -47,15 +47,29 @@ class Order extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
     public function getFinalAmountAttribute(): int
     {
-        return $this->total_amount - ($this->discount_amount ?? 0);
+        $total = (int)$this->total_amount;
+        $discount = (int)($this->discount_amount ?? 0);
+        return max(0, $total - $discount);
     }
+    
+    // ❌ این متد رو حذف کنید - مشکل سازه
+    /*
+    public function getTotalAmountAttribute()
+    {
+        return $this->items->sum(function ($item) {
+            return $item->quantity * $item->price;
+        });
+    }
+    */
     
     public function product()
     {
         return $this->belongsTo(Product::class);
     }
+
     public function markAsPaid(string $paymentGateway, string $transactionId): void
     {
         $this->update([
@@ -65,11 +79,5 @@ class Order extends Model
             'transaction_id' => $transactionId,
             'paid_at' => now()
         ]);
-    }
-    public function getTotalAmountAttribute()
-    {
-        return $this->items->sum(function ($item) {
-            return $item->quantity * $item->price;
-        });
     }
 }

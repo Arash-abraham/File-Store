@@ -38,9 +38,8 @@
     @endif
 
     <div id="main-content">
-        <!-- Cart Modal (همان کد قبلی) -->
         <div id="cart-modal" class="fixed w-80 bg-white text-gray-800 rounded-xl shadow-2xl p-0 hidden z-50 border border-gray-200">
-            <!-- محتوای مودال سبد خرید -->
+
         </div>
 
         <!-- Breadcrumb -->
