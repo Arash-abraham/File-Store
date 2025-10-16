@@ -110,7 +110,9 @@
     </div>
 
     @include('admin.layouts.sections.faq.add-faq')
+    
     @section('js')
         <script src="{{asset('js/admin/faq.js')}}"></script>
     @endsection
+
 @endsection

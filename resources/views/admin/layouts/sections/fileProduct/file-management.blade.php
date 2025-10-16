@@ -12,7 +12,25 @@
                     </button>
                 </a>
             </div>
-
+            @if(session('success'))
+                <div class="card border-success mb-4 shadow-lg" id="successAlert">
+                    <div class="card-header bg-gradient bg-success text-white py-3 d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <span class="fw-bold fs-6">عملیات موفق</span>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white" onclick="closeSuccessAlert()" aria-label="Close"></button>
+                    </div>
+                    <div class="card-body bg-light py-3">
+                        <ul class="mb-0 text-success fs-7">
+                            <li class="mb-1">
+                                <i class="fas fa-check me-2 small"></i>
+                                {{ session('success') }}
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            @endif
             <!-- Files List -->
             <div class="space-y-4">
                 <div class="border border-gray-200 rounded-lg p-6">
@@ -53,5 +71,7 @@
             </div>
         </div>
     </div>
-
+    @section('js')
+        <script src="{{asset('js/admin/faq.js')}}"></script>
+    @endsection
 @endsection
