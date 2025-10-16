@@ -8,35 +8,45 @@
         </div>
         
         <div class="space-y-4">
-            <div class="border border-gray-200 rounded-lg p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="font-semibold text-lg">مشکل در دانلود فایل</h3>
-                        <p class="text-gray-600">تیکت #12345</p>
-                        <p class="text-sm text-gray-500">ایجاد شده: 1403/08/15 - 14:30</p>
+            <?php $__currentLoopData = $tickets; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $ticket): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div class="border border-gray-200 rounded-lg p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-semibold text-lg"><?php echo e($ticket->subject); ?></h3>
+                            <p class="text-gray-600">تیکت #<?php echo e($ticket->id); ?></p>
+                            <p class="text-sm text-gray-500"><?php echo e(\Morilog\Jalali\Jalalian::forge($ticket->created_at)->format('Y/m/d H:i')); ?></p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <?php if($ticket->status == 'open'): ?>
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                                    باز
+                                </span>
+                            <?php elseif($ticket->status == 'in_progress'): ?>
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                                    درحال بررسی
+                                </span>
+                            <?php else: ?>
+                                <span class="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                    بسته شد
+                                </span>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-3">
-                        <span class="bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full">در انتظار پاسخ</span>
-                        <button class="text-blue-600 hover:text-blue-800 transition-colors">مشاهده</button>
-                    </div>
+                    سوال : <p class="text-gray-700 bg-gray-50 p-3 rounded-lg"><?php echo e($ticket->message); ?></p>
+
+                    <br>
+
+                    پاسخ : <p class="text-gray-700 bg-gray-50 p-3 rounded-lg">
+                        <?php if($ticket->response): ?>
+                            <?php echo e($ticket->response); ?>
+
+                        <?php else: ?>
+                            هنوز پاسخی ثبت نشده است
+                        <?php endif; ?>
+                    </p>
+
                 </div>
-                <p class="text-gray-700 bg-gray-50 p-3 rounded-lg">سلام، من نمی‌تونم فایل Adobe Photoshop رو دانلود کنم. لطفاً کمک کنید.</p>
-            </div>
-            
-            <div class="border border-gray-200 rounded-lg p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="font-semibold text-lg">درخواست بازگشت وجه</h3>
-                        <p class="text-gray-600">تیکت #12344</p>
-                        <p class="text-sm text-gray-500">ایجاد شده: 1403/08/13 - 10:15</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full">بسته شده</span>
-                        <button class="text-blue-600 hover:text-blue-800 transition-colors">مشاهده</button>
-                    </div>
-                </div>
-                <p class="text-gray-700 bg-gray-50 p-3 rounded-lg">محصولی که خریدم با توضیحات مطابقت نداره.</p>
-            </div>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
         </div>
     </div>
 </div><?php /**PATH /opt/lampp/htdocs/File-Store/resources/views/layouts/main/tickets-section.blade.php ENDPATH**/ ?>

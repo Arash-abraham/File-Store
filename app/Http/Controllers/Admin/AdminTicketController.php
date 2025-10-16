@@ -46,7 +46,24 @@ class AdminTicketController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $userId = auth()->id();
+        
+        $validated = $request->validate([
+            'subject' => [
+                'required',
+                'string',
+                'max:200',
+            ],
+            'assigned_to' => 'required',
+            'message' => 'required|string',
+        ]);
+
+        $validated['user_id'] = $userId;
+
+        Ticket::create($validated);
+
+        return redirect()->back()->with('success', 'تیکت با موفقیت ثبت شد ، ادمین ها با شما تماس خواهند گرفت');
+
     }
 
     /**

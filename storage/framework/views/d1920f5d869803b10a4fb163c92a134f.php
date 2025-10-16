@@ -7,32 +7,33 @@
             </button>
         </div>
         
-        <form class="space-y-4">
+        <form method="POST" action="<?php echo e(route('admin.ticket.store')); ?>" class="space-y-4">
+            <?php echo csrf_field(); ?>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">موضوع</label>
-                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                <input name="subject" type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
             </div>
             
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">دسته‌بندی</label>
-                <select class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                    <option>مشکل فنی</option>
-                    <option>مسائل مالی</option>
-                    <option>درخواست بازگشت وجه</option>
-                    <option>سایر</option>
+                <select name="assigned_to" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    <option value="technical">مشکل فنی</option>
+                    <option value="financial">مسائل مالی</option>
+                    <option value="refund">درخواست بازگشت وجه</option>
+                    <option value="other">سایر</option>
                 </select>
             </div>
             
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">پیام</label>
-                <textarea rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"></textarea>
+                <textarea name="message" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"></textarea>
             </div>
             
             <div class="flex gap-4">
                 <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
                     ارسال تیکت
                 </button>
-                <button type="button" onclick="hideNewTicketModal()" class="flex-1 border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <button type="button" class="flex-1 border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition-colors">
                     لغو
                 </button>
             </div>

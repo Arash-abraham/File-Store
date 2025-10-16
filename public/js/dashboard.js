@@ -103,36 +103,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Handle ticket form submission
-    const ticketForm = document.querySelector('#newTicketModal form');
-    if (ticketForm) {
-        ticketForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const subject = this.querySelector('input[type="text"]').value;
-            const category = this.querySelector('select').value;
-            const message = this.querySelector('textarea').value;
-            
-            if (!subject || !message) {
-                showNotification('لطفاً تمام فیلدهای الزامی را پر کنید', 'error');
-                return;
-            }
-            
-            // Simulate API call
-            showNotification('تیکت شما با موفقیت ثبت شد', 'success');
-            hideNewTicketModal();
-            
-            // Clear form
-            this.reset();
-            
-            // Refresh tickets section if currently visible
-            if (!document.getElementById('tickets').classList.contains('hidden')) {
-                // Add new ticket to the list (simulate)
-                addNewTicketToList(subject, category, message);
-            }
-        });
-    }
 
     // Add new ticket to list
     function addNewTicketToList(subject, category, message) {
@@ -143,23 +113,6 @@ document.addEventListener('DOMContentLoaded', function() {
             hour: '2-digit', 
             minute: '2-digit' 
         });
-        
-        const ticketHTML = `
-            <div class="border border-gray-200 rounded-lg p-6">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <h3 class="font-semibold text-lg">${subject}</h3>
-                        <p class="text-gray-600">تیکت #${newTicketId}</p>
-                        <p class="text-sm text-gray-500">ایجاد شده: ${currentDate} - ${currentTime}</p>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <span class="bg-yellow-100 text-yellow-800 text-sm px-3 py-1 rounded-full">در انتظار پاسخ</span>
-                        <button class="text-blue-600 hover:text-blue-800 transition-colors">مشاهده</button>
-                    </div>
-                </div>
-                <p class="text-gray-700 bg-gray-50 p-3 rounded-lg">${message}</p>
-            </div>
-        `;
         
         ticketsList.insertAdjacentHTML('afterbegin', ticketHTML);
     }

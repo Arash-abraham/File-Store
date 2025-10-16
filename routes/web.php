@@ -22,6 +22,7 @@ use App\Http\Middleware\AdminMiddleware;
 use App\Models\Cart;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\Ticket;
 use Application\Controllers\Home;
 use Illuminate\Support\Facades\Route;
 
@@ -69,8 +70,11 @@ Route::get('/dashboard', function () {
         ->get();
 
     // dd($purchases->first() ? $purchases->first()->order->items : 'No purchases');
+        
+    $tickets = Ticket::where('user_id', $user->id)->get();
+    
 
-    return view('dashboard', compact('purchases'));
+    return view('dashboard', compact('purchases','tickets'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 // Route::prefix('dashboard')->middleware(['auth', 'verified'])->name('dashboard.')->group(function() {

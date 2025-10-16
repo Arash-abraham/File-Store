@@ -54,8 +54,7 @@ class Order extends Model
         $discount = (int)($this->discount_amount ?? 0);
         return max(0, $total - $discount);
     }
-    
-    // ❌ این متد رو حذف کنید - مشکل سازه
+
     /*
     public function getTotalAmountAttribute()
     {
