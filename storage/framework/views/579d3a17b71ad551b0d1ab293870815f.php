@@ -9,7 +9,7 @@
                 <i class="fas fa-box w-5 ml-3"></i>
                 <span>مدیریت محصولات</span>
             </a>
-            <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="product-files">
+            <a href="<?php echo e(route('admin.file-product.index')); ?>" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="product-files">
                 <i class="fas fa-folder-open w-5 ml-3"></i>
                 <span>فایل‌های محصولات</span>
             </a>
