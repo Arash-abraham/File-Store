@@ -109,6 +109,7 @@ class Product extends Model
         return $this->reviews()->approved();
     }
 
+    
     public function getReviewsCountAttribute()
     {
         return $this->reviews()->approved()->count();
@@ -118,5 +119,8 @@ class Product extends Model
     {
         return $this->reviews()->approved()->average('rating') ?? 0;
     }
-
+    public function files()
+    {
+        return $this->hasMany(FileProduct::class);
+    }
 }

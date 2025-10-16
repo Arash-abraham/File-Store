@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Faq;
 use App\Models\Menu;
+use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Tag;
 use App\Models\WebSetting;
@@ -131,7 +132,6 @@ class HomeController extends Controller
 
         return view('app.faq', compact('setting','menus','faqs', 'categories', 'cartItems', 'total', 'discount', 'count'));
     }
-
     public function showProduct(string $id)
     {
         $cart = $this->cartService->getCart(auth()->id(), session()->getId());
@@ -139,8 +139,29 @@ class HomeController extends Controller
         $total = $cart ? $cart->total : 0;
         $discount = session('discount', 0);
         $count = $cartItems->count();
-
-        $product = Product::with(['category', 'approvedReviews.user'])->findOrFail($id);
+    
+        $product = Product::with(['category', 'approvedReviews.user', 'files'])->findOrFail($id);
+    
+        $hasPurchased = false;
+        $isAdmin = false;
+        
+        if (auth()->check()) {
+            $user = auth()->user();
+            $isAdmin = $user->role === 'admin';
+            
+            $hasPurchased = Payment::where('user_id', $user->id)
+                ->whereHas('order', function($query) use ($product) {
+                    $query->whereHas('items', function($q) use ($product) {
+                        $q->where('product_id', $product->id);
+                    });
+                })
+                ->where('status', 'completed')
+                ->exists();
+    
+            if ($isAdmin) {
+                $hasPurchased = true;
+            }
+        }
     
         $relatedProducts = Product::where('category_id', $product->category_id)
             ->where('id', '!=', $product->id) 
@@ -148,13 +169,26 @@ class HomeController extends Controller
             ->inRandomOrder() 
             ->limit(4)
             ->get();
-
+    
         $tag = Tag::findOrFail($product->tag_id);
         $categories = Category::all();
         $menus = Menu::all();
         $setting = WebSetting::all();
-
-        return view('app.show-product', compact('relatedProducts','setting','menus','product', 'categories', 'tag', 'cartItems', 'total', 'discount', 'count'));
+    
+        return view('app.show-product', compact(
+            'relatedProducts',
+            'setting',
+            'menus',
+            'product', 
+            'categories', 
+            'tag', 
+            'cartItems', 
+            'total', 
+            'discount', 
+            'count',
+            'hasPurchased',
+            'isAdmin'
+        ));
     }
 
     public function search(Request $request) {
@@ -179,7 +213,6 @@ class HomeController extends Controller
             }
         }
         
-        // بقیه فیلترها...
         if ($request->has('category') && $request->category) {
             $query->where('category_id', $request->category);
         }

@@ -48,6 +48,7 @@
 <?php endif; ?>
     <?php endif; ?>
 
+    <!-- Cart Modal -->
     <div id="cart-modal" class="fixed w-80 bg-white text-gray-800 rounded-xl shadow-2xl p-0 hidden z-50 border border-gray-200">
         <div class="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-t-xl">
             <h2 class="text-lg font-bold">سبد خرید</h2>
@@ -97,7 +98,7 @@
                 </a>
             <?php endif; ?>
         </div>
-    </div>     
+    </div>
 
     <!-- Breadcrumb -->
     <section class="bg-white py-4">
@@ -118,6 +119,7 @@
         </div>
     </section>
 
+    <!-- Product Details -->
     <section class="py-12">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -148,11 +150,13 @@
                                 <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">موجود</span>
                             <?php else: ?> 
                                 <span class="bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full">ناموجود</span>
-                            <?php endif; ?>                            
+                            <?php endif; ?>
+                            <?php if($product->tag): ?>
+                                <span class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full"><?php echo e($product->tag->name); ?></span>
+                            <?php endif; ?>
                         </div>
                         
                         <h1 class="text-3xl font-bold text-gray-800 mb-4"><?php echo e($product->title); ?></h1>
-                    
 
                         <div class="mb-6">
                             <div class="flex items-center gap-4">
@@ -160,14 +164,16 @@
                             </div>
                         </div>
 
+                        <?php if(!empty($product->key_features)): ?>
                         <div class="mb-6">
                             <h3 class="font-semibold text-gray-800 mb-3">ویژگی‌های کلیدی:</h3>
                             <ul class="space-y-2 text-gray-600">
-                                <?php $__currentLoopData = $product->key_features ?? []; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php $__currentLoopData = $product->key_features; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                     <li class="flex items-center"><i class="fas fa-check text-green-500 ml-2"></i><?php echo e($item); ?></li>
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </ul>
                         </div>
+                        <?php endif; ?>
 
                         <form action="<?php echo e(route('cart.add')); ?>" method="POST" class="flex gap-4 mb-6">
                             <?php echo csrf_field(); ?>
@@ -209,6 +215,7 @@
                 </div>
 
                 <div class="p-8">
+                    <!-- Description Tab -->
                     <div id="description" class="tab-content">
                         <h3 class="text-2xl font-bold mb-4">درباره <?php echo e($product->title); ?></h3>
                         <div class="prose max-w-none text-gray-700 leading-relaxed">
@@ -216,39 +223,93 @@
                         </div>
                     </div>
 
-                        <?php
-                        $hasPurchased = auth()->check() && 
-                                        \App\Models\Payment::where('user_id', auth()->id())
-                                            ->whereHas('order.items', function($query) use ($product) {
-                                                $query->where('product_id', $product->id);
-                                            })
-                                            ->where('status', 'completed')
-                                            ->exists();
-                    ?>
-                    
-                    <?php if($hasPurchased): ?>
+                    <!-- Files Tab -->
+                    <?php if($hasPurchased && $product->files->count() > 0): ?>
                         <div id="files" class="tab-content hidden">
                             <h3 class="text-2xl font-bold mb-6">فایل‌های قابل دانلود</h3>
                             <div class="space-y-4">
-                                <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                                    <div class="flex items-center">
-                                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center ml-4">
-                                            <i class="fas fa-file-archive text-blue-600 text-xl"></i>
-                                        </div>
-                                        <div>
-                                            <h4 class="font-semibold"><?php echo e($product->title); ?>_Setup.zip</h4>
-                                            <p class="text-sm text-gray-500">نسخه کامل نرم‌افزار - 2.8 GB</p>
-                                        </div>
-                                    </div>
-                                    <a href="" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                        دانلود
-                                    </a>
-                                </div>
+                                <?php $__currentLoopData = $product->files; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $file): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                        <div class="flex items-center">
+                                            <div class="w-12 h-12 rounded-lg flex items-center justify-center ml-4 
+                                                <?php if($file->type === 'pdf'): ?> bg-red-100 text-red-600
+                                                <?php elseif($file->type === 'zip'): ?> bg-blue-100 text-blue-600
+                                                <?php elseif($file->type === 'rar'): ?> bg-purple-100 text-purple-600
+                                                <?php else: ?> bg-gray-100 text-gray-600 <?php endif; ?>">
+                                                <?php if($file->type === 'pdf'): ?>
+                                                    <i class="fas fa-file-pdf text-xl"></i>
+                                                <?php elseif($file->type === 'zip' || $file->type === 'rar'): ?>
+                                                    <i class="fas fa-file-archive text-xl"></i>
+                                                <?php else: ?>
+                                                    <i class="fas fa-file text-xl"></i>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-semibold text-gray-800"><?php echo e($file->name); ?></h4>
+                                                <div class="flex items-center gap-4 mt-1">
+                                                    <span class="text-sm text-gray-500">
+                                                        <?php if($file->size_label): ?>
+                                                            <?php echo e($file->size_label); ?>
 
+                                                        <?php else: ?>
+                                                            <?php echo e($file->formatted_size); ?>
+
+                                                        <?php endif; ?>
+                                                    </span>
+                                                    <span class="text-xs px-2 py-1 rounded-full 
+                                                        <?php if($file->type === 'pdf'): ?> bg-red-100 text-red-800
+                                                        <?php elseif($file->type === 'zip'): ?> bg-blue-100 text-blue-800
+                                                        <?php elseif($file->type === 'rar'): ?> bg-purple-100 text-purple-800
+                                                        <?php else: ?> bg-gray-100 text-gray-800 <?php endif; ?>">
+                                                        <?php echo e($file->type_label); ?>
+
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <a href="<?php echo e(route('product-files.download', $file->id)); ?>" 
+                                           class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2">
+                                            <i class="fas fa-download"></i>
+                                            دانلود
+                                        </a>
+                                    </div>
+                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                            </div>
+                            
+                            <?php if($isAdmin): ?>
+                                <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <p class="text-blue-700 text-sm flex items-center gap-2">
+                                        <i class="fas fa-info-circle"></i>
+                                        شما به عنوان ادمین به همه فایل‌ها دسترسی دارید.
+                                    </p>
+                                </div>
+                            <?php endif; ?>
+                        </div>
+                    <?php elseif($hasPurchased && $product->files->count() === 0): ?>
+                        <div id="files" class="tab-content hidden">
+                            <div class="text-center py-12">
+                                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <i class="fas fa-folder-open text-gray-400 text-3xl"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-800 mb-4">فایلی برای دانلود وجود ندارد</h3>
+                                <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                                    در حال حاضر فایل دانلودی برای این محصول موجود نیست.
+                                </p>
+                                
+                                <?php if($isAdmin): ?>
+                                    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-md mx-auto">
+                                        <p class="text-blue-700 text-sm">
+                                            شما به عنوان ادمین می‌توانید از طریق پنل مدیریت فایل‌ها را اضافه کنید.
+                                        </p>
+                                        <a href="<?php echo e(route('admin.file-product.create')); ?>" 
+                                           class="inline-block mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                                            افزودن فایل جدید
+                                        </a>
+                                    </div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     <?php else: ?>
-                        <!-- کاربر نخریده -->
                         <div id="files" class="tab-content hidden">
                             <div class="text-center py-12">
                                 <?php if(auth()->guard()->check()): ?>
@@ -283,8 +344,11 @@
                                         برای مشاهده وضعیت خرید و دسترسی به فایل‌ها، باید وارد حساب کاربری خود شوید.
                                     </p>
                                     <div class="flex gap-3 justify-center">
-                                        <a href="<?php echo e(route('login')); ?>" class="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors">
-                                            ورود
+                                        <a href="<?php echo e(route('login')); ?>" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                                            ورود به حساب کاربری
+                                        </a>
+                                        <a href="<?php echo e(route('register')); ?>" class="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors">
+                                            ثبت نام
                                         </a>
                                     </div>
                                 <?php endif; ?>
@@ -292,6 +356,7 @@
                         </div>
                     <?php endif; ?>
 
+                    <!-- Reviews Tab -->
                     <div id="reviews" class="tab-content hidden">
                         <h3 class="text-2xl font-bold mb-6">نظرات کاربران</h3>
                         
@@ -338,7 +403,7 @@ unset($__errorArgs, $__bag); ?>
 
                         <!-- Reviews List -->
                         <div class="space-y-6">
-                            <?php $__empty_1 = true; $__currentLoopData = $product->approvedReviews()->latest()->get(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $review): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                            <?php $__empty_1 = true; $__currentLoopData = $product->approvedReviews; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $review): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
                                 <div class="border rounded-lg p-6 hover:shadow-md transition">
                                     <div class="flex justify-between items-start mb-4">
                                         <div>
@@ -465,6 +530,7 @@ unset($__errorArgs, $__bag); ?>
                 button.classList.remove('active', 'border-b-2', 'border-blue-500', 'text-blue-600');
                 button.classList.add('text-gray-600');
             });
+            
             const activeTab = document.getElementById(tabName);
             if (activeTab) {
                 activeTab.classList.remove('hidden');
@@ -490,8 +556,8 @@ unset($__errorArgs, $__bag); ?>
             const reviewForm = document.querySelector('form[action="<?php echo e(route('review.store')); ?>"]');
             if (reviewForm) {
                 reviewForm.addEventListener('submit', function() {
-                    sessionStorage.setItem('activeTab', 'reviews'); // ذخیره تب فعال
-                    window.location.hash = 'reviews'; // اضافه کردن #reviews به URL
+                    sessionStorage.setItem('activeTab', 'reviews');
+                    window.location.hash = 'reviews';
                 });
             }
         });

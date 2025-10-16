@@ -11,9 +11,10 @@
         <x-add-to-cart></x-add-to-cart>
     @endif
     @if($errors->any())
-        <x-error></x-adderror>
+        <x-error></x-error>
     @endif
 
+    <!-- Cart Modal -->
     <div id="cart-modal" class="fixed w-80 bg-white text-gray-800 rounded-xl shadow-2xl p-0 hidden z-50 border border-gray-200">
         <div class="flex justify-between items-center p-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-t-xl">
             <h2 class="text-lg font-bold">سبد خرید</h2>
@@ -63,7 +64,7 @@
                 </a>
             @endif
         </div>
-    </div>     
+    </div>
 
     <!-- Breadcrumb -->
     <section class="bg-white py-4">
@@ -84,6 +85,7 @@
         </div>
     </section>
 
+    <!-- Product Details -->
     <section class="py-12">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
@@ -114,11 +116,13 @@
                                 <span class="bg-green-100 text-green-800 text-xs px-3 py-1 rounded-full">موجود</span>
                             @else 
                                 <span class="bg-red-100 text-red-800 text-xs px-3 py-1 rounded-full">ناموجود</span>
-                            @endif                            
+                            @endif
+                            @if($product->tag)
+                                <span class="bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full">{{ $product->tag->name }}</span>
+                            @endif
                         </div>
                         
                         <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ $product->title }}</h1>
-                    
 
                         <div class="mb-6">
                             <div class="flex items-center gap-4">
@@ -126,14 +130,16 @@
                             </div>
                         </div>
 
+                        @if(!empty($product->key_features))
                         <div class="mb-6">
                             <h3 class="font-semibold text-gray-800 mb-3">ویژگی‌های کلیدی:</h3>
                             <ul class="space-y-2 text-gray-600">
-                                @foreach ($product->key_features ?? [] as $item)
+                                @foreach ($product->key_features as $item)
                                     <li class="flex items-center"><i class="fas fa-check text-green-500 ml-2"></i>{{ $item }}</li>
                                 @endforeach
                             </ul>
                         </div>
+                        @endif
 
                         <form action="{{ route('cart.add') }}" method="POST" class="flex gap-4 mb-6">
                             @csrf
@@ -175,6 +181,7 @@
                 </div>
 
                 <div class="p-8">
+                    <!-- Description Tab -->
                     <div id="description" class="tab-content">
                         <h3 class="text-2xl font-bold mb-4">درباره {{ $product->title }}</h3>
                         <div class="prose max-w-none text-gray-700 leading-relaxed">
@@ -182,39 +189,90 @@
                         </div>
                     </div>
 
-                        @php
-                        $hasPurchased = auth()->check() && 
-                                        \App\Models\Payment::where('user_id', auth()->id())
-                                            ->whereHas('order.items', function($query) use ($product) {
-                                                $query->where('product_id', $product->id);
-                                            })
-                                            ->where('status', 'completed')
-                                            ->exists();
-                    @endphp
-                    
-                    @if($hasPurchased)
+                    <!-- Files Tab -->
+                    @if($hasPurchased && $product->files->count() > 0)
                         <div id="files" class="tab-content hidden">
                             <h3 class="text-2xl font-bold mb-6">فایل‌های قابل دانلود</h3>
                             <div class="space-y-4">
-                                <div class="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
-                                    <div class="flex items-center">
-                                        <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center ml-4">
-                                            <i class="fas fa-file-archive text-blue-600 text-xl"></i>
+                                @foreach($product->files as $file)
+                                    <div class="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors">
+                                        <div class="flex items-center">
+                                            <div class="w-12 h-12 rounded-lg flex items-center justify-center ml-4 
+                                                @if($file->type === 'pdf') bg-red-100 text-red-600
+                                                @elseif($file->type === 'zip') bg-blue-100 text-blue-600
+                                                @elseif($file->type === 'rar') bg-purple-100 text-purple-600
+                                                @else bg-gray-100 text-gray-600 @endif">
+                                                @if($file->type === 'pdf')
+                                                    <i class="fas fa-file-pdf text-xl"></i>
+                                                @elseif($file->type === 'zip' || $file->type === 'rar')
+                                                    <i class="fas fa-file-archive text-xl"></i>
+                                                @else
+                                                    <i class="fas fa-file text-xl"></i>
+                                                @endif
+                                            </div>
+                                            <div>
+                                                <h4 class="font-semibold text-gray-800">{{ $file->name }}</h4>
+                                                <div class="flex items-center gap-4 mt-1">
+                                                    <span class="text-sm text-gray-500">
+                                                        @if($file->size_label)
+                                                            {{ $file->size_label }}
+                                                        @else
+                                                            {{ $file->formatted_size }}
+                                                        @endif
+                                                    </span>
+                                                    <span class="text-xs px-2 py-1 rounded-full 
+                                                        @if($file->type === 'pdf') bg-red-100 text-red-800
+                                                        @elseif($file->type === 'zip') bg-blue-100 text-blue-800
+                                                        @elseif($file->type === 'rar') bg-purple-100 text-purple-800
+                                                        @else bg-gray-100 text-gray-800 @endif">
+                                                        {{ $file->type_label }}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 class="font-semibold">{{ $product->title }}_Setup.zip</h4>
-                                            <p class="text-sm text-gray-500">نسخه کامل نرم‌افزار - 2.8 GB</p>
-                                        </div>
+                                        <a href="{{ route('product-files.download', $file->id) }}" 
+                                           class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2">
+                                            <i class="fas fa-download"></i>
+                                            دانلود
+                                        </a>
                                     </div>
-                                    <a href="" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-                                        دانلود
-                                    </a>
+                                @endforeach
+                            </div>
+                            
+                            @if($isAdmin)
+                                <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <p class="text-blue-700 text-sm flex items-center gap-2">
+                                        <i class="fas fa-info-circle"></i>
+                                        شما به عنوان ادمین به همه فایل‌ها دسترسی دارید.
+                                    </p>
                                 </div>
-
+                            @endif
+                        </div>
+                    @elseif($hasPurchased && $product->files->count() === 0)
+                        <div id="files" class="tab-content hidden">
+                            <div class="text-center py-12">
+                                <div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                                    <i class="fas fa-folder-open text-gray-400 text-3xl"></i>
+                                </div>
+                                <h3 class="text-2xl font-bold text-gray-800 mb-4">فایلی برای دانلود وجود ندارد</h3>
+                                <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                                    در حال حاضر فایل دانلودی برای این محصول موجود نیست.
+                                </p>
+                                
+                                @if($isAdmin)
+                                    <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg max-w-md mx-auto">
+                                        <p class="text-blue-700 text-sm">
+                                            شما به عنوان ادمین می‌توانید از طریق پنل مدیریت فایل‌ها را اضافه کنید.
+                                        </p>
+                                        <a href="{{ route('admin.file-product.create') }}" 
+                                           class="inline-block mt-3 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition-colors">
+                                            افزودن فایل جدید
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     @else
-                        <!-- کاربر نخریده -->
                         <div id="files" class="tab-content hidden">
                             <div class="text-center py-12">
                                 @auth
@@ -249,8 +307,11 @@
                                         برای مشاهده وضعیت خرید و دسترسی به فایل‌ها، باید وارد حساب کاربری خود شوید.
                                     </p>
                                     <div class="flex gap-3 justify-center">
-                                        <a href="{{ route('login') }}" class="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors">
-                                            ورود
+                                        <a href="{{ route('login') }}" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors">
+                                            ورود به حساب کاربری
+                                        </a>
+                                        <a href="{{ route('register') }}" class="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-50 transition-colors">
+                                            ثبت نام
                                         </a>
                                     </div>
                                 @endauth
@@ -258,6 +319,7 @@
                         </div>
                     @endif
 
+                    <!-- Reviews Tab -->
                     <div id="reviews" class="tab-content hidden">
                         <h3 class="text-2xl font-bold mb-6">نظرات کاربران</h3>
                         
@@ -297,7 +359,7 @@
 
                         <!-- Reviews List -->
                         <div class="space-y-6">
-                            @forelse($product->approvedReviews()->latest()->get() as $review)
+                            @forelse($product->approvedReviews as $review)
                                 <div class="border rounded-lg p-6 hover:shadow-md transition">
                                     <div class="flex justify-between items-start mb-4">
                                         <div>
@@ -422,6 +484,7 @@
                 button.classList.remove('active', 'border-b-2', 'border-blue-500', 'text-blue-600');
                 button.classList.add('text-gray-600');
             });
+            
             const activeTab = document.getElementById(tabName);
             if (activeTab) {
                 activeTab.classList.remove('hidden');
@@ -438,17 +501,15 @@
                 firstThumbnail.classList.add('border-blue-500', 'scale-105');
             }
 
-            // چک کردن sessionStorage یا URL برای فعال کردن تب
             const savedTab = sessionStorage.getItem('activeTab') || window.location.hash.replace('#', '');
             const tabToShow = (savedTab === 'reviews' || savedTab === 'description' || savedTab === 'files') ? savedTab : 'description';
             showTab(tabToShow);
 
-            // اضافه کردن #reviews به فرم ثبت نظر
             const reviewForm = document.querySelector('form[action="{{ route('review.store') }}"]');
             if (reviewForm) {
                 reviewForm.addEventListener('submit', function() {
-                    sessionStorage.setItem('activeTab', 'reviews'); // ذخیره تب فعال
-                    window.location.hash = 'reviews'; // اضافه کردن #reviews به URL
+                    sessionStorage.setItem('activeTab', 'reviews');
+                    window.location.hash = 'reviews';
                 });
             }
         });
