@@ -70,6 +70,8 @@
                                         <h5 class="font-semibold text-gray-800 mb-2 text-center line-clamp-2 leading-6" style="height: 3rem;">
                                             {{ $item->product->title ?? 'محصول' }}
                                         </h5>
+                                        <p>قیمت اصلی : {{number_format($item->product->original_price)}} تومان</p>
+
                                     </a>
                                 </div>
                             @empty

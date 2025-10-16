@@ -72,6 +72,8 @@
                                             <?php echo e($item->product->title ?? 'محصول'); ?>
 
                                         </h5>
+                                        <p>قیمت اصلی : <?php echo e(number_format($item->product->original_price)); ?> تومان</p>
+
                                     </a>
                                 </div>
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_2): ?>
