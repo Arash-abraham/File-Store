@@ -6,13 +6,33 @@
 
 <body class="font-sans bg-gray-50">
     <?php echo $__env->make('layouts.partials.header', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
-    
+
     <div class="container mx-auto px-4 py-8">
         <div class="flex flex-col lg:flex-row gap-8">
             <?php echo $__env->make('layouts.partials.sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
             <!-- Main Content -->
             <div class="lg:w-3/4">
+                    
+                <?php if(session('success')): ?>
+                    <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg relative">
+                        <span class="close-btn" onclick="this.parentElement.style.display='none'">&times;</span>
+                        <?php echo e(session('success')); ?>
+
+                    </div>
+                <?php endif; ?>
+
+                <?php if($errors->any()): ?>
+                    <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg relative">
+                        <span class="close-btn" onclick="this.parentElement.style.display='none'">&times;</span>
+                        <ul class="list-disc list-inside">
+                            <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <li><?php echo e($error); ?></li>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                        </ul>
+                    </div>
+                <?php endif; ?>
+                
                 <!-- Dashboard Section -->
                 <?php echo $__env->make('layouts.main.dashboard-section', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 

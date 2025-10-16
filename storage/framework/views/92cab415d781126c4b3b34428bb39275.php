@@ -2,22 +2,7 @@
     <div class="bg-white rounded-xl shadow-lg p-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">تغییر رمز عبور</h2>
         
-        <?php if(session('success')): ?>
-            <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-                <?php echo e(session('success')); ?>
 
-            </div>
-        <?php endif; ?>
-
-        <?php if($errors->any()): ?>
-            <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
-                <ul class="list-disc list-inside">
-                    <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <li><?php echo e($error); ?></li>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                </ul>
-            </div>
-        <?php endif; ?>
         
         <form action="<?php echo e(route('password.update')); ?>" method="POST" class="space-y-6 max-w-md">
             <?php echo csrf_field(); ?>
