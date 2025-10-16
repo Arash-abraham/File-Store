@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\FileProduct;
+use App\Models\Payment;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -171,5 +172,49 @@ class AdminFileProductController extends Controller
             return redirect()->route('admin.file-product.index')
                 ->with('error', 'خطا در حذف فایل: ' . $e->getMessage());
         }
+    }
+    public function download($fileId)
+    {
+        $file = FileProduct::findOrFail($fileId);
+        $user = auth()->user();
+        if(!$user) {
+            return redirect('login');
+        } 
+        // بررسی آیا کاربر ادمین است
+        $isAdmin = $user->role === 'admin' || $user->hasRole('admin'); 
+
+
+        if ($isAdmin) {
+            if (!Storage::exists($file->path)) {
+                abort(404, 'فایل یافت نشد.');
+            }
+
+            $filePath = Storage::path($file->path);
+            $originalName = $file->name . '.' . pathinfo($file->path, PATHINFO_EXTENSION);
+
+            return response()->download($filePath, $originalName);
+        }
+
+        $hasPurchased = Payment::where('user_id', $user->id)
+            ->whereHas('order', function($query) use ($file) {
+                $query->whereHas('orderItems', function($q) use ($file) {
+                    $q->where('product_id', $file->product_id);
+                });
+            })
+            ->where('status', 'completed')
+            ->exists();
+
+        if (!$hasPurchased) {
+            abort(403, 'شما دسترسی به این فایل ندارید.');
+        }
+
+        if (!Storage::exists($file->path)) {
+            abort(404, 'فایل یافت نشد.');
+        }
+
+        $filePath = Storage::path($file->path);
+        $originalName = $file->name . '.' . pathinfo($file->path, PATHINFO_EXTENSION);
+
+        return response()->download($filePath, $originalName);
     }
 }

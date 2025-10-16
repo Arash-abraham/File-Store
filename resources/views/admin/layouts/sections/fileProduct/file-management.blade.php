@@ -49,22 +49,28 @@
                                     <p class="text-sm text-gray-500">آدرس: {{$file->path}}</p>
                                 </div>
                             </div>
-                            <div class="flex gap-2">
-                                <button class="text-blue-600 hover:text-blue-800 px-4 py-2 border border-blue-600 rounded-lg">
-                                    <i class="fas fa-download ml-1"></i>دانلود
-                                </button>
-                                <button class="text-green-600 hover:text-green-800" onclick="editFile(1)">
+                            <div class="flex gap-2 items-center">
+                                <a href="{{ route('product-files.download', $file->id) }}" 
+                                   class="text-blue-600 hover:text-blue-800 px-4 py-2 border border-blue-600 rounded-lg flex items-center">
+                                    <i class="fas fa-download ml-1"></i>
+                                    دانلود
+                                </a>
+                                
+                                <button class="text-green-600 hover:text-green-800 p-2 rounded-lg border border-green-600" onclick="editFile({{ $file->id }})">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <form action="{{ route('admin.file-product.destroy', $file->id) }}" method="POST">
-                                    @csrf
-                                    @method('DELETE')
                                 
-                                    <button class="text-red-600 hover:text-red-800">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>  
+                                <button class="text-red-600 hover:text-red-800 p-2 rounded-lg border border-red-600" 
+                                        onclick="confirmDelete({{ $file->id }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </div>
+                            
+                            <form id="delete-form-{{ $file->id }}" action="{{ route('admin.file-product.destroy', $file->id) }}" method="POST" class="hidden">
+                                @csrf
+                                @method('DELETE')
+                            </form>
+                            
                         </div>
                     @endforeach
                 </div>
@@ -73,5 +79,10 @@
     </div>
     @section('js')
         <script src="{{asset('js/admin/faq.js')}}"></script>
+        <script>
+            function confirmDelete(fileId) {
+                document.getElementById('delete-form-' + fileId).submit();
+            }
+        </script>
     @endsection
 @endsection

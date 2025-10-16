@@ -133,5 +133,5 @@ Route::post('/reviews/{review}/helpful', [ReviewController::class, 'markHelpful'
 Route::post('/reviews/{review}/report', [ReviewController::class, 'report'])->name('review.report');
 Route::put('/reviews/{review}/status', [ReviewController::class, 'updateStatus'])->name('review.updateStatus')->middleware('admin');
 
-
+Route::get('/download/product-file/{fileId}', [AdminFileProductController::class, 'download'])->name('product-files.download');
 require __DIR__.'/auth.php';
