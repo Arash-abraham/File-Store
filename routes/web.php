@@ -81,9 +81,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
     Route::post('/password/update', [ProfileController::class, 'updatePassword'])->name('password.update');
 });
-// Route::prefix('dashboard')->middleware(['auth', 'verified'])->name('dashboard.')->group(function() {
-//     // Route::get('/', [HomeDashboardControlle::class, 'index'])->name('index');
-// });
+
 
 Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('admin.')->group(function() {
     Route::get('/', [DashboardController::class, 'index'])->name('index');

@@ -117,42 +117,6 @@ document.addEventListener('DOMContentLoaded', function() {
         ticketsList.insertAdjacentHTML('afterbegin', ticketHTML);
     }
 
-    // Handle profile form submission
-    const profileForm = document.querySelector('#profile form');
-    if (profileForm) {
-        profileForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            
-            // Simulate API call
-            showNotification('اطلاعات پروفایل با موفقیت بروزرسانی شد', 'success');
-            
-            // Update localStorage with new data
-            const updatedUser = {
-                ...userData,
-                name: `${this.querySelector('input[type="text"]').value} ${this.querySelectorAll('input[type="text"]')[1].value}`,
-                email: this.querySelector('input[type="email"]').value,
-                phone: this.querySelector('input[type="tel"]').value
-            };
-            
-            localStorage.setItem('user', JSON.stringify(updatedUser));
-        });
-    }
-
-
-    // Handle wallet charge button
-    const chargeWalletBtn = document.querySelector('.bg-green-600');
-    if (chargeWalletBtn) {
-        chargeWalletBtn.addEventListener('click', function() {
-            // Simulate wallet charge process
-            const amount = prompt('مبلغ شارژ را وارد کنید (تومان):');
-            if (amount && parseInt(amount) > 0) {
-                showNotification(`درخواست شارژ ${parseInt(amount).toLocaleString('fa-IR')} تومان ثبت شد`, 'success');
-            }
-        });
-    }
-
     // Download functionality for files
     const downloadButtons = document.querySelectorAll('.bg-blue-600[onclick*="دانلود"], button:contains("دانلود فایل‌ها")');
     downloadButtons.forEach(btn => {
