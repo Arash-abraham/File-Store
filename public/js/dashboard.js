@@ -140,38 +140,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Handle password change form
-    const passwordForm = document.querySelector('#password form');
-    if (passwordForm) {
-        passwordForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmNewPassword').value;
-            
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                showNotification('لطفاً تمام فیلدها را پر کنید', 'error');
-                return;
-            }
-            
-            if (newPassword !== confirmPassword) {
-                showNotification('رمز عبور جدید و تکرار آن مطابقت ندارند', 'error');
-                return;
-            }
-            
-            if (newPassword.length < 8) {
-                showNotification('رمز عبور باید حداقل 8 کاراکتر باشد', 'error');
-                return;
-            }
-            
-            // Simulate API call
-            showNotification('رمز عبور با موفقیت تغییر کرد', 'success');
-            
-            // Clear form
-            this.reset();
-        });
-    }
 
     // Handle wallet charge button
     const chargeWalletBtn = document.querySelector('.bg-green-600');

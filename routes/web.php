@@ -17,6 +17,7 @@ use App\Http\Controllers\Auth\VerificationController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Home\HomeController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Models\Cart;
@@ -72,11 +73,14 @@ Route::get('/dashboard', function () {
     // dd($purchases->first() ? $purchases->first()->order->items : 'No purchases');
         
     $tickets = Ticket::where('user_id', $user->id)->get();
-    
 
     return view('dashboard', compact('purchases','tickets'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
+    Route::post('/password/update', [ProfileController::class, 'updatePassword'])->name('password.update');
+});
 // Route::prefix('dashboard')->middleware(['auth', 'verified'])->name('dashboard.')->group(function() {
 //     // Route::get('/', [HomeDashboardControlle::class, 'index'])->name('index');
 // });

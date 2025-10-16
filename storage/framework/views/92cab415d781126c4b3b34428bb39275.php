@@ -2,11 +2,32 @@
     <div class="bg-white rounded-xl shadow-lg p-8">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">تغییر رمز عبور</h2>
         
-        <form class="space-y-6 max-w-md">
+        <?php if(session('success')): ?>
+            <div class="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+                <?php echo e(session('success')); ?>
+
+            </div>
+        <?php endif; ?>
+
+        <?php if($errors->any()): ?>
+            <div class="mb-4 p-4 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+                <ul class="list-disc list-inside">
+                    <?php $__currentLoopData = $errors->all(); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $error): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                        <li><?php echo e($error); ?></li>
+                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </ul>
+            </div>
+        <?php endif; ?>
+        
+        <form action="<?php echo e(route('password.update')); ?>" method="POST" class="space-y-6 max-w-md">
+            <?php echo csrf_field(); ?>
+            
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">رمز عبور فعلی</label>
                 <div class="relative">
-                    <input type="password" id="currentPassword" class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    <input type="password" name="current_password" id="currentPassword" 
+                           class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                           required>
                     <button type="button" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600" onclick="togglePassword('currentPassword')">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -16,7 +37,9 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">رمز عبور جدید</label>
                 <div class="relative">
-                    <input type="password" id="newPassword" class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    <input type="password" name="new_password" id="newPassword" 
+                           class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                           required minlength="8">
                     <button type="button" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600" onclick="togglePassword('newPassword')">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -37,7 +60,9 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">تکرار رمز عبور جدید</label>
                 <div class="relative">
-                    <input type="password" id="confirmNewPassword" class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                    <input type="password" name="new_password_confirmation" id="confirmNewPassword" 
+                           class="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                           required minlength="8">
                     <button type="button" class="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600" onclick="togglePassword('confirmNewPassword')">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -48,7 +73,8 @@
                 <button type="submit" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-colors font-semibold">
                     تغییر رمز عبور
                 </button>
-                <button type="button" class="border border-gray-300 px-8 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                <button type="button" onclick="document.querySelector('#password form').reset()" 
+                        class="border border-gray-300 px-8 py-3 rounded-lg hover:bg-gray-50 transition-colors">
                     لغو
                 </button>
             </div>

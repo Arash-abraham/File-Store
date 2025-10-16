@@ -57,4 +57,54 @@ class ProfileController extends Controller
 
         return Redirect::to('/');
     }
+
+    /**
+     * Update user profile information from dashboard
+     */
+    public function updateProfile(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:users,email,' . $request->user()->id],
+            'phone' => ['nullable', 'string', 'max:20'],
+        ]);
+
+        $user = $request->user();
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        
+        if (isset($validated['phone'])) {
+            $user->phone = $validated['phone'];
+        }
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = now();
+        }
+
+        $user->save();
+
+        return Redirect::route('dashboard')->with('success', 'اطلاعات پروفایل با موفقیت به‌روزرسانی شد')->withFragment('profile');
+    }
+
+    /**
+     * Update user password from dashboard
+     */
+    public function updatePassword(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'new_password' => ['required', 'string', 'min:8', 'confirmed'],
+        ], [
+            'current_password.current_password' => 'رمز عبور فعلی صحیح نیست',
+            'new_password.required' => 'رمز عبور جدید الزامی است',
+            'new_password.min' => 'رمز عبور باید حداقل 8 کاراکتر باشد',
+            'new_password.confirmed' => 'تکرار رمز عبور مطابقت ندارد',
+        ]);
+
+        $user = $request->user();
+        $user->password = bcrypt($request->new_password);
+        $user->save();
+
+        return Redirect::route('dashboard')->with('success', 'رمز عبور با موفقیت تغییر کرد')->withFragment('password');
+    }
 }
