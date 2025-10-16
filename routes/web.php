@@ -22,6 +22,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Models\Cart;
+use App\Models\FileProduct;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Ticket;
@@ -71,11 +72,21 @@ Route::get('/dashboard', function () {
         ->orderBy('created_at', 'desc')
         ->get();
 
-    // dd($purchases->first() ? $purchases->first()->order->items : 'No purchases');
-        
+    $purchasedProductIds = [];
+    foreach ($purchases as $purchase) {
+        foreach ($purchase->order->items as $item) {
+            $purchasedProductIds[] = $item->product_id;
+        }
+    }
+    
+    $downloadableFiles = FileProduct::with('product')
+        ->whereIn('product_id', $purchasedProductIds)
+        ->orderBy('created_at', 'desc')
+        ->get();
+
     $tickets = Ticket::where('user_id', $user->id)->get();
 
-    return view('dashboard', compact('purchases','tickets'));
+    return view('dashboard', compact('purchases', 'tickets', 'downloadableFiles'));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
