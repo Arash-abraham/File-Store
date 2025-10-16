@@ -30,7 +30,7 @@
 @endsection
 
 @section('content')
-    @if (session('success'))       
+    @if (session('add_to_cart'))       
         <x-add-to-cart></x-add-to-cart>
     @endif
     @if($errors->any())

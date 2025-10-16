@@ -66,7 +66,7 @@ class CartController extends Controller
 
             $this->cartService->addToCart($data);
 
-            return redirect()->back()->with('success', 'محصول به سبد خرید اضافه شد');
+            return redirect()->back()->with('add_to_cart', 'محصول به سبد خرید اضافه شد');
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage() ?: 'خطا در افزودن به سبد خرید');
         }

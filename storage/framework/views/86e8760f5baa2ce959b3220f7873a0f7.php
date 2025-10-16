@@ -1,7 +1,7 @@
 <?php $__env->startSection('title', 'خانه'); ?>
 
 <?php $__env->startSection('content'); ?>
-    <?php if(session('success')): ?>       
+    <?php if(session('add_to_cart')): ?>       
         <?php if (isset($component)) { $__componentOriginal433d0650de850ca88957850e1fcee89b = $component; } ?>
 <?php if (isset($attributes)) { $__attributesOriginal433d0650de850ca88957850e1fcee89b = $attributes; } ?>
 <?php $component = Illuminate\View\AnonymousComponent::resolve(['view' => 'components.add-to-cart','data' => []] + (isset($attributes) && $attributes instanceof Illuminate\View\ComponentAttributeBag ? $attributes->all() : [])); ?>

@@ -22,7 +22,7 @@
                 <div class="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
                     <i class="fas fa-shopping-cart text-green-600 text-3xl"></i>
                 </div>
-                <p class="text-gray-600 mb-6">{{ session('success') }}</p>
+                <p class="text-gray-600 mb-6">{{ session('add_to_cart') }}</p>
                 
             </div>
         </div>
