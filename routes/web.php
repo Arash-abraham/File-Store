@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\AdminCategoryController;
 use App\Http\Controllers\Admin\AdminCommentController;
 use App\Http\Controllers\Admin\AdminCouponController;
 use App\Http\Controllers\Admin\AdminFaqController;
+use App\Http\Controllers\Admin\AdminFileProductController;
 use App\Http\Controllers\Admin\AdminMenuController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminSettingController;
@@ -111,6 +112,7 @@ Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('a
     Route::resource('coupon', AdminCouponController::class);
     Route::get('coupon/{id}/toggle-status', [AdminCouponController::class, 'toggleStatus'])->name('coupon.toggle-status');
     
+    Route::resource('file-product',AdminFileProductController::class);
 
 });
 
