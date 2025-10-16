@@ -32,40 +32,6 @@
                     </div>
                 </div>
             @endif
-
-            <!-- Search and Filter Form -->
-            <form action="" method="GET" class="flex flex-col md:flex-row gap-4 mb-6">
-                <!-- Search Input -->
-                <div class="flex-1 relative">
-                    <input type="text" name="search" id="productSearch" placeholder="جستجوی محصولات..." 
-                           class="w-full px-4 py-3 pl-12 pr-4 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 text-right bg-white">
-                    <div class="absolute left-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                        <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M11 19a8 8 0 100-16 8 8 0 000 16z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <!-- Category Filter -->
-                <div class="w-full md:w-1/4">
-                    <select name="category_id" id="categoryFilter" 
-                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="">همه دسته‌بندی‌ها</option>
-                        @foreach ($categories as $category)
-                            <option value="{{ $category->id }}">
-                                {{ $category->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                <!-- Submit Button -->
-                <div class="w-full md:w-auto">
-                    <button type="submit" 
-                            class="w-full md:w-auto px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200">
-                        فیلتر
-                    </button>
-                </div>
-            </form>
-
             <!-- Products Table -->
             <div class="overflow-x-auto">
                 <table class="w-full table-auto">

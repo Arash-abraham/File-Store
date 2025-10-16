@@ -547,12 +547,10 @@ unset($__errorArgs, $__bag); ?>
                 firstThumbnail.classList.add('border-blue-500', 'scale-105');
             }
 
-            // چک کردن sessionStorage یا URL برای فعال کردن تب
             const savedTab = sessionStorage.getItem('activeTab') || window.location.hash.replace('#', '');
             const tabToShow = (savedTab === 'reviews' || savedTab === 'description' || savedTab === 'files') ? savedTab : 'description';
             showTab(tabToShow);
 
-            // اضافه کردن #reviews به فرم ثبت نظر
             const reviewForm = document.querySelector('form[action="<?php echo e(route('review.store')); ?>"]');
             if (reviewForm) {
                 reviewForm.addEventListener('submit', function() {

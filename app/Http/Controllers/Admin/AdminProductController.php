@@ -51,11 +51,7 @@ class AdminProductController extends Controller
                 'originalPrice' => 'required|numeric|min:0',
                 'status' => 'required|in:active,inactive,draft',
                 'availability' => 'required|in:true,false',
-                'description' => [
-                    'required',
-                    'string',
-                    'regex:/^[\pL\pN\pM\s\-_.,!?؛،؟()\[\]{}:؛]+$/u'
-                ],
+                'description' => 'required|string|regex:/^[^<>]*$/', 
                 'tag' => 'required|exists:tags,id',
                 'productImages.*' => 'nullable',
                 'key_features' => 'nullable|array',
@@ -154,11 +150,7 @@ class AdminProductController extends Controller
             'originalPrice' => 'required|numeric|min:0',
             'status' => 'required|in:active,inactive,draft',
             'availability' => 'required|in:true,false',
-            'description' => [
-                'required',
-                'string',
-                'regex:/^[\pL\pN\pM\s\-_.,!?؛،؟()\[\]{}:؛]+$/u'
-            ],
+            'description' => 'required|string|regex:/^[^<>]*$/', 
             'tag' => 'required|exists:tags,id',
             'productImages.*' => 'nullable|string',
             'existingImages' => 'nullable|array',
