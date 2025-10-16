@@ -180,8 +180,7 @@ class AdminFileProductController extends Controller
         if(!$user) {
             return redirect('login');
         } 
-        // بررسی آیا کاربر ادمین است
-        $isAdmin = $user->role === 'admin' || $user->hasRole('admin'); 
+        $isAdmin = $user->role === 'admin'; 
 
 
         if ($isAdmin) {
@@ -197,7 +196,7 @@ class AdminFileProductController extends Controller
 
         $hasPurchased = Payment::where('user_id', $user->id)
             ->whereHas('order', function($query) use ($file) {
-                $query->whereHas('orderItems', function($q) use ($file) {
+                $query->whereHas('items', function($q) use ($file) {
                     $q->where('product_id', $file->product_id);
                 });
             })
@@ -205,7 +204,7 @@ class AdminFileProductController extends Controller
             ->exists();
 
         if (!$hasPurchased) {
-            abort(403, 'شما دسترسی به این فایل ندارید.');
+            abort(403, 'شما دسترسی به این بحش ندارید');
         }
 
         if (!Storage::exists($file->path)) {
