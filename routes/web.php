@@ -20,6 +20,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReviewController;
+use App\Http\Controllers\WalletController;
 use App\Http\Middleware\AdminMiddleware;
 use App\Models\Cart;
 use App\Models\FileProduct;
@@ -86,7 +87,19 @@ Route::get('/dashboard', function () {
 
     $tickets = Ticket::where('user_id', $user->id)->get();
 
-    return view('dashboard', compact('purchases', 'tickets', 'downloadableFiles'));
+    $wallet = $user->wallet;
+    $walletTransactions = $wallet->transactions()
+        ->latest()
+        ->limit(5)
+        ->get();
+
+    return view('dashboard', compact(
+        'purchases', 
+        'tickets', 
+        'downloadableFiles',
+        'wallet',
+        'walletTransactions'
+    ));
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -145,4 +158,11 @@ Route::post('/reviews/{review}/report', [ReviewController::class, 'report'])->na
 Route::put('/reviews/{review}/status', [ReviewController::class, 'updateStatus'])->name('review.updateStatus')->middleware('admin');
 
 Route::get('/download/product-file/{fileId}', [AdminFileProductController::class, 'download'])->name('product-files.download');
+
+Route::prefix('wallet')->name('wallet.')->middleware(['auth'])->group(function () {
+    Route::get('/deposit', [WalletController::class, 'showDepositForm'])->name('deposit');
+    Route::post('/deposit', [WalletController::class, 'deposit'])->name('deposit.submit');
+    Route::get('/payment/verify', [WalletController::class, 'verifyPayment'])->name('payment.verify');
+});
+
 require __DIR__.'/auth.php';

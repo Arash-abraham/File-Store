@@ -55,5 +55,14 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return 'id';
     }
+    public function wallet()
+    {
+        return $this->hasOne(Wallet::class);
+    }
+
+    public function getWalletAttribute(): Wallet
+    {
+        return $this->wallet()->firstOrCreate([], ['balance' => 0]);
+    }
 
 }
