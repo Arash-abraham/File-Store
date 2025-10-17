@@ -14,24 +14,25 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'session_token',       
-        'status',
+        'session_token', 
         'total_amount',
         'discount_amount',
-        'coupon_id',
-        'payment_gateway',
-        'payment_authority',    
-        'transaction_id',
-        'reference',
-        'paid_at'
+        'final_amount',
+        'paid_from_wallet', 
+        'remaining_amount', 
+        'payment_method',
+        'payment_status',
+        'status',
+        'payment_authority'
     ];
 
     protected $casts = [
-        'total_amount' => 'integer',
-        'discount_amount' => 'integer',
-        'paid_at' => 'datetime'
+        'total_amount' => 'decimal:2',
+        'discount_amount' => 'decimal:2',
+        'final_amount' => 'decimal:2',
+        'paid_from_wallet' => 'decimal:2', 
+        'remaining_amount' => 'decimal:2', 
     ];
-
     // روابط
     public function user(): BelongsTo
     {

@@ -18,16 +18,28 @@ class PaymentService
         $this->isSandbox = env('ZARINPAL_SANDBOX', false);
     }
 
-    public function createPaymentRequest($order)
+    public function createPaymentRequest($order, $amount)
     {
         try {
+            if ($amount < 100) {
+                Log::warning('Payment amount too low', [
+                    'order_id' => $order->id,
+                    'amount' => $amount
+                ]);
+                return [
+                    'success' => false,
+                    'message' => 'مبلغ پرداختی باید حداقل 100 تومان باشد'
+                ];
+            }
+
+            $amountInRial = (int)($amount * 10); 
             $baseUrl = $this->isSandbox
                 ? 'https://sandbox.zarinpal.com/pg/v4/payment/request.json'
                 : 'https://api.zarinpal.com/pg/v4/payment/request.json';
 
             $response = Http::post($baseUrl, [
                 'merchant_id' => $this->merchantId,
-                'amount' => $order->final_amount * 10, // تبدیل تومان به ریال
+                'amount' => $amountInRial,
                 'currency' => 'IRR',
                 'description' => 'پرداخت سفارش شماره ' . $order->id,
                 'callback_url' => $this->callbackUrl,
@@ -35,7 +47,12 @@ class PaymentService
 
             $result = $response->json();
 
-            Log::info('Zarinpal Request Response:', $result);
+            Log::info('Zarinpal Request Response:', [
+                'order_id' => $order->id,
+                'amount' => $amount,
+                'amount_in_rial' => $amountInRial,
+                'response' => $result
+            ]);
 
             if ($response->successful() && isset($result['data']['code']) && $result['data']['code'] == 100) {
                 return [
@@ -47,12 +64,23 @@ class PaymentService
                 ];
             }
 
+            Log::warning('Zarinpal request failed', [
+                'order_id' => $order->id,
+                'amount' => $amount,
+                'errors' => $result['errors'] ?? 'No errors provided'
+            ]);
+
             return [
                 'success' => false,
                 'message' => $result['errors']['message'] ?? 'خطا در ایجاد درخواست پرداخت',
             ];
         } catch (\Exception $e) {
-            Log::error('Zarinpal Error:', ['message' => $e->getMessage()]);
+            Log::error('Zarinpal Request Error:', [
+                'order_id' => $order->id,
+                'amount' => $amount,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return [
                 'success' => false,
                 'message' => 'خطا در ارتباط با درگاه: ' . $e->getMessage(),
@@ -60,22 +88,40 @@ class PaymentService
         }
     }
 
-    public function verifyPayment($order, $authority, $status)
+    public function verifyPayment($order, $authority)
     {
         try {
+            if ($order->remaining_amount < 100) {
+                Log::warning('Verification amount too low', [
+                    'order_id' => $order->id,
+                    'amount' => $order->remaining_amount
+                ]);
+                return [
+                    'success' => false,
+                    'message' => 'مبلغ پرداختی باید حداقل 100 تومان باشد'
+                ];
+            }
+
+            $amountInRial = (int)($order->remaining_amount * 10); 
             $baseUrl = $this->isSandbox
                 ? 'https://sandbox.zarinpal.com/pg/v4/payment/verify.json'
                 : 'https://api.zarinpal.com/pg/v4/payment/verify.json';
 
             $response = Http::post($baseUrl, [
                 'merchant_id' => $this->merchantId,
-                'amount' => $order->final_amount * 10, // تبدیل تومان به ریال
+                'amount' => $amountInRial,
                 'authority' => $authority,
             ]);
 
             $result = $response->json();
 
-            Log::info('Zarinpal Verify Response:', $result);
+            Log::info('Zarinpal Verify Response:', [
+                'order_id' => $order->id,
+                'amount' => $order->remaining_amount,
+                'amount_in_rial' => $amountInRial,
+                'authority' => $authority,
+                'response' => $result
+            ]);
 
             if ($response->successful() && isset($result['data']['code']) && $result['data']['code'] == 100) {
                 return [
@@ -85,12 +131,25 @@ class PaymentService
                 ];
             }
 
+            Log::warning('Zarinpal verification failed', [
+                'order_id' => $order->id,
+                'amount' => $order->remaining_amount,
+                'amount_in_rial' => $amountInRial,
+                'authority' => $authority,
+                'errors' => $result['errors'] ?? 'No errors provided'
+            ]);
+
             return [
                 'success' => false,
                 'message' => $result['errors']['message'] ?? 'خطا در تأیید پرداخت',
             ];
         } catch (\Exception $e) {
-            Log::error('Zarinpal Verify Error:', ['message' => $e->getMessage()]);
+            Log::error('Zarinpal Verify Error:', [
+                'order_id' => $order->id,
+                'amount' => $order->remaining_amount,
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return [
                 'success' => false,
                 'message' => 'خطا در ارتباط با درگاه: ' . $e->getMessage(),

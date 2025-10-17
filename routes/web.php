@@ -29,6 +29,7 @@ use App\Models\Payment;
 use App\Models\Ticket;
 use Application\Controllers\Home;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/category', [HomeController::class, 'category'])->name('category');
@@ -53,6 +54,9 @@ Route::prefix('checkout')->group(function () {
     Route::post('/process', [CheckoutController::class, 'processCheckout'])->name('checkout.process');
     Route::match(['get', 'post'], '/verify', [CheckoutController::class, 'verify'])->name('payment.verify');
 });
+Route::get('/payment/failed', function () {
+    return view('app.payment-failed');
+})->name('payment.failed');
 Route::post('/cart/apply-coupon', [CartController::class, 'applyCoupon'])->name('cart.apply-coupon');
 
 Route::get('/payment/success/{order_id}', function ($order_id) {
@@ -60,9 +64,26 @@ Route::get('/payment/success/{order_id}', function ($order_id) {
     return view('app.payment-success', ['order' => $order]);
 })->name('payment.success');
 
+Route::post('ticket/store', function (Request $request) {
+    $userId = auth()->id();
+    
+    $validated = $request->validate([
+        'subject' => [
+            'required',
+            'string',
+            'max:200',
+        ],
+        'assigned_to' => 'required',
+        'message' => 'required|string',
+    ]);
+    $validated['user_id'] = $userId;
+    Ticket::create($validated);
+    return redirect()->back()->with('success', 'تیکت با موفقیت ثبت شد ، ادمین ها با شما تماس خواهند گرفت');
+    
+})->name('ticket.store');
+
 Route::get('/dashboard', function () {
     $user = auth()->user();
-
     $purchases = Payment::where('user_id', $user->id)
         ->where('status', 'completed')
         ->with([

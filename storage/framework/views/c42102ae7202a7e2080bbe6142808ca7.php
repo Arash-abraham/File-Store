@@ -231,23 +231,93 @@ unset($__errorArgs, $__bag); ?>
                     </div>
                 </div>
 
-            <div class="text-center">
-                <form id="paymentForm" action="<?php echo e(route('checkout.process')); ?>" method="POST">
-                    <?php echo csrf_field(); ?>
-                    <input type="hidden" name="session_token" value="<?php echo e(session()->getId()); ?>">
-                    <input type="hidden" name="payment_gateway" value="zarinpal">
-                    <button type="submit" id="paymentButton" class="btn-success text-white px-8 py-4 rounded-xl font-bold text-lg inline-flex items-center shadow-lg">
-                        <i class="fas fa-credit-card ml-2"></i>
-                        <span id="buttonText">پرداخت و تکمیل سفارش</span>
-                        <div id="buttonSpinner" class="spinner mr-2" style="display: none;"></div>
-                    </button>
-                </form>
+                <div class="text-center">
+                    <form id="paymentForm" action="<?php echo e(route('checkout.process')); ?>" method="POST">
+                        <?php echo csrf_field(); ?>
+                        <input type="hidden" name="session_token" value="<?php echo e(session()->getId()); ?>">
+                        
+                        <div class="bg-white rounded-2xl shadow-sm p-6 mb-6 text-right">
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">خلاصه پرداخت</h3>
+                            
+                            <?php
+                                $walletBalance = auth()->user()->wallet->balance ?? 0;
+                                $finalAmount = $total - $discount;
+                                $walletCoverage = min($walletBalance, $finalAmount);
+                                $gatewayAmount = $finalAmount - $walletCoverage;
+                            ?>
+                            
+                            <div class="space-y-3 text-right">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-700">مبلغ قابل پرداخت:</span>
+                                    <span class="font-bold text-lg"><?php echo e(number_format($finalAmount)); ?> تومان</span>
+                                </div>
+                                
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-700">موجودی کیف پول:</span>
+                                    <span class="font-bold <?php echo e($walletBalance > 0 ? 'text-green-600' : 'text-gray-600'); ?>">
+                                        <?php echo e(number_format($walletBalance)); ?> تومان
+                                    </span>
+                                </div>
+                                
+                                <?php if($walletCoverage > 0): ?>
+                                <div class="flex justify-between items-center border-t border-gray-200 pt-3">
+                                    <span class="text-gray-700">پرداخت از کیف پول:</span>
+                                    <span class="font-bold text-green-600"><?php echo e(number_format($walletCoverage)); ?> تومان</span>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if($gatewayAmount > 0): ?>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-gray-700">پرداخت از درگاه:</span>
+                                    <span class="font-bold text-blue-600"><?php echo e(number_format($gatewayAmount)); ?> تومان</span>
+                                </div>
+                                <?php endif; ?>
+                                
+                                <?php if($walletBalance >= $finalAmount): ?>
+                                <div class="bg-green-50 border border-green-200 rounded-lg p-3 mt-4">
+                                    <div class="flex items-center justify-center">
+                                        <i class="fas fa-check-circle text-green-500 ml-2"></i>
+                                        <span class="text-green-700 font-medium">موجودی کیف پول شما کافی است. پرداخت به صورت کامل از کیف پول انجام می‌شود.</span>
+                                    </div>
+                                </div>
+                                <?php elseif($walletBalance > 0): ?>
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
+                                    <div class="flex items-center justify-center">
+                                        <i class="fas fa-info-circle text-blue-500 ml-2"></i>
+                                        <span class="text-blue-700 font-medium">بخشی از مبلغ از کیف پول و مابقی از درگاه پرداخت می‌شود.</span>
+                                    </div>
+                                </div>
+                                <?php else: ?>
+                                <div class="bg-orange-50 border border-orange-200 rounded-lg p-3 mt-4">
+                                    <div class="flex items-center justify-center">
+                                        <i class="fas fa-exclamation-triangle text-orange-500 ml-2"></i>
+                                        <span class="text-orange-700 font-medium">پرداخت به صورت کامل از درگاه انجام می‌شود.</span>
+                                    </div>
+                                </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                 
-                <a href="<?php echo e(route('home')); ?>" class="mt-6 inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors">
-                    <i class="fas fa-arrow-right ml-2"></i>
-                    بازگشت به صفحه اصلی
-                </a>
-            </div>
+                        <button type="submit" id="paymentButton" class="btn-success text-white px-8 py-4 rounded-xl font-bold text-lg inline-flex items-center shadow-lg">
+                            <i class="fas fa-credit-card ml-2"></i>
+                            <span id="buttonText">
+                                <?php if($walletBalance >= $finalAmount): ?>
+                                    پرداخت از کیف پول
+                                <?php elseif($walletBalance > 0): ?>
+                                    پرداخت ترکیبی
+                                <?php else: ?>
+                                    پرداخت از درگاه
+                                <?php endif; ?>
+                            </span>
+                            <div id="buttonSpinner" class="spinner mr-2" style="display: none;"></div>
+                        </button>
+                    </form>
+                    
+                    <a href="<?php echo e(route('home')); ?>" class="mt-6 inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors">
+                        <i class="fas fa-arrow-right ml-2"></i>
+                        بازگشت به صفحه اصلی
+                    </a>
+                </div>
         <?php endif; ?>
     </div>
     <script>
@@ -260,20 +330,29 @@ unset($__errorArgs, $__bag); ?>
             
             paymentButton.classList.add('btn-loading');
             paymentButton.disabled = true;
-            buttonText.textContent = 'در حال انتقال به درگاه...';
+            buttonText.textContent = 'در حال پردازش...';
             buttonSpinner.style.display = 'inline-block';
-            
-            console.log('Sending checkout request...', {
-                session_token: document.querySelector('input[name="session_token"]').value,
-                payment_gateway: document.querySelector('input[name="payment_gateway"]').value
-            });
             
             axios.post(this.action, new FormData(this))
                 .then(response => {
                     console.log('Checkout response:', response.data);
                     
                     if (response.data.success) {
-                        window.location.href = response.data.data.payment_url;
+                        const data = response.data.data;
+                        
+                        if (data.payment_url) {
+                            // اگر نیاز به درگاه دارد
+                            buttonText.textContent = 'در حال انتقال به درگاه...';
+                            setTimeout(() => {
+                                window.location.href = data.payment_url;
+                            }, 1000);
+                        } else {
+                            // اگر کامل از کیف پول پرداخت شده
+                            buttonText.textContent = 'پرداخت موفق!';
+                            setTimeout(() => {
+                                window.location.href = data.redirect_url || '/payment/success/' + data.order_id;
+                            }, 1500);
+                        }
                     } else {
                         resetButton();
                         alert('خطا: ' + (response.data.message || 'خطای ناشناخته'));

@@ -7,7 +7,7 @@
             </button>
         </div>
         
-        <form method="POST" action="{{route('admin.ticket.store')}}" class="space-y-4">
+        <form method="POST" action="{{route('ticket.store')}}" class="space-y-4">
             @csrf
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">موضوع</label>

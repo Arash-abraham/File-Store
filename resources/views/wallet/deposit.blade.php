@@ -178,7 +178,7 @@
 
     <script>
         let selectedButton = null;
-
+    
         function setAmount(amount, element) {
             document.getElementById('amount').value = amount;
             
@@ -190,10 +190,10 @@
             element.classList.remove('bg-gray-100', 'text-gray-700', 'border-gray-200');
             element.classList.add('bg-blue-500', 'text-white', 'border-blue-500', 'shadow-md');
             selectedButton = element;
-
+    
             document.getElementById('amount').blur();
         }
-
+    
         document.getElementById('amount').addEventListener('focus', function() {
             if (selectedButton) {
                 selectedButton.classList.remove('bg-blue-500', 'text-white', 'border-blue-500', 'shadow-md');
@@ -201,7 +201,7 @@
                 selectedButton = null;
             }
         });
-
+    
         document.getElementById('amount').addEventListener('input', function() {
             if (selectedButton) {
                 selectedButton.classList.remove('bg-blue-500', 'text-white', 'border-blue-500', 'shadow-md');
@@ -209,7 +209,7 @@
                 selectedButton = null;
             }
         });
-
+    
         document.getElementById('depositForm').addEventListener('submit', function(e) {
             const amount = document.getElementById('amount').value;
             const submitBtn = document.getElementById('submitBtn');
@@ -226,21 +226,7 @@
             submitBtn.classList.remove('hover:bg-green-700', 'hover:shadow-xl');
             submitBtn.classList.add('bg-green-400', 'cursor-not-allowed');
         });
-
-        document.getElementById('amount').addEventListener('blur', function(e) {
-            const value = e.target.value.replace(/,/g, '');
-            if (!isNaN(value) && value !== '') {
-                e.target.value = parseInt(value).toLocaleString('fa-IR');
-            }
-        });
-
-        document.getElementById('amount').addEventListener('focus', function(e) {
-            const value = e.target.value.replace(/,/g, '');
-            if (!isNaN(value) && value !== '') {
-                e.target.value = value;
-            }
-        });
-
+    
         document.getElementById('amount').addEventListener('keypress', function(e) {
             const charCode = (e.which) ? e.which : e.keyCode;
             if (charCode > 31 && (charCode < 48 || charCode > 57)) {

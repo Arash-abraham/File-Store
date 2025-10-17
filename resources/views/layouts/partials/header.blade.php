@@ -11,7 +11,10 @@
             <div class="flex items-center gap-4">
                 <div class="flex items-center text-sm text-gray-600">
                     <i class="fas fa-wallet ml-2"></i>
-                    <span>موجودی: <span class="font-semibold text-green-600">250,000 تومان</span></span>
+                    <span>موجودی: <span class="font-semibold text-green-600">
+                        {{ $wallet->formatted_balance }}
+                    </span>
+                    </span>
                 </div>
                 <div class="flex items-center">
                     <div>

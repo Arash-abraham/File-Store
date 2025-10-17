@@ -1,5 +1,16 @@
 <div id="wallet" class="content-section hidden">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <?php if(session('error')): ?>
+            <div class="mt-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
+                <div class="flex items-center">
+                    <i class="fas fa-exclamation-circle ml-2"></i>
+                    <?php echo e(session('error')); ?>
+
+                </div>
+            </div>
+        <?php endif; ?>
+        
         <!-- Wallet Balance -->
         <div class="bg-white rounded-xl shadow-lg p-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-6">موجودی کیف پول</h2>
@@ -20,10 +31,12 @@
                     <i class="fas fa-plus ml-2"></i>
                     شارژ کیف پول
                 </a>
-                <button class="w-full border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition-colors"
-                        onclick="showSection('dashboard')">
-                    بازگشت به داشبورد
-                </button>
+                <p></p>
+                <a href="<?php echo e(route('dashboard')); ?>">
+                    <button class="w-full border border-gray-300 py-3 rounded-lg hover:bg-gray-50 transition-colors">
+                        بازگشت به داشبورد
+                    </button>
+                </a>
             </div>
 
             <!-- اطلاعات سریع -->
@@ -38,15 +51,12 @@
                         <?php if($walletTransactions->count() > 0): ?>
                             <?php echo e(\Morilog\Jalali\Jalalian::forge($walletTransactions->first()->created_at)->format('Y/m/d')); ?>
 
-                        <?php else: ?>
-                            -
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Recent Transactions -->
         <div class="bg-white rounded-xl shadow-lg p-8">
             <h3 class="text-xl font-bold text-gray-800 mb-6">آخرین تراکنش‌ها</h3>
             
@@ -101,7 +111,6 @@
                 </div>
             <?php endif; ?>
 
-            <!-- راهنمای سریع -->
             <div class="mt-6 pt-6 border-t border-gray-200">
                 <h4 class="font-semibold text-gray-800 mb-3">راهنمای کیف پول</h4>
                 <ul class="text-sm text-gray-600 space-y-2">
@@ -122,27 +131,4 @@
         </div>
     </div>
 
-    <!-- بخش اطلاع‌رسانی -->
-    <?php if(session('success')): ?>
-        <div class="mt-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg">
-            <div class="flex items-center">
-                <i class="fas fa-check-circle ml-2"></i>
-                <?php echo e(session('success')); ?>
-
-                <?php if(session('ref_id')): ?>
-                    <span class="mr-4">کد پیگیری: <strong><?php echo e(session('ref_id')); ?></strong></span>
-                <?php endif; ?>
-            </div>
-        </div>
-    <?php endif; ?>
-
-    <?php if(session('error')): ?>
-        <div class="mt-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg">
-            <div class="flex items-center">
-                <i class="fas fa-exclamation-circle ml-2"></i>
-                <?php echo e(session('error')); ?>
-
-            </div>
-        </div>
-    <?php endif; ?>
 </div><?php /**PATH /opt/lampp/htdocs/File-Store/resources/views/layouts/main/wallet-section.blade.php ENDPATH**/ ?>

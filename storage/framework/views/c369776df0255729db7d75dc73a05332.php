@@ -93,13 +93,12 @@
                         <i class="fas fa-check-circle text-green-500 text-lg ml-2"></i>
                         <span class="text-green-700 font-semibold">پرداخت شما با موفقیت انجام شد!</span>
                     </div>
-
                 </div>
                 
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-3">پرداخت موفقیت‌آمیز بود</h1>
                 
                 <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl p-4 mb-6 border border-blue-200">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-right"> <!-- 3 ستون برای عرض بیشتر -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-right">
                         <div class="bg-white rounded-lg p-3 shadow-sm">
                             <div class="flex items-center justify-between">
                                 <span class="text-gray-500 text-sm">شماره سفارش:</span>
@@ -110,7 +109,7 @@
                         <div class="bg-white rounded-lg p-3 shadow-sm">
                             <div class="flex items-center justify-between">
                                 <span class="text-gray-500 text-sm">مبلغ پرداختی:</span>
-                                <span class="font-bold text-green-600"><?php echo e(number_format($order->final_amount)); ?> تومان</span>
+                                <span class="font-bold text-green-600"><?php echo e(number_format($order->remaining_amount)); ?> تومان</span>
                             </div>
                         </div>
 
@@ -124,16 +123,24 @@
                     
                     <div class="mt-4 bg-white rounded-lg p-3 shadow-sm">
                         <div class="space-y-1">                            
+                            <h3 class="font-semibold text-gray-700 mb-2 text-right text-sm">جزئیات مالی:</h3>
+
+                            <div class="flex justify-between items-center">
+                                <span class="text-gray-600 text-sm">مبلغ کل: <?php echo e(number_format($order->total_amount)); ?> تومان</span>
+                            </div>
+
                             <?php if($order->discount_amount > 0): ?>
-                                <h3 class="font-semibold text-gray-700 mb-2 text-right text-sm">جزئیات مالی:</h3>
-
                                 <div class="flex justify-between items-center">
-                                    <span class="text-gray-600 text-sm">مبلغ کل: <?php echo e(number_format($order->total_amount)); ?> تومان</span>
-
-                                    <span class="text-red-600 text-sm ">تخفیف: <?php echo e(number_format($order->discount_amount)); ?>  تومان</span>
-                                    <span class="text-green-700 font-semibold text-sm">مبلغ نهایی: <?php echo e(number_format($order->final_amount)); ?> تومان</span>
-                                </div>    
+                                    <span class="text-red-600 text-sm">تخفیف: <?php echo e(number_format($order->discount_amount)); ?> تومان</span>
+                                </div>
                             <?php endif; ?>
+
+                            <?php if($order->paid_from_wallet > 0): ?>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-blue-600 text-sm">پرداخت از کیف پول: <?php echo e(number_format($order->paid_from_wallet)); ?> تومان</span>
+                                </div>
+                            <?php endif; ?>
+
                         </div>
                     </div>
                     
@@ -153,7 +160,6 @@
                         <i class="fas fa-home ml-2"></i>
                         بازگشت به صفحه اصلی
                     </a>
-
                 </div>
             </div>
         </div>

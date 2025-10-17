@@ -7,7 +7,7 @@
             </button>
         </div>
         
-        <form method="POST" action="<?php echo e(route('admin.ticket.store')); ?>" class="space-y-4">
+        <form method="POST" action="<?php echo e(route('ticket.store')); ?>" class="space-y-4">
             <?php echo csrf_field(); ?>
             <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">موضوع</label>
