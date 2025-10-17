@@ -44,21 +44,25 @@ class AdminFileProductController extends Controller
         //     'public_exists' => Storage::disk('public')->exists('.'),
         //     'private_exists' => array_key_exists('private', config('filesystems.disks')),
         // ]);
-    
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'names' => 'required|array',
-            'names.*' => 'required|string|max:255',
-            'files' => 'required|array',
-            'files.*' => 'required|file|mimes:pdf,zip,rar|max:25600',
-            'types' => 'required|array',
-            'types.*' => 'required|in:pdf,zip,rar',
-            'size_labels' => 'nullable|array',
-            'size_labels.*' => 'nullable|string|max:50',
-            'sort_orders' => 'required|array',
-            'sort_orders.*' => 'required|integer|min:1|max:100',
-        ]);
-    
+        try
+        {
+            $request->validate([
+                'product_id' => 'required|exists:products,id',
+                'names' => 'required|array',
+                'names.*' => 'required|string',
+                'files' => 'required|array',
+                'files.*' => 'required|file|mimes:pdf,zip,rar',
+                'types' => 'required|array',
+                'types.*' => 'required|in:pdf,zip,rar',
+                'size_labels' => 'nullable|array',
+                'size_labels.*' => 'nullable|string',
+                'sort_orders' => 'required|array',
+                'sort_orders.*' => 'required|integer|min:1',
+            ]);
+        }catch (\Illuminate\Validation\ValidationException $e) {
+            dd($e->errors()); 
+        }
+
         try {
             DB::beginTransaction();
     

@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Notifications\PaymentSuccessfulNotification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -55,6 +56,16 @@ class PaymentService
             ]);
 
             if ($response->successful() && isset($result['data']['code']) && $result['data']['code'] == 100) {
+                $user = auth()->user();
+                $paymentDetails = [
+                    'amount' => $amount,
+                    'order_id' => $order->id,
+                    'authority' => $result['data']['authority'],
+                    'description' => 'پرداخت سفارش شماره ' . $order->id,
+                ];
+                
+                $user->notify(new PaymentSuccessfulNotification($paymentDetails));
+                
                 return [
                     'success' => true,
                     'payment_url' => $this->isSandbox
@@ -124,6 +135,7 @@ class PaymentService
             ]);
 
             if ($response->successful() && isset($result['data']['code']) && $result['data']['code'] == 100) {
+
                 return [
                     'success' => true,
                     'ref_id' => $result['data']['ref_id'],

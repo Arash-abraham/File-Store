@@ -83,7 +83,7 @@ class HomeController extends Controller
             $query->whereIn('category_id', $categoryIds);
         }
 
-        $products = $query->paginate(12);
+        $products = $query->paginate();
         $categories = Category::all();
         $selectedCategory = $request->get('category');
         $menus = Menu::all();

@@ -55,11 +55,6 @@
                                     <i class="fas fa-download ml-1"></i>
                                     دانلود
                                 </a>
-                                
-                                <button class="text-green-600 hover:text-green-800 p-2 rounded-lg border border-green-600" onclick="editFile({{ $file->id }})">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                
                                 <button class="text-red-600 hover:text-red-800 p-2 rounded-lg border border-red-600" 
                                         onclick="confirmDelete({{ $file->id }})">
                                     <i class="fas fa-trash"></i>
