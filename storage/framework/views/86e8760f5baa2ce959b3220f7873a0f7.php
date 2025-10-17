@@ -155,7 +155,7 @@
                     <p class="text-gray-600 text-lg">بهترین و پربازدیدترین محصولات ما</p>
                 </div>
                 
-                <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div id="productsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-12">
                     <?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $product): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                         <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 group">
                             <div class="relative overflow-hidden">
@@ -165,7 +165,7 @@
                                     <?php if(!$product->availability): ?>
                                         <span class="absolute top-2 right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">ناموجود</span>
                                     <?php endif; ?>
-                                    </a>
+                                </a>
                                 <div class="p-6">
                                     <a href="<?php echo e(route('show-product', $product->id)); ?>">
                                         <h3 class="font-semibold text-lg mb-2 text-gray-800 line-clamp-2"><?php echo e($product->title); ?></h3>    
@@ -211,6 +211,13 @@
                             </div>
                         </div>
                     <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                </div>
+                
+                <div class="text-center">
+                    <a href="<?php echo e(route('products')); ?>" class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-bold text-lg rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
+                        مشاهده تمامی محصولات
+                        <i class="fas fa-arrow-left mr-3 text-xl"></i>
+                    </a>
                 </div>
             </div>
         </section>
