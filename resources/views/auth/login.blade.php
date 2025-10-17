@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ورود / ثبت‌نام - فروشگاه آنلاین</title>
+    <title>ورود / ثبت‌نام - فایل استور</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -24,9 +24,7 @@
     <header class="bg-white shadow-lg">
         <div class="container mx-auto px-4 py-4">
             <div class="flex items-center justify-center">
-                <img src="https://images.pexels.com/photos/1181533/pexels-photo-1181533.jpeg?auto=compress&cs=tinysrgb&w=100" 
-                     alt="لوگو فروشگاه" class="h-12 w-12 rounded-lg ml-3">
-                <h1 class="text-2xl font-bold text-gray-800">فروشگاه آنلاین</h1>
+                <h1 class="text-2xl font-bold text-gray-800">فایل استور</h1>
             </div>
         </div>
     </header>
