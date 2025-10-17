@@ -70,7 +70,10 @@ class Payment extends Model
     {
         return $this->belongsTo(Product::class);
     }
-
+    public function item()
+    {
+        return $this->belongsTo(OrderItem::class)->withDefault();
+    }
     /**
      * Scope a query to only include payments of a specific status.
      *

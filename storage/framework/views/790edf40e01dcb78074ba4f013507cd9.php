@@ -51,6 +51,8 @@
                         <?php if($walletTransactions->count() > 0): ?>
                             <?php echo e(\Morilog\Jalali\Jalalian::forge($walletTransactions->first()->created_at)->format('Y/m/d')); ?>
 
+                        <?php else: ?>
+                            -
                         <?php endif; ?>
                     </div>
                 </div>

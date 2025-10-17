@@ -37,7 +37,7 @@
                 <i class="fas fa-cogs w-5 ml-3"></i>
                 <span>تنظیمات سایت</span>
             </a>
-            <a href="#" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="payments">
+            <a href="{{route('admin.peyments.index')}}" class="sidebar-item flex items-center p-3 rounded-lg transition-colors" data-section="payments">
                 <i class="fas fa-credit-card w-5 ml-3"></i>
                 <span>پرداخت‌ها</span>
             </a>

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\OrderItem;
 use Illuminate\Http\Request;
+use App\Models\Payment;
 
 class AdminPeymentController extends Controller
 {
@@ -12,7 +14,8 @@ class AdminPeymentController extends Controller
      */
     public function index()
     {
-        //
+        $peyments = Payment::all();
+        return view('admin.layouts.sections.payments',compact('peyments'));
     }
 
     /**

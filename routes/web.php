@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\AdminCouponController;
 use App\Http\Controllers\Admin\AdminFaqController;
 use App\Http\Controllers\Admin\AdminFileProductController;
 use App\Http\Controllers\Admin\AdminMenuController;
+use App\Http\Controllers\Admin\AdminPeymentController;
 use App\Http\Controllers\Admin\AdminProductController;
 use App\Http\Controllers\Admin\AdminSettingController;
 use App\Http\Controllers\Admin\AdminTagController;
@@ -159,6 +160,7 @@ Route::prefix('admin')->middleware([AdminMiddleware::class,'verified'])->name('a
     
     Route::resource('file-product',AdminFileProductController::class);
 
+    Route::resource('peyments',AdminPeymentController::class);
 });
 
 Route::get('/login-email', [OtpLoginController::class, 'showEmailForm'])->name('login.email'); // show view 
