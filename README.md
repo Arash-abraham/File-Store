@@ -165,7 +165,7 @@ composer run dev
 *Main landing page with customer satisfaction section, best-selling products, and categories*
 
 ### Products Page
-"https://screenshots/products.png"
+<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-36-36.png">
 *Product catalog with advanced search and category filtering*
 
 ### Category View
