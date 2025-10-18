@@ -296,9 +296,9 @@ chmod -R 755 bootstrap/cache
 
 ## 👥 Authors
 
-<table align="center" width="100%">
+<table align="center" width="90%" style="margin: 0 auto;">
   <tr>
-    <td align="center" width="50%" style="padding: 40px;">
+    <td align="center" style="padding: 50px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
       <img src="https://github.com/Arash-abraham.png" width="140" height="140" style="border-radius: 50%; border: 4px solid #007bff; box-shadow: 0 8px 16px rgba(0, 123, 255, 0.3);">
       <br><br>
       <strong style="font-size: 1.4em; color: #2c3e50;">Arash Ebrahimian</strong>
@@ -309,7 +309,7 @@ chmod -R 755 bootstrap/cache
         <img src="https://img.shields.io/badge/🚀_GitHub_Profile-000000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Profile">
       </a>
     </td>
-    <td align="center" width="50%" style="padding: 40px;">
+    <td align="center" style="padding: 50px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
       <img src="https://github.com/iamhosseinzadeh.png" width="140" height="140" style="border-radius: 50%; border: 4px solid #28a745; box-shadow: 0 8px 16px rgba(40, 167, 69, 0.3);">
       <br><br>
       <strong style="font-size: 1.4em; color: #2c3e50;">Amir Hossein Hosseinzade</strong>
@@ -335,5 +335,5 @@ For support, email arashebi777@gmail.com .
 ---
 
 <div align="center">
-Made with ❤️ using Laravel & Tailwind CSS
+Made with ❤️ using Laravel & JavaScript and Tailwind CSS
 </div>
