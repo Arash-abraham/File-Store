@@ -296,19 +296,29 @@ chmod -R 755 bootstrap/cache
 
 ## 👥 Authors
 
-<table align="center" style="width: 80%; margin: 0 auto; border-collapse: collapse;">
+<table align="center">
   <tr>
-    <td align="center" style="padding: 20px; vertical-align: middle; transition: transform 0.3s ease;">
-      <strong style="color: #2c3e50; font-size: 1.2em;">Lead Developer & Project Architect</strong><br>
-      <img src="https://github.com/Arash-abraham.png" width="100" height="100" style="border-radius: 50%; border: 4px solid #007bff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"><br>
-      <strong style="color: #2c3e50;">Arash Ebrahimian</strong><br>
-      [GitHub Profile](https://github.com/Arash-abraham)
+    <td align="center" style="padding: 30px;">
+      <img src="https://github.com/Arash-abraham.png" width="120" height="120" style="border-radius: 50%; border: 4px solid #007bff; box-shadow: 0 8px 16px rgba(0, 123, 255, 0.3);">
+      <br><br>
+      <strong style="font-size: 1.3em; color: #2c3e50;">Arash Ebrahimian</strong>
+      <br>
+      <em style="color: #666; font-size: 0.9em;">Lead Developer & Project Architect</em>
+      <br><br>
+      <a href="https://github.com/Arash-abraham">
+        <img src="https://img.shields.io/badge/🚀_GitHub_Profile-000000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Profile">
+      </a>
     </td>
-    <td align="center" style="padding: 20px; vertical-align: middle; transition: transform 0.3s ease;">
-      <strong style="color: #2c3e50; font-size: 1.2em;">Co-developer & Template Specialist</strong><br>
-      <img src="https://github.com/iamhosseinzadeh.png" width="100" height="100" style="border-radius: 50%; border: 4px solid #007bff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"><br>
-      <strong style="color: #2c3e50;">Amir Hossein Hosseinzade</strong><br>
-      [GitHub Profile](https://github.com/iamhosseinzadeh)
+    <td align="center" style="padding: 30px;">
+      <img src="https://github.com/iamhosseinzadeh.png" width="120" height="120" style="border-radius: 50%; border: 4px solid #28a745; box-shadow: 0 8px 16px rgba(40, 167, 69, 0.3);">
+      <br><br>
+      <strong style="font-size: 1.3em; color: #2c3e50;">Amir Hossein Hosseinzade</strong>
+      <br>
+      <em style="color: #666; font-size: 0.9em;">Co-developer & Template Specialist</em>
+      <br><br>
+      <a href="https://github.com/iamhosseinzadeh">
+        <img src="https://img.shields.io/badge/🚀_GitHub_Profile-000000?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Profile">
+      </a>
     </td>
   </tr>
 </table>
