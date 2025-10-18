@@ -296,28 +296,18 @@ chmod -R 755 bootstrap/cache
 
 ## 👥 Authors
 
-<style>
-      .author-table { border-collapse: collapse; width: 80%; margin: 0 auto; }
-      .author-table td { padding: 20px; vertical-align: middle; transition: transform 0.3s ease; }
-      .author-table td:hover { transform: scale(1.05); background-color: #f5f5f5; border-radius: 10px; }
-      .author-table img { border: 4px solid #007bff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); }
-      .author-table strong { color: #2c3e50; font-size: 1.2em; }
-      .author-table a { color: #e74c3c; text-decoration: none; font-weight: bold; }
-      .author-table a:hover { color: #c0392b; text-decoration: underline; }
-</style>
-
-<table class="author-table">
+<table align="center" style="width: 80%; margin: 0 auto; border-collapse: collapse;">
   <tr>
-    <td align="center">
-      <strong>Lead Developer & Project Architect</strong><br>
-      <img src="https://github.com/Arash-abraham.png" width="100" height="100" style="border-radius: 50%;"><br>
-      <strong>Arash Ebrahimian</strong><br>
+    <td align="center" style="padding: 20px; vertical-align: middle; transition: transform 0.3s ease;">
+      <strong style="color: #2c3e50; font-size: 1.2em;">Lead Developer & Project Architect</strong><br>
+      <img src="https://github.com/Arash-abraham.png" width="100" height="100" style="border-radius: 50%; border: 4px solid #007bff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"><br>
+      <strong style="color: #2c3e50;">Arash Ebrahimian</strong><br>
       [GitHub Profile](https://github.com/Arash-abraham)
     </td>
-    <td align="center">
-      <strong>Co-developer & Template Specialist</strong><br>
-      <img src="https://github.com/iamhosseinzadeh.png" width="100" height="100" style="border-radius: 50%;"><br>
-      <strong>Amir Hossein Hosseinzade</strong><br>
+    <td align="center" style="padding: 20px; vertical-align: middle; transition: transform 0.3s ease;">
+      <strong style="color: #2c3e50; font-size: 1.2em;">Co-developer & Template Specialist</strong><br>
+      <img src="https://github.com/iamhosseinzadeh.png" width="100" height="100" style="border-radius: 50%; border: 4px solid #007bff; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);"><br>
+      <strong style="color: #2c3e50;">Amir Hossein Hosseinzade</strong><br>
       [GitHub Profile](https://github.com/iamhosseinzadeh)
     </td>
   </tr>
