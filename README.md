@@ -53,6 +53,9 @@ A modern digital marketplace for PDF books built with Laravel. Purchase, downloa
     - 6-digit code via Email
     - 6-digit code via SMS
 
+### 💳 Payment Gateway
+- **ZarinPal** integration for secure payments
+
 ### 📧 Notifications
 - Automated purchase confirmation emails
 
@@ -67,35 +70,35 @@ A modern digital marketplace for PDF books built with Laravel. Purchase, downloa
 ### Installation
 
 1. **Clone the repository**
-```bash
+"bash
 git clone https://github.com/yourusername/filestore.git
 cd filestore
-```
+"
 
 2. **Install PHP dependencies**
-```bash
+"bash
 composer install
-```
+"
 
 3. **Install Node.js dependencies**
-```bash
+"bash
 npm install
-```
+"
 
 4. **Build frontend assets**
-```bash
+"bash
 npm run build
-```
+"
 
 5. **Environment Setup**
-```bash
+"bash
 cp .env.example .env
-```
+"
 
 6. **Configure Environment Variables**
 Edit `.env` file with your configuration:
 
-```env
+"env
 # Basic App Configuration
 APP_NAME=FileStore
 APP_ENV=local
@@ -124,36 +127,39 @@ MAIL_FROM_NAME="FileStore"
 KAVEHNEGAR_API_KEY=your_kavehnegar_api_key
 KAVEHNEGAR_SENDER=your_sender_number
 
+# Payment Gateway (ZarinPal)
+ZARINPAL_MERCHANT_ID=your_zarinpal_merchant_id
+
 # File Upload Configuration
 FILESYSTEM_DISK=public
-MAX_FILE_SIZE=10240
+MAX_FILE_SIZE=30720
 ALLOWED_FILE_TYPES=pdf
-```
+"
 
 7. **Generate application key**
-```bash
+"bash
 php artisan key:generate
-```
+"
 
 8. **Run database setup**
-```bash
+"bash
 php artisan migrate --seed
-```
+"
 
 9. **Create storage link**
-```bash
+"bash
 php artisan storage:link
-```
+"
 
 10. **Start development server**
-```bash
+"bash
 php artisan serve
-```
+"
 
 ## 📸 Screenshots
 
 ### Home Page
-```https://screenshots/home.png```
+"https://screenshots/home.png"
 *Main landing page with customer satisfaction section, best-selling products, and categories*
 
 ### Products Page
@@ -214,6 +220,21 @@ KAVEHNEGAR_API_KEY=your_api_key_here
 KAVEHNEGAR_SENDER=your_sender_number
 "
 
+### Payment Gateway (ZarinPal)
+1. Register at [ZarinPal](https://zarinpal.com)
+2. Get your Merchant ID
+3. Configure in `.env`:
+"env
+ZARINPAL_MERCHANT_ID=your_zarinpal_merchant_id
+"
+
+### File Upload Configuration
+Admins can upload files up to 30MB:
+"env
+MAX_FILE_SIZE=30720
+ALLOWED_FILE_TYPES=pdf
+"
+
 ## 🚀 Deployment
 
 ### Production Deployment Steps:
@@ -266,7 +287,7 @@ server {
 ### Common Issues:
 
 **File upload fails:**
-- Check `upload_max_filesize` in php.ini
+- Check `upload_max_filesize` in php.ini (should be at least 30M)
 - Verify storage permissions
 - Ensure allowed file types in config
 
@@ -279,6 +300,11 @@ server {
 - Verify Kaveh Negar API key
 - Check account balance
 - Validate sender number
+
+**Payment issues:**
+- Verify ZarinPal Merchant ID
+- Check callback URLs
+- Ensure SSL certificate for production
 
 **Login issues:**
 - Check email/SMS configuration
@@ -306,6 +332,7 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 - Laravel Community
 - Tailwind CSS Team
 - Kaveh Negar for SMS service
+- ZarinPal for payment gateway
 - All contributors and testers
 
 ## 📞 Support
