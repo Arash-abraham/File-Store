@@ -175,7 +175,7 @@ composer run dev
 *Category page showing product count and filtered results*
 
 ### User Dashboard
-"https://screenshots/dashboard.png"
+<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-42-57.png">
 
 *User panel => wallet management*
 
