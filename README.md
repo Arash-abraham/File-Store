@@ -294,6 +294,7 @@ chmod -R 755 bootstrap/cache
 - Verify database connections
 - Check session configuration
 
+
 ## 👥 Authors
 
 <div align="center">
