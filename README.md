@@ -86,19 +86,19 @@ npm install
 ```
 
 4. **Build frontend assets**
-"bash
+```bash
 npm run build
-"
+```
 
 5. **Environment Setup**
-"bash
+```bash
 cp .env.example .env
-"
+```
 
 6. **Configure Environment Variables**
 Edit `.env` file with your configuration:
 
-"env
+```env
 # Basic App Configuration
 APP_NAME=FileStore
 APP_ENV=local
@@ -129,37 +129,38 @@ KAVEHNEGAR_SENDER=your_sender_number
 
 # Payment Gateway (ZarinPal)
 ZARINPAL_MERCHANT_ID=your_zarinpal_merchant_id
+ZARINPAL_SANDBOX=true
 
 # File Upload Configuration
 FILESYSTEM_DISK=public
 MAX_FILE_SIZE=30720
 ALLOWED_FILE_TYPES=pdf
-"
+```
 
 7. **Generate application key**
-"bash
+```bash
 php artisan key:generate
-"
+```
 
 8. **Run database setup**
-"bash
+```bash
 php artisan migrate --seed
-"
+```
 
 9. **Create storage link**
-"bash
+```bash
 php artisan storage:link
-"
+```
 
 10. **Start development server**
-"bash
-php artisan serve
-"
+```bash
+composer run dev
+```
 
 ## 📸 Screenshots
 
 ### Home Page
-"https://screenshots/home.png"
+```https://screenshots/home.png```
 *Main landing page with customer satisfaction section, best-selling products, and categories*
 
 ### Products Page
