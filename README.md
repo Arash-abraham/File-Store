@@ -48,9 +48,9 @@ A modern digital marketplace for PDF books built with Laravel. Purchase, downloa
 
 ### 🔐 Authentication System
 - **Three Login Methods**:
-  1. Email & Password
-  2. 6-digit code via Email
-  3. 6-digit code via SMS
+    - Email & Password
+    - 6-digit code via Email
+    - 6-digit code via SMS
 
 ### 📧 Notifications
 - Automated purchase confirmation emails
