@@ -294,38 +294,24 @@ chmod -R 755 bootstrap/cache
 - Verify database connections
 - Check session configuration
 
-
 ## 👥 Authors
 
-<div align="center">
-
-<div style="display: flex; justify-content: center; gap: 50px; align-items: center;">
-
-<div style="text-align: center;">
-    
-### Lead Developer & Project Architect
-<img src="https://github.com/Arash-abraham.png" width="100" height="100" style="border-radius: 50%;">
-<br>
-
-**Arash Ebrahimian**
-<br>
-[![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=flat&logo=github)](https://github.com/Arash-abraham)
-</div>
-
-<div style="text-align: center;">
-    
-### Co-developer & Template Specialist
-<img src="https://github.com/iamhosseinzadeh.png" width="100" height="100" style="border-radius: 50%;">
-<br>
-
-**Amir Hossein Hosseinzade**
-<br>
-[![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=flat&logo=github)](https://github.com/iamhosseinzadeh)
-</div>
-
-</div>
-
-</div>
+<table align="center">
+  <tr>
+    <td align="center">
+      <strong>Lead Developer & Project Architect</strong><br>
+      <img src="https://github.com/Arash-abraham.png" width="100" height="100" style="border-radius: 50%;"><br>
+      <strong>Arash Ebrahimian</strong><br>
+      [GitHub Profile](https://github.com/Arash-abraham)
+    </td>
+    <td align="center">
+      <strong>Co-developer & Template Specialist</strong><br>
+      <img src="https://github.com/iamhosseinzadeh.png" width="100" height="100" style="border-radius: 50%;"><br>
+      <strong>Amir Hossein Hosseinzade</strong><br>
+      [GitHub Profile](https://github.com/iamhosseinzadeh)
+    </td>
+  </tr>
+</table>
 
 ## 🙏 Acknowledgments
 
