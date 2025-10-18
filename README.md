@@ -160,7 +160,7 @@ composer run dev
 ## 📸 Screenshots
 
 ### Home Page
-<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-12-55.png">
+<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-34-53.png">
 
 *Main landing page with customer satisfaction section, best-selling products, and categories*
 
