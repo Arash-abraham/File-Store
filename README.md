@@ -296,7 +296,7 @@ chmod -R 755 bootstrap/cache
 
 ## 👥 Authors
 
-- Arash Ebrahimian - *Lead Developer & Project Architect* - [YourUsername](https://github.com/Arash-abraham)
+- Arash Ebrahimian - *Lead Developer & Project Architect* - [Arash-abraham](https://github.com/Arash-abraham)
 - Amir Hossein Hosseinzade- *Co-developer & Template Specialist* - [ContributorUsername](https://github.com/iamhosseinzadeh)
 
 ## 🙏 Acknowledgments
