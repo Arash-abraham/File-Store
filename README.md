@@ -306,7 +306,7 @@ chmod -R 755 bootstrap/cache
 <br>
 **Arash Ebrahimian**
 <br>
-[![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=flat&logo=github)](https://github.com/Arash-abraham)
+[Arash-abraham](https://github.com/Arash-abraham)
 </div>
 
 <div>
@@ -315,12 +315,13 @@ chmod -R 755 bootstrap/cache
 <br>
 **Amir Hossein Hosseinzade**
 <br>
-[![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=flat&logo=github)](https://github.com/iamhosseinzadeh)
+[iamhosseinzadeh](https://github.com/iamhosseinzadeh)
 </div>
 
 </div>
 
 </div>
+
 ## 🙏 Acknowledgments
 
 - Kaveh Negar for SMS service
