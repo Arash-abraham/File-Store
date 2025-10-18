@@ -166,15 +166,18 @@ composer run dev
 
 ### Products Page
 <img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-36-36.png">
+
 *Product catalog with advanced search and category filtering*
 
 ### Category View
-"https://screenshots/category.png"
+<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-39-44.png">
+
 *Category page showing product count and filtered results*
 
 ### User Dashboard
 "https://screenshots/dashboard.png"
-*User panel with orders, downloads, tickets, and wallet management*
+
+*User panel => wallet management*
 
 ### Admin Panel
 "https://screenshots/admin.png"
