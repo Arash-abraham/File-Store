@@ -1,94 +1,49 @@
-# FileStore - Digital PDF File Marketplace
+# 📚 FileStore - Digital PDF Marketplace
 
-## 📖 About The Project
-FileStore is a modern, fully-featured digital file marketplace built with Laravel where users can purchase and download PDF files. This platform offers a seamless shopping experience with advanced features for both customers and administrators.
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+
+A modern digital marketplace for PDF files built with Laravel. Purchase, download, and manage your digital files seamlessly.
 
 ## ✨ Features
 
-### 🏠 Frontend Features
-- **Home Page**: 
-  - Main section with customer satisfaction highlights
-  - Diverse product showcase
-  - User testimonials section
-  - Online support information
-  - 8 best-selling files display
-  - Categories section
-  - Footer with site information
+### 🎯 Core Features
+- **🛒 Smart Shopping Cart** - Requires authentication, prevents duplicate purchases
+- **💳 Wallet System** - Partial payments (wallet + gateway)
+- **🎟️ Discount Codes** - Flexible promotional system
+- **🔍 Advanced Search** - Full-text search with category filtering
 
-- **Advanced Search**: 
-  - Comprehensive file search functionality
-  - Category-based filtering
-  - File count display per category
+### 👤 User Dashboard
+- **📦 Order History** - Complete purchase tracking
+- **📥 File Downloads** - Instant access to purchased PDFs
+- **🎫 Ticket System** - Built-in support system
+- **👤 Profile Management** - Personal information & password updates
+- **💰 Wallet Management** - Balance tracking and top-ups
 
-### 👤 User Features
-- **Shopping Cart**: 
-  - Requires user authentication to add items
-  - Prevents duplicate purchases of owned files
-
-- **User Dashboard**:
-  - Order history and tracking
-  - Download purchased PDF files
-  - Ticket submission system
-  - Profile management
-  - Password change functionality
-  - Wallet management system
-
-- **Wallet & Payments**:
-  - Digital wallet integration
-  - Partial payments (e.g., pay $5 via wallet, $5 via gateway for $10 file)
-  - Discount code system
-
-### 🔐 Authentication System
-- **Three Login Methods**:
-  1. Traditional email/password login
-  2. 6-digit code via email
-  3. 6-digit code via SMS
+### 🔐 Multi-Method Authentication
+- 📧 Email & Password
+- 📧 6-digit Email Code
+- 📱 6-digit SMS Code (Kaveh Negar)
 
 ### ⚡ Admin Panel
-- **Dashboard**:
-  - Sales analytics and metrics
-  - Revenue tracking
-  - Sales charts and graphs
-  - File sales statistics
+- **📊 Analytics Dashboard** - Sales charts and revenue tracking
+- **🛍️ Product Management** - Complete file and category management
+- **👥 User Management** - Customer and order oversight
+- **🎯 Marketing Tools** - Discount codes and promotions
+- **💬 Support System** - Ticket and FAQ management
 
-- **Management Sections**:
-  - File management
-  - File uploads and management
-  - Category management
-  - Tag management
-  - Discount code management
-  - Comment moderation
-  - Menu configuration
-  - Payment management
-  - Ticket management
-  - FAQ management
-
-### 📧 Notifications
-- Automated purchase confirmation emails
-- Order status updates
-- Promotional communications
-
-## 🛠️ Technology Stack
-
-- **Backend**: Laravel PHP Framework
-- **Frontend**: 
-  - Tailwind CSS
-  - JavaScript
-- **Database**: MySQL
-- **SMS Service**: Kaveh Negar
-- **Authentication**: Laravel Auth with multiple methods
-
-## 📦 Installation
+## 🚀 Quick Start
 
 ### Prerequisites
-- PHP 8.0 or higher
+- PHP 8.0+
 - Composer
-- MySQL Database
+- MySQL 5.7+
 - Node.js & NPM
 
-### Setup Instructions
+### Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/yourusername/filestore.git
-   cd filestore
+1. **Clone the repository**
+```bash
+git clone https://github.com/yourusername/filestore.git
+cd filestore
