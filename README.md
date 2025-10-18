@@ -185,7 +185,8 @@ composer run dev
 *Administrative dashboard with analytics and management sections*
 
 ### Shopping Cart
-"https://screenshots/cart.png"
+<img src="https://github.com/Arash-abraham/File-Store/blob/main/img/Screenshot%20from%202025-10-18%2015-50-01.png">
+
 *Shopping cart with discount codes and wallet integration*
 
 ## 🗃️ Database Structure
