@@ -209,85 +209,61 @@ composer run dev
 
 ### Email Setup
 You must configure your email service in `.env`:
-"env
+```env
 MAIL_MAILER=smtp
 MAIL_HOST=your_smtp_host
 MAIL_PORT=your_smtp_port
 MAIL_USERNAME=your_smtp_username
 MAIL_PASSWORD=your_smtp_password
 MAIL_ENCRYPTION=tls
-"
+```
 
 ### SMS Setup (Kaveh Negar)
 1. Register at [Kaveh Negar](https://kavenegar.com)
 2. Get your API key from dashboard
 3. Configure in `.env`:
-"env
+```env
 KAVEHNEGAR_API_KEY=your_api_key_here
 KAVEHNEGAR_SENDER=your_sender_number
-"
+```
 
 ### Payment Gateway (ZarinPal)
 1. Register at [ZarinPal](https://zarinpal.com)
 2. Get your Merchant ID
 3. Configure in `.env`:
-"env
+```env
 ZARINPAL_MERCHANT_ID=your_zarinpal_merchant_id
-"
+```
 
 ### File Upload Configuration
 Admins can upload files up to 30MB:
-"env
+```env
 MAX_FILE_SIZE=30720
 ALLOWED_FILE_TYPES=pdf
-"
+```
 
 ## 🚀 Deployment
 
 ### Production Deployment Steps:
 
 1. **Environment Setup**
-"bash
+```bash
 cp .env.example .env
 # Update production values in .env
-"
+```
 
 2. **Optimize Application**
-"bash
+```bash
 php artisan config:cache
 php artisan route:cache
 php artisan view:cache
-"
+```
 
 3. **Set proper permissions**
-"bash
+```bash
 chmod -R 755 storage
 chmod -R 755 bootstrap/cache
-"
-
-4. **Configure web server (Nginx example)**
-"nginx
-server {
-    listen 80;
-    server_name yourdomain.com;
-    root /var/www/filestore/public;
-    
-    index index.php;
-    
-    location / {
-        try_files $uri $uri/ /index.php?$query_string;
-    }
-    
-    location ~ \.php$ {
-        include snippets/fastcgi-php.conf;
-        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
-    }
-    
-    location ~ /\.ht {
-        deny all;
-    }
-}
-"
+```
 
 ## 🐛 Troubleshooting
 
@@ -318,33 +294,19 @@ server {
 - Verify database connections
 - Check session configuration
 
-## 🤝 Contributing
-
-1. Fork the project
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details.
-
 ## 👥 Authors
 
-- Your Name - *Initial work* - [YourUsername](https://github.com/yourusername)
+- Arash Ebrahimian - *Lead Developer & Project Architect* - [YourUsername](https://github.com/Arash-abraham)
+- Amir Hossein Hosseinzade- *Co-developer & Template Specialist* - [ContributorUsername](https://github.com/iamhosseinzadeh)
 
 ## 🙏 Acknowledgments
 
-- Laravel Community
-- Tailwind CSS Team
 - Kaveh Negar for SMS service
 - ZarinPal for payment gateway
-- All contributors and testers
 
 ## 📞 Support
 
-For support, email support@filestore.com or create a ticket in the support section of the application.
+For support, email arashebi777@gmail.com .
 
 ---
 
