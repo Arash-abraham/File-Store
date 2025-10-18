@@ -70,19 +70,20 @@ A modern digital marketplace for PDF books built with Laravel. Purchase, downloa
 ### Installation
 
 1. **Clone the repository**
-bash```
+```bash
 git clone https://github.com/yourusername/filestore.git
-cd filestore```
+cd filestore
+```
 
 2. **Install PHP dependencies**
-"bash
+```bash
 composer install
-"
+```
 
 3. **Install Node.js dependencies**
-"bash
+```bash
 npm install
-"
+```
 
 4. **Build frontend assets**
 "bash
