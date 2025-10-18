@@ -305,7 +305,6 @@ chmod -R 755 bootstrap/cache
 ### Lead Developer & Project Architect
 
 <img src="https://github.com/Arash-abraham.png" width="100" height="100" style="border-radius: 50%;">
-
 <br>
 
 **Arash Ebrahimian**
@@ -319,16 +318,16 @@ chmod -R 755 bootstrap/cache
 <div>
     
 ### Co-developer & Template Specialist
-    
-<img src="https://github.com/ContributorUsername.png" width="100" height="100" style="border-radius: 50%;">
+
+<img src="https://github.com/iamhosseinzadeh.png" width="100" height="100" style="border-radius: 50%;">
 
 <br>
 
-**Contributor Name**
+**Amir Hossein Hosseinzade**
 
 <br>
 
-[![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=flat&logo=github)](https://github.com/ContributorUsername)
+[![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=flat&logo=github)](https://github.com/iamhosseinzadeh)
 
 </div>
 
