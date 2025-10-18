@@ -308,7 +308,8 @@ chmod -R 755 bootstrap/cache
       <strong>Co-developer & Template Specialist</strong><br>
       <img src="https://github.com/iamhosseinzadeh.png" width="100" height="100" style="border-radius: 50%;"><br>
       <strong>Amir Hossein Hosseinzade</strong><br>
-      [![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=flat&logo=github)](https://github.com/iamhosseinzadeh)
+        
+[![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=flat&logo=github)](https://github.com/iamhosseinzadeh)
     </td>
   </tr>
 </table>
