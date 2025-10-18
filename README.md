@@ -306,7 +306,8 @@ chmod -R 755 bootstrap/cache
         <br>
         <em>Lead Developer & Project Architect</em>
         <br>
-        [![GitHub](https://img.shields.io/badge/🚀_GitHub-000?style=flat&logo=github)](https://github.com/Arash-abraham)
+          
+[![GitHub](https://img.shields.io/badge/🚀_GitHub-000?style=flat&logo=github)](https://github.com/Arash-abraham)
       </div>
     </td>
     <td width="50%" align="right">
@@ -317,7 +318,8 @@ chmod -R 755 bootstrap/cache
         <br>
         <em>Co-developer & Template Specialist</em>
         <br>
-        [![GitHub](https://img.shields.io/badge/🚀_GitHub-000?style=flat&logo=github)](https://github.com/iamhosseinzadeh)
+          
+[![GitHub](https://img.shields.io/badge/🚀_GitHub-000?style=flat&logo=github)](https://github.com/iamhosseinzadeh)
       </div>
     </td>
   </tr>
