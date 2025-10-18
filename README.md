@@ -66,35 +66,35 @@ A modern digital marketplace for PDF books built with Laravel. Purchase, downloa
 ### Installation
 
 1. **Clone the repository**
-"bash
+```bash
 git clone https://github.com/yourusername/filestore.git
 cd filestore
-"
+```
 
 2. **Install PHP dependencies**
-"bash
+```bash
 composer install
-"
+```
 
 3. **Install Node.js dependencies**
-"bash
+```bash
 npm install
-"
+```
 
 4. **Build frontend assets**
-"bash
+```bash
 npm run build
-"
+```
 
 5. **Environment Setup**
-"bash
+```bash
 cp .env.example .env
-"
+```
 
 6. **Configure Environment Variables**
 Edit `.env` file with your configuration:
 
-"env
+```env
 # Basic App Configuration
 APP_NAME=FileStore
 APP_ENV=local
@@ -127,32 +127,32 @@ KAVEHNEGAR_SENDER=your_sender_number
 FILESYSTEM_DISK=public
 MAX_FILE_SIZE=10240
 ALLOWED_FILE_TYPES=pdf
-"
+```
 
 7. **Generate application key**
-"bash
+```bash
 php artisan key:generate
-"
+```
 
 8. **Run database setup**
-"bash
+```bash
 php artisan migrate --seed
-"
+```
 
 9. **Create storage link**
-"bash
+```bash
 php artisan storage:link
-"
+```
 
 10. **Start development server**
-"bash
+```bash
 php artisan serve
-"
+```
 
 ## 📸 Screenshots
 
 ### Home Page
-"https://screenshots/home.png"
+```https://screenshots/home.png```
 *Main landing page with customer satisfaction section, best-selling products, and categories*
 
 ### Products Page
