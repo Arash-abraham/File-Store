@@ -180,7 +180,8 @@ composer run dev
 *User panel => wallet management*
 
 ### Admin Panel
-"https://screenshots/admin.png"
+<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2014-47-05.png">
+
 *Administrative dashboard with analytics and management sections*
 
 ### Shopping Cart
