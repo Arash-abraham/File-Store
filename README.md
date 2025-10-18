@@ -160,7 +160,8 @@ composer run dev
 ## 📸 Screenshots
 
 ### Home Page
-<img src="https://raw.githubusercontent.com/Arash-abraham/A-Train/refs/heads/main/Img/a_train_hd_the_boys-1920x1080.jpg">
+<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-12-55.png">
+
 *Main landing page with customer satisfaction section, best-selling products, and categories*
 
 ### Products Page
