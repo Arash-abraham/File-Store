@@ -298,37 +298,28 @@ chmod -R 755 bootstrap/cache
 
 <div align="center">
 
-<div style="display: flex; justify-content: center; gap: 50px; flex-wrap: wrap;">
+<div style="display: flex; justify-content: center; gap: 50px; align-items: center;">
 
-<div>
+<div style="text-align: center;">
     
 ### Lead Developer & Project Architect
-
 <img src="https://github.com/Arash-abraham.png" width="100" height="100" style="border-radius: 50%;">
 <br>
 
 **Arash Ebrahimian**
-
 <br>
-
 [![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=flat&logo=github)](https://github.com/Arash-abraham)
-
 </div>
 
-<div>
+<div style="text-align: center;">
     
 ### Co-developer & Template Specialist
-
 <img src="https://github.com/iamhosseinzadeh.png" width="100" height="100" style="border-radius: 50%;">
-
 <br>
 
 **Amir Hossein Hosseinzade**
-
 <br>
-
 [![GitHub](https://img.shields.io/badge/GitHub-Profile-blue?style=flat&logo=github)](https://github.com/iamhosseinzadeh)
-
 </div>
 
 </div>
