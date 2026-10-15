@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             FaqsSeeder::class,
             PagesSeeder::class,
             MenusSeeder::class,
+            PrintHousesSeeder::class,
             WalletSeeder::class,
             CartsSeeder::class,
             CartItemsSeeder::class,

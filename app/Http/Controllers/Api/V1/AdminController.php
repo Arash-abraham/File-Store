@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\PageResource;
+use App\Http\Resources\Api\V1\PrintHouseResource;
 use App\Http\Resources\Api\V1\ProductResource;
 use App\Models\Category;
 use App\Models\Coupon;
@@ -13,6 +14,9 @@ use App\Models\Menu;
 use App\Models\Order;
 use App\Models\Page;
 use App\Models\Payment;
+use App\Models\PrintContractRequest;
+use App\Models\PrintHouse;
+use App\Models\PrintOrder;
 use App\Models\Product;
 use App\Models\Review;
 use App\Models\Tag;
@@ -22,6 +26,7 @@ use App\Models\WebSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class AdminController extends Controller
@@ -272,8 +277,7 @@ class AdminController extends Controller
     }
 
     public function pages()
-    {
-        return response()->json([
+    {        return response()->json([
             'data' => Page::query()->orderBy('slug')->get()->map(fn (Page $page) => (new PageResource($page))->resolve()),
         ]);
     }
@@ -464,6 +468,138 @@ class AdminController extends Controller
     {
         Review::query()->findOrFail($id)->delete();
         return response()->json(['message' => 'دیدگاه حذف شد.']);
+    }
+
+    public function printHouses()
+    {
+        return response()->json([
+            'data' => PrintHouse::query()
+                ->withCount('printOrders')
+                ->orderBy('name')
+                ->get()
+                ->map(fn (PrintHouse $house) => (new PrintHouseResource($house))->resolve()),
+        ]);
+    }
+
+    public function storePrintHouse(Request $request)
+    {
+        $data = $this->validatePrintHouse($request);
+
+        return response()->json([
+            'message' => 'چاپخانه ثبت شد.',
+            'data' => (new PrintHouseResource(PrintHouse::query()->create($data)))->resolve(),
+        ], 201);
+    }
+
+    public function updatePrintHouse(Request $request, int $id)
+    {
+        $house = PrintHouse::query()->findOrFail($id);
+        $data = $this->validatePrintHouse($request, $house->id);
+        $house->update($data);
+
+        return response()->json([
+            'message' => 'اطلاعات چاپخانه به‌روز شد.',
+            'data' => (new PrintHouseResource($house->fresh()))->resolve(),
+        ]);
+    }
+
+    public function deletePrintHouse(int $id)
+    {
+        $house = PrintHouse::query()->findOrFail($id);
+
+        if ($house->printOrders()->whereIn('status', ['pending', 'confirmed', 'printing'])->exists()) {
+            return response()->json(['message' => 'این چاپخانه سفارش در جریان دارد؛ ابتدا آن‌ها را تعیین وضعیت کن.'], 422);
+        }
+
+        $house->delete();
+
+        return response()->json(['message' => 'چاپخانه حذف شد.']);
+    }
+
+    public function printContracts()
+    {
+        return response()->json([
+            'data' => PrintContractRequest::query()->latest()->get(),
+        ]);
+    }
+
+    public function updatePrintContract(Request $request, int $id)
+    {
+        $contract = PrintContractRequest::query()->findOrFail($id);
+        $data = $request->validate([
+            'status' => ['required', Rule::in(['pending', 'reviewing', 'approved', 'rejected'])],
+        ]);
+        $contract->update($data);
+
+        return response()->json(['message' => 'وضعیت درخواست قرارداد به‌روز شد.', 'data' => $contract->fresh()]);
+    }
+
+    public function printOrders(Request $request)
+    {
+        $orders = PrintOrder::query()
+            ->with(['user:id,name,email', 'printHouse:id,name,city'])
+            ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
+            ->latest()
+            ->paginate(25);
+
+        return response()->json([
+            'data' => $orders->getCollection()->map(fn (PrintOrder $order) => [
+                'id' => $order->id,
+                'status' => $order->status,
+                'product_title' => $order->product_title,
+                'print_house' => $order->printHouse?->name ?? $order->print_house_name,
+                'customer' => $order->user?->name ?? 'کاربر حذف‌شده',
+                'customer_email' => $order->user?->email,
+                'quantity' => (int) $order->quantity,
+                'total_price' => (int) $order->total_price,
+                'delivery_days' => (int) $order->delivery_days,
+                'shipping_city' => $order->shipping_city,
+                'created_at' => $order->created_at?->toISOString(),
+            ]),
+            'meta' => $this->paginationMeta($orders),
+        ]);
+    }
+
+    public function updatePrintOrder(Request $request, int $id)
+    {
+        $order = PrintOrder::query()->findOrFail($id);
+        $data = $request->validate([
+            'status' => ['required', Rule::in(['pending', 'confirmed', 'printing', 'shipped', 'delivered', 'cancelled'])],
+        ]);
+        $order->update($data);
+
+        return response()->json(['message' => 'وضعیت سفارش چاپی به‌روز شد.', 'data' => ['id' => $order->id, 'status' => $order->status]]);
+    }
+
+    private function validatePrintHouse(Request $request, ?int $ignoreId = null): array
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:150'],
+            'slug' => ['nullable', 'string', 'max:150', 'alpha_dash', Rule::unique('print_houses', 'slug')->ignore($ignoreId)],
+            'city' => ['required', 'string', 'max:80'],
+            'province' => ['nullable', 'string', 'max:80'],
+            'description' => ['nullable', 'string', 'max:2000'],
+            'capabilities' => ['nullable', 'array', 'max:10'],
+            'capabilities.*' => ['string', 'max:80'],
+            'phone' => ['nullable', 'string', 'max:30'],
+            'email' => ['nullable', 'email', 'max:255'],
+            'address' => ['nullable', 'string', 'max:255'],
+            'website' => ['nullable', 'string', 'max:255'],
+            'unit_price' => ['required', 'integer', 'min:0'],
+            'hardcover_surcharge' => ['nullable', 'integer', 'min:0'],
+            'delivery_fee' => ['nullable', 'integer', 'min:0'],
+            'delivery_days' => ['nullable', 'integer', 'min:1', 'max:90'],
+            'min_quantity' => ['nullable', 'integer', 'min:1', 'max:50'],
+            'max_quantity' => ['nullable', 'integer', 'min:1', 'max:50'],
+            'rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
+            'status' => ['nullable', Rule::in(['active', 'inactive', 'pending'])],
+        ]);
+
+        if (empty($data['slug'])) {
+            $data['slug'] = Str::slug($data['name']).'-'.Str::lower(Str::random(4));
+        }
+
+        return $data;
     }
 
     public function payments()

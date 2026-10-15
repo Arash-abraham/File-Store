@@ -1,6 +1,7 @@
+import axios from 'axios';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { api, apiErrorMessage, demoMode, requestCsrfCookie } from './lib/api';
-import { demoAdmin, demoUser } from './data/demo';
+import { demoAdmin, demoOwnedProductIds, demoUser } from './data/demo';
 import type { Cart, Product, User } from './types';
 
 type CheckoutResult = { redirect?: string; orderId?: number | string; paid?: boolean };
@@ -19,6 +20,9 @@ type StoreContextValue = {
   register: (name: string, email: string, password: string, passwordConfirmation: string) => Promise<void>;
   logout: () => Promise<void>;
   updateUser: (user: User) => void;
+  ownedProductIds: number[];
+  ownsProduct: (productId: number) => boolean;
+  refreshLibrary: () => Promise<void>;
   addToCart: (product: Product) => Promise<void>;
   updateQuantity: (id: number | string, quantity: number) => Promise<void>;
   removeFromCart: (id: number | string) => Promise<void>;
@@ -68,6 +72,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Cart>(() => demoMode ? normalizeCart(readJson<Cart>('fs-demo-cart', emptyCart)) : emptyCart);
   const [loginOpen, setLoginOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [ownedProductIds, setOwnedProductIds] = useState<number[]>(() => demoMode ? demoOwnedProductIds : []);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -115,6 +120,32 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         .catch(() => setUser(null));
     }
   }, []);
+
+  /**
+   * Books the reader already paid for. Refreshed on sign-in, after checkout and
+   * whenever the account area reloads, so the storefront never offers a book twice.
+   */
+  const refreshLibrary = useCallback(async () => {
+    if (demoMode) {
+      setOwnedProductIds(demoOwnedProductIds);
+      return;
+    }
+    try {
+      const response = await api.get('/account/library');
+      setOwnedProductIds((response.data.data?.product_ids ?? []) as number[]);
+    } catch {
+      setOwnedProductIds([]);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshLibrary();
+  }, [refreshLibrary, user]);
+
+  const ownsProduct = useCallback(
+    (productId: number) => ownedProductIds.includes(productId),
+    [ownedProductIds],
+  );
 
   const login = useCallback(async (email: string, password: string) => {
     if (demoMode) {
@@ -180,6 +211,13 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    // A digital book is owned once: buying it again is never allowed, and the
+    // button tells the reader why instead of failing later at checkout.
+    if (ownsProduct(product.id)) {
+      setNotice('این کتاب در کتابخانه‌ات هست؛ نیازی به خرید دوباره نیست. از «کتابخانه‌ی من» دانلودش کن.');
+      return;
+    }
+
     if (demoMode) {
       const existing = cart.items.find((item) => item.product_id === product.id);
       const items = existing
@@ -206,9 +244,18 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setCart(normalizeCart(response.data.data));
       setNotice('کتاب به سبد خرید اضافه شد.');
     } catch (error) {
+      const duplicate = axios.isAxiosError(error) && error.response?.status === 422
+        && error.response.data?.reason === 'already_in_cart';
+
+      if (duplicate && error.response?.data?.data) {
+        setCart(normalizeCart(error.response.data.data));
+        setNotice('این کتاب از قبل در سبد خرید توست.');
+        return;
+      }
+
       setNotice(apiErrorMessage(error, 'افزودن کتاب به سبد خرید انجام نشد.'));
     }
-  }, [cart, user]);
+  }, [cart, user, ownsProduct]);
 
   const updateQuantity = useCallback(async (id: number | string, quantity: number) => {
     const nextQuantity = Math.max(1, Math.min(20, quantity));
@@ -274,16 +321,29 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (demoMode) {
       const orderId = Math.floor(2400 + Math.random() * 700);
       if (method === 'wallet' && cart.total > 1250000) throw new Error('موجودی کیف پول آزمایشی کافی نیست.');
+      setOwnedProductIds((current) => [...new Set([...current, ...cart.items.map((item) => item.product_id)])]);
       setCart(emptyCart);
       return { orderId, paid: true };
     }
 
-    const response = await api.post('/checkout', { payment_method: method });
+    let response;
+    try {
+      response = await api.post('/checkout', { payment_method: method });
+    } catch (error) {
+      // The API drops already-owned books from the cart and reports why; mirror that
+      // locally so the reader is not left looking at books they cannot buy.
+      if (axios.isAxiosError(error) && error.response?.status === 422 && error.response.data?.reason === 'already_owned') {
+        await Promise.all([refreshCart(), refreshLibrary()]);
+      }
+      throw error;
+    }
+
     const result = response.data.data;
     if (result.payment_url) return { redirect: result.payment_url, orderId: result.order_id };
     setCart(emptyCart);
+    await refreshLibrary();
     return { orderId: result.order_id, paid: result.status === 'paid' };
-  }, [cart, user]);
+  }, [cart, user, refreshLibrary, refreshCart]);
 
   const value = useMemo<StoreContextValue>(() => ({
     theme,
@@ -304,7 +364,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     applyCoupon,
     removeCoupon,
     checkout,
-  }), [theme, toggleTheme, user, cart, loginOpen, notice, login, register, logout, updateUser, addToCart, updateQuantity, removeFromCart, applyCoupon, removeCoupon, checkout]);
+    ownedProductIds,
+    ownsProduct,
+    refreshLibrary,
+  }), [theme, toggleTheme, user, cart, loginOpen, notice, login, register, logout, updateUser, addToCart, updateQuantity, removeFromCart, applyCoupon, removeCoupon, checkout, ownedProductIds, ownsProduct, refreshLibrary]);
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

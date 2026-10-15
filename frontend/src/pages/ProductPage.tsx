@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Bookmark, Check, CircleCheck, Download, Heart, MessageSquareText, PackageCheck, ShieldCheck, ShoppingBag, Star, Truck, ZoomIn } from 'lucide-react';
+import { ArrowLeft, Bookmark, BookOpenCheck, Check, CircleCheck, Download, Heart, MessageSquareText, PackageCheck, Printer, ShieldCheck, ShoppingBag, Star, Truck, ZoomIn } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, demoMode } from '../lib/api';
 import { demoProducts, demoReviews } from '../data/demo';
 import { formatDate, formatPrice } from '../lib/format';
 import type { Product, Review } from '../types';
 import ProductCard from '../components/ProductCard';
+import PrintOrderForm from '../components/PrintOrderForm';
 import { useStore } from '../StoreContext';
 
 type ProductDetail = { product: Product; files: { id: number; name: string; size?: string; type: string }[]; reviews: Review[] };
@@ -14,9 +15,10 @@ type ProductDetail = { product: Product; files: { id: number; name: string; size
 export default function ProductPage() {
   const { slug = '' } = useParams();
   const navigate = useNavigate();
-  const { addToCart, setNotice, setLoginOpen, user } = useStore();
+  const { addToCart, setNotice, setLoginOpen, user, ownsProduct } = useStore();
   const [activeTab, setActiveTab] = useState<'overview' | 'features' | 'reviews'>('overview');
   const [saved, setSaved] = useState(false);
+  const [printOpen, setPrintOpen] = useState(false);
   const { data, isLoading, isError } = useQuery({
     queryKey: ['product', slug],
     queryFn: async (): Promise<ProductDetail> => {
@@ -35,6 +37,7 @@ export default function ProductPage() {
 
   const { product, files, reviews } = data;
   const related = demoProducts.filter((item) => item.id !== product.id).slice(0, 3);
+  const owned = ownsProduct(product.id);
 
   async function buyNow() {
     if (!demoMode && !user) {
@@ -65,8 +68,34 @@ export default function ProductPage() {
           <div className="product-rating-row"><div className="stars">{[0, 1, 2, 3, 4].map((star) => <Star key={star} size={16} fill={star < Math.round(product.rating) ? 'currentColor' : 'none'} />)}</div><b>{product.rating.toLocaleString('fa-IR')}</b><button onClick={() => setActiveTab('reviews')}>({product.reviews_count.toLocaleString('fa-IR')} دیدگاه)</button><span className="rating-separator" /> <span className="sales-note">پیشنهاد خواننده‌ها</span></div>
           <div className="detail-divider" />
           <div className="product-price-row"><div className="product-price-main"><b>{formatPrice(product.price)}</b>{product.original_price > product.price && <del>{formatPrice(product.original_price)}</del>}</div>{product.discount_percent > 0 && <span className="detail-discount">{product.discount_percent.toLocaleString('fa-IR')}٪ کمتر</span>}</div>
-          <div className="purchase-actions"><button className="button button-primary button-buy" onClick={() => void buyNow()}><ShoppingBag size={18} /> افزودن به سبد خرید <ArrowLeft size={17} /></button><button className={`button button-icon-only ${saved ? 'is-saved' : ''}`} onClick={() => setSaved(!saved)} aria-label="ذخیره کتاب"><Heart size={18} /></button></div>
-          <div className="product-assurances"><div><span><Download size={16} /></span><b>دریافت فوری</b><small>پس از پرداخت</small></div><div><span><PackageCheck size={16} /></span><b>فایل باکیفیت</b><small>نسخه‌ی اصلی PDF</small></div><div><span><Truck size={16} /></span><b>بدون هزینه‌ی ارسال</b><small>کاملاً دیجیتال</small></div></div>
+          {owned ? (
+            <div className="owned-panel">
+              <span className="owned-panel-icon"><BookOpenCheck size={19} /></span>
+              <div>
+                <b>این کتاب را قبلاً خریده‌ای</b>
+                <small>یک‌بار خرید کافی است؛ فایل‌ها همیشه در کتابخانه‌ات می‌مانند.</small>
+              </div>
+              <Link className="button button-primary button-small" to="/account?tab=library">رفتن به کتابخانه‌ی من <ArrowLeft size={15} /></Link>
+            </div>
+          ) : (
+            <div className="purchase-actions"><button className="button button-primary button-buy" onClick={() => void buyNow()}><ShoppingBag size={18} /> افزودن به سبد خرید <ArrowLeft size={17} /></button><button className={`button button-icon-only ${saved ? 'is-saved' : ''}`} onClick={() => setSaved(!saved)} aria-label="ذخیره کتاب"><Heart size={18} /></button></div>
+          )}
+          <div className="product-assurances"><div><span><Download size={16} /></span><b>دریافت فوری</b><small>پس از پرداخت</small></div><div><span><PackageCheck size={16} /></span><b>فایل باکیفیت</b><small>نسخه‌ی اصلی PDF</small></div><div><span><Truck size={16} /></span><b>نسخه‌ی کاغذی هم داری</b><small>سفارش چاپ از چاپخانه‌های همکار</small></div></div>
+
+          <div className="print-teaser">
+            <div className="print-teaser-copy">
+              <span className="print-teaser-icon"><Printer size={18} /></span>
+              <div>
+                <b>این کتاب را چاپ‌شده می‌خواهی؟</b>
+                <small>{owned ? 'چون نسخه‌ی دیجیتال را داری، ۱۵٪ تخفیف چاپ می‌گیری.' : 'کاغذ، صحافی و تیراژ را انتخاب کن؛ چاپخانه‌ی همکار چاپش می‌کند.'}</small>
+              </div>
+            </div>
+            <button className="button button-outline button-small" onClick={() => setPrintOpen(!printOpen)} aria-expanded={printOpen}>
+              {printOpen ? 'بستن فرم' : 'سفارش نسخه‌ی چاپی'} <Printer size={15} />
+            </button>
+          </div>
+
+          {printOpen && <PrintOrderForm product={product} compact />}
           <div className="detail-tabs"><button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>درباره‌ی کتاب</button><button className={activeTab === 'features' ? 'active' : ''} onClick={() => setActiveTab('features')}>مشخصات فایل</button><button className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}>دیدگاه‌ها</button></div>
           <div className="detail-tab-panel">
             {activeTab === 'overview' && <><h3>برای کنجکاوها، نه فقط متخصص‌ها</h3><p>{product.description} این نسخه برای مطالعه‌ی راحت روی موبایل، تبلت و رایانه آماده شده است.</p><div className="feature-check-list">{product.key_features.map((feature) => <span key={feature}><Check size={15} /> {feature}</span>)}</div></>}

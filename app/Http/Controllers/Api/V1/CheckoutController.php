@@ -41,17 +41,34 @@ class CheckoutController extends Controller
         }
 
         $productIds = $cart->items->pluck('product_id')->all();
-        $alreadyOwned = OrderItem::query()
+        $alreadyOwned = $user->paidOrderItems()
             ->whereIn('product_id', $productIds)
-            ->whereHas('order', fn ($query) => $query->where('user_id', $user->id)->where('status', 'paid'))
             ->pluck('product_id')
             ->unique()
             ->values();
 
         if ($alreadyOwned->isNotEmpty()) {
+            // Free the cart from books the reader already owns, so the next attempt
+            // only contains what is actually left to buy.
+            $ownedTitles = $cart->items
+                ->whereIn('product_id', $alreadyOwned)
+                ->map(fn ($item) => $item->product?->title ?? 'کتاب')
+                ->values();
+
+            $cart->items()->whereIn('product_id', $alreadyOwned)->delete();
+
+            if ($cart->items()->count() === 0) {
+                $cart->update(['discount' => 0, 'coupon_code' => null]);
+            } else {
+                $remaining = (int) $cart->items()->with('product')->get()->sum(fn ($item) => (int) $item->product->final_price);
+                $cart->update(['discount' => min((int) $cart->discount, $remaining)]);
+            }
+
             return response()->json([
-                'message' => 'شما قبلاً یکی از محصولات این سبد را خریده‌اید.',
+                'message' => 'این کتاب‌ها را قبلاً خریده‌ای و از سبد حذف شدند: '.$ownedTitles->implode('، '),
+                'reason' => 'already_owned',
                 'owned_product_ids' => $alreadyOwned,
+                'owned_titles' => $ownedTitles,
             ], 422);
         }
 

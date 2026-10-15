@@ -135,3 +135,80 @@ export type Order = {
   created_at?: string;
   items: { id: number; product_id: number; title: string; unit_price: number; quantity: number; subtotal: number }[];
 };
+
+export type PrintHouse = {
+  id: number;
+  name: string;
+  slug: string;
+  city: string;
+  province?: string | null;
+  description?: string | null;
+  capabilities: string[];
+  phone?: string | null;
+  email?: string | null;
+  website?: string | null;
+  unit_price: number;
+  hardcover_surcharge: number;
+  delivery_fee: number;
+  delivery_days: number;
+  min_quantity: number;
+  max_quantity: number;
+  rating: number;
+  orders_count?: number;
+};
+
+export type PrintOptions = {
+  paper_types: { value: string; label: string }[];
+  bindings: { value: string; label: string }[];
+  color_surcharge: number;
+  digital_owner_discount: number;
+};
+
+export type PrintQuote = {
+  unit_price: number;
+  subtotal: number;
+  delivery_fee: number;
+  discount_amount: number;
+  total_price: number;
+  delivery_days: number;
+  min_quantity: number;
+  max_quantity: number;
+  breakdown: { label: string; amount: number }[];
+  digital_owner: boolean;
+  print_house?: { id: number; name: string; city?: string | null };
+};
+
+export type PrintOrder = {
+  id: number;
+  status: 'pending' | 'confirmed' | 'printing' | 'shipped' | 'delivered' | 'cancelled' | string;
+  product: { id: number; title: string; slug?: string | null; cover_url?: string | null };
+  print_house: { id?: number | null; name?: string | null; city?: string | null; phone?: string | null };
+  quantity: number;
+  paper_type: string;
+  paper_label: string;
+  binding: string;
+  binding_label: string;
+  color_print: boolean;
+  unit_price: number;
+  delivery_fee: number;
+  discount_amount: number;
+  total_price: number;
+  digital_owner: boolean;
+  delivery_days: number;
+  shipping: { name: string; phone: string; city: string; address: string; postal_code?: string | null };
+  created_at?: string | null;
+};
+
+export type LibraryBook = {
+  id: number;
+  slug: string;
+  title: string;
+  cover_url?: string | null;
+  purchased_at?: string | null;
+};
+
+export type Library = {
+  product_ids: number[];
+  products: LibraryBook[];
+  stats: { owned_books: number; print_orders: number };
+};

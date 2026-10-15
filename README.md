@@ -16,6 +16,8 @@ The screenshot below shows the storefront in demo mode.
 - Light and dark themes, with system-preference detection and a persistent theme toggle.
 - Home page, category browsing, product detail pages, ratings, and reviews.
 - Instant search suggestions plus an advanced catalog search with price range, rating, discount, and availability filters kept in the URL.
+- Owned books are never sold twice: the storefront marks them, hides the buy action, and the API refuses to add or charge for them again.
+- Print-on-demand section: a directory of partner printing houses, a partnership contract form for printing houses, and per-book print orders with paper, binding, and quantity options.
 - API-driven static pages (starting with «adرباره ما») with structured content the admin can edit from the dashboard.
 - Authenticated cart, coupon codes, checkout, wallet payments, and optional Zarinpal integration.
 - Customer accounts, order history, personal library, protected downloads, and support tickets.
@@ -150,14 +152,19 @@ All API v1 endpoints are under `/api/v1`. Successful JSON responses are generall
 
 | Group | Endpoints |
 |---|---|
-| Public storefront | `GET /health`, `/home`, `/products`, `/products/{slug}`, `/search/suggest`, `/categories`, `/faqs`, `/pages/{slug}`, `/navigation`, `/settings` |
+| Public storefront | `GET /health`, `/home`, `/products`, `/products/{slug}`, `/search/suggest`, `/categories`, `/faqs`, `/pages/{slug}`, `/print-houses`, `/navigation`, `/settings` |
 | Authentication | `POST /auth/register`, `/auth/login`, `/auth/forgot-password`, `/auth/reset-password`; `GET /auth/me`; `POST /auth/logout` |
 | Cart and checkout | `GET /cart`; `POST /cart/items`, `/cart/coupon`, `/checkout`; `PATCH /cart/items/{itemId}`; `DELETE /cart/items/{itemId}`, `/cart/coupon` |
-| Account | `GET/PUT /account/profile`; `GET /account/overview`, `/account/orders`, `/account/downloads`, `/account/tickets`; `POST /account/tickets` |
+| Account | `GET/PUT /account/profile`; `GET /account/overview`, `/account/library`, `/account/orders`, `/account/downloads`, `/account/print-orders`, `/account/tickets`; `POST /account/tickets` |
 | Wallet and reviews | `GET /wallet`; `POST /wallet/deposits`, `/reviews`, `/reviews/{review}/helpful`, `/reviews/{review}/report` |
-| Administration | `/admin/dashboard`, `/admin/products`, `/admin/categories`, `/admin/tags`, `/admin/coupons`, `/admin/faqs`, `/admin/pages`, `/admin/menus`, `/admin/tickets`, `/admin/reviews`, `/admin/payments`, `/admin/settings` |
+| Printing | `POST /print-houses/contract-requests`; `POST /print-orders`, `/print-orders/quote` (authenticated) |
+| Administration | `/admin/dashboard`, `/admin/products`, `/admin/categories`, `/admin/tags`, `/admin/coupons`, `/admin/faqs`, `/admin/pages`, `/admin/menus`, `/admin/tickets`, `/admin/reviews`, `/admin/payments`, `/admin/print-houses`, `/admin/print-contracts`, `/admin/print-orders`, `/admin/settings` |
 
 `GET /products` powers the catalog and its advanced search. It accepts `q`, `category`, `tag`, `price_min`, `price_max`, `min_rating`, `on_sale`, `has_files` and `sort` (`popular`, `newest`, `rating`, `discount`, `price_asc`, `price_desc`); the filters that were actually applied are echoed back under `meta.filters`. `GET /search/suggest?q=` returns instant product and category suggestions for the storefront search box.
+
+A digital book is owned once per account: `POST /cart/items` refuses a title that is already in the reader's library (or already in the cart), and `POST /checkout` removes and reports any owned titles it finds before charging. `GET /account/library` returns the owned product ids the storefront uses to mark owned titles and to hide the buy action.
+
+Physical printing: `GET /print-houses` lists the partner printing houses with their prices and delivery times, `POST /print-houses/contract-requests` lets a printing house apply for a partnership contract, and readers order a printed copy through `POST /print-orders` (price it first with `POST /print-orders/quote`). Printing-house profiles, contract requests and print orders are managed from the admin dashboard.
 
 Admin endpoints require an authenticated Sanctum session with the `admin` role. Download endpoints verify access to a paid order before serving private product files. API documentation is available at `/docs/api` when the Scramble package is enabled.
 

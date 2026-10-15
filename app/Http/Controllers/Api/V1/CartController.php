@@ -8,7 +8,6 @@ use App\Models\CartItem;
 use App\Models\Coupon;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class CartController extends Controller
@@ -25,30 +24,37 @@ class CartController extends Controller
             'quantity' => ['sometimes', 'integer', 'min:1', 'max:20'],
         ]);
 
+        $user = $request->user();
         $product = Product::query()->active()->findOrFail($data['product_id']);
-        $quantity = $data['quantity'] ?? 1;
-        $cart = $this->activeCart($request->user()->id, true);
-        $unitPrice = (int) $product->final_price;
 
-        DB::transaction(function () use ($cart, $product, $quantity, $unitPrice) {
-            $item = $cart->items()->where('product_id', $product->id)->lockForUpdate()->first();
-            $newQuantity = min(20, ($item?->quantity ?? 0) + $quantity);
+        // A digital licence is bought once per account: ownership is checked before
+        // the book can even enter the cart, not only at checkout.
+        if ($user->ownsProduct($product->id)) {
+            return response()->json([
+                'message' => 'این کتاب را قبلاً خریده‌ای و در کتابخانه‌ات موجود است.',
+                'reason' => 'already_owned',
+                'product_id' => $product->id,
+            ], 422);
+        }
 
-            if ($item) {
-                $item->update([
-                    'quantity' => $newQuantity,
-                    'unit_price' => $unitPrice,
-                    'subtotal' => $unitPrice * $newQuantity,
-                ]);
-            } else {
-                $cart->items()->create([
-                    'product_id' => $product->id,
-                    'quantity' => $newQuantity,
-                    'unit_price' => $unitPrice,
-                    'subtotal' => $unitPrice * $newQuantity,
-                ]);
-            }
-        });
+        $cart = $this->activeCart($user->id, true);
+
+        if ($cart->items()->where('product_id', $product->id)->exists()) {
+            return response()->json([
+                'message' => 'این کتاب همین حالا در سبد خرید توست.',
+                'reason' => 'already_in_cart',
+                'product_id' => $product->id,
+                'data' => $this->cartPayload($cart->fresh()),
+            ], 422);
+        }
+
+        // Digital products are always a single copy: quantity stays at one.
+        $cart->items()->create([
+            'product_id' => $product->id,
+            'quantity' => 1,
+            'unit_price' => (int) $product->final_price,
+            'subtotal' => (int) $product->final_price,
+        ]);
 
         return response()->json(['data' => $this->cartPayload($cart->fresh())], 201);
     }
@@ -61,9 +67,9 @@ class CartController extends Controller
         $unitPrice = (int) $item->product->final_price;
 
         $item->update([
-            'quantity' => $data['quantity'],
+            'quantity' => 1,
             'unit_price' => $unitPrice,
-            'subtotal' => $unitPrice * $data['quantity'],
+            'subtotal' => $unitPrice,
         ]);
 
         return response()->json(['data' => $this->cartPayload($cart->fresh())]);

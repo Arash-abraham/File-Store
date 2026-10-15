@@ -1,17 +1,20 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ArrowUpLeft, BookOpen, Check, CircleHelp, Download, LayoutDashboard, LibraryBig, LogOut, Package, Settings2, Ticket, UserRound, Wallet, X } from 'lucide-react';
+import { ArrowLeft, ArrowUpLeft, BookOpen, Check, CircleHelp, Download, LayoutDashboard, LibraryBig, LogOut, Package, Printer, Settings2, Ticket, UserRound, Wallet, X } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api, apiErrorMessage, demoMode } from '../lib/api';
 import { demoProducts } from '../data/demo';
 import { formatDate, formatPrice } from '../lib/format';
-import type { Order } from '../types';
+import { printStatusLabels } from '../components/PrintOrderForm';
+import { demoPrintOrders } from '../data/demo';
+import type { Order, PrintOrder } from '../types';
 import { useStore } from '../StoreContext';
 
 const accountTabs = [
   { id: 'overview', label: 'نمای کلی', icon: LayoutDashboard },
   { id: 'library', label: 'کتابخانه‌ی من', icon: LibraryBig },
   { id: 'orders', label: 'سفارش‌ها', icon: Package },
+  { id: 'prints', label: 'سفارش‌های چاپی', icon: Printer },
   { id: 'wallet', label: 'کیف پول', icon: Wallet },
   { id: 'support', label: 'پشتیبانی', icon: Ticket },
   { id: 'profile', label: 'اطلاعات حساب', icon: Settings2 },
@@ -68,6 +71,13 @@ export default function AccountPage() {
     queryKey: ['account-downloads', user?.id],
     enabled: !!user && activeTab === 'library',
     queryFn: async () => demoMode ? [{ id: 1, name: 'نسخه‌ی دیجیتال کتاب', type: 'PDF', size: 'PDF', product: { title: demoProducts[0].title, slug: demoProducts[0].slug, cover_url: demoProducts[0].cover_url } }] : (await api.get('/account/downloads')).data.data,
+  });
+  const printOrdersQuery = useQuery<PrintOrder[]>({
+    queryKey: ['print-orders', user?.id],
+    enabled: !!user && activeTab === 'prints',
+    queryFn: async () => demoMode
+      ? demoPrintOrders as unknown as PrintOrder[]
+      : (await api.get('/print-orders')).data.data as PrintOrder[],
   });
   const ticketsQuery = useQuery({
     queryKey: ['account-tickets', user?.id],
@@ -173,6 +183,8 @@ export default function AccountPage() {
           </>}
 
           {activeTab === 'library' && <div className="account-panel"><div className="account-panel-heading"><div><h3>کتابخانه‌ی من</h3><p>هر خرید، برای همیشه در دسترس تو</p></div></div>{downloadsQuery.isLoading ? <div className="loading-inline">در حال بارگذاری کتابخانه…</div> : downloadsQuery.data?.length ? <div className="library-list">{downloadsQuery.data.map((file: any) => <article key={file.id} className="library-item"><div className="library-cover">{file.product?.cover_url ? <img src={file.product.cover_url} alt="" /> : <BookOpen size={22} />}</div><div className="library-info"><b>{file.product?.title ?? file.name}</b><small>{file.name} · {file.type ?? 'PDF'} · {file.size ?? 'نسخه‌ی دیجیتال'}</small></div>{demoMode ? <button className="button button-small button-outline" onClick={() => setNotice('دانلود در حالت نمایشی شبیه‌سازی شده است.')}><Download size={15} /> دریافت</button> : <a className="button button-small button-outline" href={file.download_url} target="_blank" rel="noreferrer"><Download size={15} /> دریافت</a>}</article>)}</div> : <div className="empty-inline"><LibraryBig size={26} /><b>هنوز کتابی اینجا نیست.</b><Link to="/catalog">رفتن به قفسه‌ی کتاب‌ها <ArrowLeft size={14} /></Link></div>}</div>}
+
+          {activeTab === 'prints' && <div className="account-panel"><div className="account-panel-heading"><div><h3>سفارش‌های چاپی</h3><p>نسخه‌های کاغذی که سفارش داده‌ای</p></div><Link className="text-link" to="/print">فهرست چاپخانه‌ها <ArrowLeft size={14} /></Link></div>{printOrdersQuery.isLoading ? <div className="loading-inline">در حال بارگذاری…</div> : printOrdersQuery.data?.length ? <div className="print-order-list">{printOrdersQuery.data.map((order) => <article className="print-order-row" key={order.id}><div className="print-order-cover">{order.product.cover_url ? <img src={order.product.cover_url} alt="" /> : <BookOpen size={20} />}</div><div className="print-order-main"><b>{order.product.title}</b><small>{order.print_house.name} · {order.print_house.city} · {order.quantity.toLocaleString('fa-IR')} نسخه</small><span className="print-order-specs">{order.paper_label} · صحافی {order.binding_label}{order.color_print ? ' · رنگی' : ''}{order.digital_owner ? ' · تخفیف دارنده‌ی نسخه‌ی دیجیتال' : ''}</span></div><div className="print-order-side"><span className={`print-status ${order.status}`}>{printStatusLabels[order.status] ?? order.status}</span><b>{formatPrice(order.total_price)}</b><small>تحویل حدود {order.delivery_days.toLocaleString('fa-IR')} روز · {formatDate(order.created_at)}</small></div></article>)}</div> : <div className="empty-inline"><Printer size={26} /><b>هنوز نسخه‌ی کاغذی سفارش نداده‌ای.</b><p>از صفحه‌ی هر کتاب می‌توانی نسخه‌ی چاپی سفارش بدهی.</p><Link to="/print">دیدن چاپخانه‌ها <ArrowLeft size={14} /></Link></div>}</div>}
 
           {activeTab === 'orders' && <div className="account-panel"><div className="account-panel-heading"><div><h3>تاریخچه‌ی سفارش‌ها</h3><p>همه‌ی خریدها و وضعیت پرداخت</p></div></div>{ordersQuery.isLoading ? <div className="loading-inline">در حال بارگذاری…</div> : <OrderList orders={ordersQuery.data ?? []} />}</div>}
 

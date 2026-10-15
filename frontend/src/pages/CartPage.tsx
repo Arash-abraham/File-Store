@@ -1,13 +1,13 @@
 import { useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ArrowRight, Check, CreditCard, Gift, Minus, Plus, ShieldCheck, ShoppingBag, Trash2, Wallet } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Check, CreditCard, Gift, ShieldCheck, ShoppingBag, Trash2, Wallet } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../StoreContext';
 import { formatPrice } from '../lib/format';
 import { api, demoMode } from '../lib/api';
 
 export default function CartPage() {
-  const { cart, user, updateQuantity, removeFromCart, applyCoupon, removeCoupon, checkout, setNotice, setLoginOpen } = useStore();
+  const { cart, user, removeFromCart, applyCoupon, removeCoupon, checkout, setNotice, setLoginOpen } = useStore();
   const [coupon, setCoupon] = useState('');
   const [couponError, setCouponError] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'zarinpal' | 'wallet'>('zarinpal');
@@ -62,7 +62,7 @@ export default function CartPage() {
             {cart.items.map((item) => <article className="cart-line" key={item.id}>
               <Link to={`/book/${item.slug}`} className="cart-line-cover">{item.cover_url ? <img src={item.cover_url} alt={item.title} /> : <span>کتاب</span>}</Link>
               <div className="cart-line-main"><Link to={`/book/${item.slug}`} className="cart-line-title">{item.title}</Link><small>نسخه‌ی دیجیتال · PDF</small><button className="cart-line-remove" onClick={() => void removeFromCart(item.id)}><Trash2 size={14} /> حذف از سبد</button></div>
-              <div className="cart-line-qty"><button onClick={() => void updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1} aria-label="کم کردن تعداد"><Minus size={13} /></button><span>{item.quantity.toLocaleString('fa-IR')}</span><button onClick={() => void updateQuantity(item.id, item.quantity + 1)} aria-label="زیاد کردن تعداد"><Plus size={13} /></button></div>
+              <div className="cart-line-qty is-single"><span title="کتاب دیجیتال تک‌نسخه است"><Check size={13} /> یک نسخه</span></div>
               <div className="cart-line-price"><b>{formatPrice(item.subtotal)}</b><small>{formatPrice(item.unit_price)} / هر کتاب</small></div>
             </article>)}
             <div className="cart-promise"><ShieldCheck size={17} /><span>خرید امن است؛ فایل کتاب‌ها بعد از پرداخت در کتابخانه‌ی شما می‌ماند.</span></div>

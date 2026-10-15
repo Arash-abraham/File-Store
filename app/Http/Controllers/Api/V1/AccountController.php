@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FileProduct;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\PrintOrder;
 use App\Models\Ticket;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
@@ -88,8 +89,7 @@ class AccountController extends Controller
     }
 
     public function downloads(Request $request)
-    {
-        $productIds = OrderItem::query()
+    {        $productIds = OrderItem::query()
             ->whereHas('order', fn ($query) => $query->where('user_id', $request->user()->id)->where('status', 'paid'))
             ->pluck('product_id')
             ->unique();
@@ -114,6 +114,42 @@ class AccountController extends Controller
             ]);
 
         return response()->json(['data' => $files]);
+    }
+
+    /**
+     * Books the reader owns. The storefront uses `product_ids` to mark owned
+     * titles everywhere and to block a second purchase.
+     */
+    public function library(Request $request)
+    {
+        $items = OrderItem::query()
+            ->whereHas('order', fn ($query) => $query->where('user_id', $request->user()->id)->where('status', 'paid'))
+            ->with(['product:id,title,slug,image_urls,price,original_price', 'order:id,paid_at,created_at'])
+            ->latest('id')
+            ->get();
+
+        $products = $items
+            ->filter(fn (OrderItem $item) => $item->product !== null)
+            ->map(fn (OrderItem $item) => [
+                'id' => $item->product->id,
+                'slug' => $item->product->slug,
+                'title' => $item->product->title,
+                'cover_url' => $this->publicImageUrl($item->product->image_urls[0] ?? null),
+                'purchased_at' => ($item->order?->paid_at ?? $item->order?->created_at)?->toISOString(),
+            ])
+            ->unique('id')
+            ->values();
+
+        return response()->json([
+            'data' => [
+                'product_ids' => $products->pluck('id')->values(),
+                'products' => $products,
+                'stats' => [
+                    'owned_books' => $products->count(),
+                    'print_orders' => PrintOrder::query()->where('user_id', $request->user()->id)->count(),
+                ],
+            ],
+        ]);
     }
 
     public function download(Request $request, int $fileId)

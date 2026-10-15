@@ -10,6 +10,7 @@ import HomePage from './pages/HomePage';
 import NotFoundPage from './pages/NotFoundPage';
 import ProductPage from './pages/ProductPage';
 import PasswordResetPage from './pages/PasswordResetPage';
+import PrintPage from './pages/PrintPage';
 import { AboutPage, FaqPage } from './pages/StaticPages';
 
 function WalletCallbackRedirect() {
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="reset-password" element={<PasswordResetPage />} />
             <Route path="admin" element={<AdminPage />} />
             <Route path="about" element={<AboutPage />} />
+            <Route path="print" element={<PrintPage />} />
             <Route path="faq" element={<FaqPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Route>

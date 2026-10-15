@@ -82,6 +82,7 @@ export default function MainNav({ menuOpen, onNavigate }: { menuOpen: boolean; o
           </div>
         </div>
 
+        <NavLink to="/print" className="nav-link" onClick={onNavigate}>چاپ کتاب</NavLink>
         <NavLink to="/about" className="nav-link" onClick={onNavigate}>داستان ما</NavLink>
         <NavLink to="/faq" className="nav-link" onClick={onNavigate}>راهنما</NavLink>
       </div>

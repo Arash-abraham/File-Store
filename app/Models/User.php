@@ -54,6 +54,27 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->role === 'admin';
     }
 
+    /**
+     * Items from orders that are actually paid for. Ownership of a digital book
+     * always resolves through this relation, never through the cart.
+     */
+    public function paidOrderItems()
+    {
+        return OrderItem::query()
+            ->whereHas('order', fn ($query) => $query->where('user_id', $this->id)->where('status', 'paid'));
+    }
+
+    /** @return array<int, int> */
+    public function ownedProductIds(): array
+    {
+        return $this->paidOrderItems()->pluck('product_id')->unique()->values()->all();
+    }
+
+    public function ownsProduct(int $productId): bool
+    {
+        return $this->paidOrderItems()->where('product_id', $productId)->exists();
+    }
+
     public function sendEmailVerificationNotification(): void
     {
         $this->notify(new CustomVerifyEmail());

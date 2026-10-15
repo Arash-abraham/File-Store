@@ -1,4 +1,4 @@
-import type { Category, Product, StorePage, User } from '../types';
+import type { Category, PrintHouse, Product, StorePage, User } from '../types';
 
 export const demoCategories: Category[] = [
   { id: 1, name: 'برنامه‌نویسی', slug: 'programming', icon: 'code', color: 'indigo', products_count: 3 },
@@ -188,3 +188,60 @@ export const demoAboutPage: StorePage = {
     },
   },
 };
+
+/**
+ * Mirror of `PrintHousesSeeder` so the print section works in demo mode.
+ */
+export const demoPrintHouses: PrintHouse[] = [
+  { id: 1, name: 'چاپخانه‌ی نقش جهان', slug: 'naqsh-jahan', city: 'تهران', province: 'تهران', description: 'چاپ و صحافی کتاب با کاغذ تحریر و گلاسه؛ تیراژ کم و سفارش تک‌نسخه هم می‌پذیریم.', capabilities: ['کاغذ تحریر', 'گلاسه', 'صحافی سخت', 'چاپ رنگی'], phone: '021-55667788', email: 'order@naqshjahan.example', website: 'https://naqshjahan.example', unit_price: 245000, hardcover_surcharge: 95000, delivery_fee: 65000, delivery_days: 5, min_quantity: 1, max_quantity: 10, rating: 4.8, orders_count: 42 },
+  { id: 2, name: 'مجموعه‌ی چاپ آفتاب', slug: 'aftab-print', city: 'اصفهان', province: 'اصفهان', description: 'تخصص ما چاپ رنگی و جلد سخت برای کتاب‌های هنری و دانشگاهی است.', capabilities: ['چاپ رنگی', 'صحافی سخت', 'گلاسه', 'ارسال سراسری'], phone: '031-32233445', email: 'hello@aftabprint.example', website: null, unit_price: 268000, hardcover_surcharge: 78000, delivery_fee: 72000, delivery_days: 6, min_quantity: 1, max_quantity: 15, rating: 4.6, orders_count: 28 },
+  { id: 3, name: 'چاپ و صحافی پارس', slug: 'pars-print', city: 'مشهد', province: 'خراسان رضوی', description: 'قیمت مناسب برای سفارش‌های چندنسخه‌ای با کاغذ کرافت و صحافی فنر.', capabilities: ['کاغذ کرافت', 'صحافی فنر', 'تیراژ بالا', 'قیمت اقتصادی'], phone: '051-37654321', email: 'salam@parsprint.example', website: null, unit_price: 198000, hardcover_surcharge: 88000, delivery_fee: 58000, delivery_days: 7, min_quantity: 2, max_quantity: 20, rating: 4.4, orders_count: 61 },
+  { id: 4, name: 'چاپخانه‌ی مدرن شیراز', slug: 'modern-shiraz', city: 'شیراز', province: 'فارس', description: 'چاپ سریع کتاب با تحویل یک‌هفته‌ای و بسته‌بندی شکیل برای هدیه.', capabilities: ['تحویل سریع', 'بسته‌بندی هدیه', 'کاغذ تحریر', 'چاپ رنگی'], phone: '071-36221100', email: 'info@modernshiraz.example', website: 'https://modernshiraz.example', unit_price: 232000, hardcover_surcharge: 84000, delivery_fee: 60000, delivery_days: 4, min_quantity: 1, max_quantity: 12, rating: 4.9, orders_count: 35 },
+  { id: 5, name: 'چاپخانه‌ی تبریز آرا', slug: 'tabriz-ara', city: 'تبریز', province: 'آذربایجان شرقی', description: 'چاپ تخصصی کتاب‌های فنی و مهندسی با نقشه‌ها و جدول‌های تخصصی.', capabilities: ['کتاب فنی', 'کاغذ گلاسه', 'صحافی سخت', 'تیراژ بالا'], phone: '041-33344556', email: 'base@tabrizara.example', website: null, unit_price: 255000, hardcover_surcharge: 90000, delivery_fee: 68000, delivery_days: 8, min_quantity: 1, max_quantity: 20, rating: 4.5, orders_count: 19 },
+];
+
+export const demoPrintOptions = {
+  paper_types: [
+    { value: 'standard', label: 'کاغذ تحریر معمولی' },
+    { value: 'cream', label: 'کاغذ کرافت/کرم' },
+    { value: 'premium', label: 'کاغذ گلاسه‌ی درجه‌یک' },
+  ],
+  bindings: [
+    { value: 'paperback', label: 'شومیز' },
+    { value: 'hardcover', label: 'سخت (گالینگور)' },
+    { value: 'spiral', label: 'فنر' },
+  ],
+  color_surcharge: 45000,
+  digital_owner_discount: 0.15,
+};
+
+/**
+ * Demo ownership: books the demo reader supposedly bought already.
+ */
+export const demoOwnedProductIds: number[] = [2];
+
+/**
+ * Demo print orders shown in the account area before the API is connected.
+ */
+export const demoPrintOrders = [
+  {
+    id: 3101,
+    status: 'printing',
+    product: { id: 1, title: 'لینوکس برای هکرها', slug: 'linux-for-hackers', cover_url: '/images/books/linux-basics.svg' },
+    print_house: { id: 1, name: 'چاپخانه‌ی نقش جهان', city: 'تهران', phone: '021-55667788' },
+    quantity: 1,
+    paper_type: 'premium',
+    paper_label: 'کاغذ گلاسه‌ی درجه‌یک',
+    binding: 'hardcover',
+    binding_label: 'سخت (گالینگور)',
+    color_print: false,
+    unit_price: 340000,
+    delivery_fee: 65000,
+    discount_amount: 51000,
+    total_price: 354000,
+    digital_owner: true,
+    delivery_days: 5,
+    shipping: { name: 'آرمان رضایی', phone: '09123334444', city: 'تهران', address: 'خیابان آزادی، پلاک ۱۲', postal_code: '1418754512' },
+    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+  },
+];

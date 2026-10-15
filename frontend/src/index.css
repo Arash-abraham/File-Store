@@ -1668,3 +1668,206 @@ main { flex: 1; }
   .price-range { grid-template-columns: 1fr; }
   .filter-block { padding: 13px; }
 }
+
+/* Owned books: a title that is already in the reader's library is never sold twice */
+.owned-badge { position: absolute; z-index: 3; top: 10px; inset-inline-start: 10px; display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 20px; color: #1f4a38; background: #dff0e4; font-size: 0.75rem; font-weight: 700; box-shadow: 0 6px 14px rgba(31, 74, 56, .16); }
+.owned-note { display: inline-flex; align-items: center; gap: 6px; color: var(--green); font-size: 0.75rem; font-weight: 700; line-height: 1.7; }
+.add-cart-button.is-owned { color: var(--green); background: var(--green-light); }
+.owned-panel { display: flex; align-items: center; flex-wrap: wrap; gap: 14px; padding: 16px 18px; border: 1px solid #cfe3d4; border-radius: 15px; background: #f2f8f2; }
+.owned-panel-icon { width: 42px; height: 42px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 13px; color: #2f6a4c; background: #dcf0e2; }
+.owned-panel > div { display: grid; gap: 3px; min-width: 0; }
+.owned-panel b { color: #23483a; font-size: 0.9375rem; }
+.owned-panel small { color: #5d7d68; font-size: 0.75rem; line-height: 1.8; }
+.owned-panel .button { margin-inline-start: auto; }
+
+/* Product page: print teaser */
+.print-teaser { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 13px; margin-top: 14px; padding: 14px 16px; border: 1px dashed #d8e3d6; border-radius: 14px; background: var(--surface-soft); }
+.print-teaser-copy { display: flex; align-items: center; gap: 11px; min-width: 0; }
+.print-teaser-icon { width: 38px; height: 38px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 12px; color: #8a5a2b; background: #fbeedc; }
+.print-teaser-copy b { display: block; color: var(--heading); font-size: 0.875rem; }
+.print-teaser-copy small { color: var(--subtle-text); font-size: 0.75rem; line-height: 1.8; }
+
+/* Print order form */
+.print-order-card { display: grid; gap: 13px; margin-top: 16px; padding: 20px; border: 1px solid var(--border-soft); border-radius: 17px; background: var(--paper); box-shadow: var(--shadow-soft); }
+.print-order-card.is-compact { margin-top: 14px; }
+.print-order-head { display: flex; align-items: center; gap: 11px; }
+.print-order-icon { width: 42px; height: 42px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 13px; color: #8a5a2b; background: #fbeedc; }
+.print-order-head b { display: block; color: var(--heading); font-size: 0.9375rem; }
+.print-order-head small { color: var(--subtle-text); font-size: 0.75rem; }
+.print-owner-note { display: flex; align-items: flex-start; gap: 8px; padding: 11px 13px; border: 1px solid #d9e9d7; border-radius: 11px; color: #3f6f52; background: #f2f8f0; font-size: 0.75rem; line-height: 1.9; }
+.print-owner-note svg { flex: 0 0 auto; margin-top: 3px; }
+.print-select select { width: 100%; }
+.print-options-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.print-color-toggle { padding: 11px 0; border-top: 1px dashed var(--border-soft); }
+.print-color-toggle b { color: var(--ink-soft); }
+.print-shipping { display: grid; gap: 10px; padding-top: 12px; border-top: 1px dashed var(--border-soft); }
+.print-shipping-title { display: inline-flex; align-items: center; gap: 6px; color: var(--green); font-size: 0.8125rem; font-weight: 700; }
+.print-shipping-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.print-quote-box { display: grid; gap: 9px; padding: 14px; border-radius: 13px; background: var(--surface-soft); }
+.print-quote-head { display: inline-flex; align-items: center; gap: 6px; color: var(--subtle-text); font-size: 0.75rem; font-weight: 700; }
+.print-breakdown { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.print-breakdown li { display: flex; align-items: center; justify-content: space-between; gap: 10px; color: var(--body-text); font-size: 0.75rem; }
+.print-breakdown b { color: var(--ink-soft); font-size: 0.8125rem; }
+.print-breakdown b.is-discount { color: var(--green); }
+.print-total { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 10px; border-top: 1px solid var(--border-soft); color: var(--heading); font-size: 0.875rem; font-weight: 700; }
+.print-total small { display: block; color: var(--subtle-text); font-size: 0.6875rem; font-weight: 400; }
+.print-total b { color: var(--green); font-size: 1.125rem; }
+.print-terms,
+.print-confirm-note { display: flex; align-items: flex-start; gap: 7px; margin: 0; color: var(--subtle-text); font-size: 0.6875rem; line-height: 1.9; }
+.print-terms svg,
+.print-confirm-note svg { flex: 0 0 auto; margin-top: 3px; }
+.print-loading { display: inline-flex; align-items: center; gap: 7px; margin: 0; color: var(--subtle-text); font-size: 0.75rem; }
+
+/* Print page */
+.print-page { padding-top: 24px; }
+.print-hero { max-width: 860px; margin: 26px auto 34px; text-align: center; }
+.print-hero h1 { margin: 10px 0 12px; color: var(--heading); font-size: clamp(2.125rem, 4.4vw, 3.375rem); line-height: 1.4; letter-spacing: -.06em; }
+.print-hero h1 em { color: var(--green); font-style: normal; }
+.print-hero > p { max-width: 640px; margin: 0 auto 22px; color: var(--body-text); font-size: 0.9375rem; line-height: 2.15; }
+.print-hero-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; }
+.print-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; margin-bottom: 44px; }
+.print-stats article { padding: 18px; border: 1px solid var(--border-soft); border-radius: 15px; background: var(--paper); text-align: center; }
+.print-stat-icon { width: 40px; height: 40px; display: grid; place-items: center; margin: 0 auto 10px; border-radius: 12px; color: #8a5a2b; background: #fbeedc; }
+.print-stats b { display: block; color: var(--heading); font-size: 1.0625rem; }
+.print-stats small { color: var(--subtle-text); font-size: 0.75rem; }
+.print-steps { margin-bottom: 46px; }
+.print-steps h2 { margin: 0 0 20px; color: var(--heading); font-size: 1.5rem; text-align: center; letter-spacing: -.04em; }
+.print-steps ol { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; counter-reset: none; }
+.print-steps li { position: relative; padding: 20px; border: 1px solid var(--border-soft); border-radius: 16px; background: var(--paper); }
+.print-steps li > span { width: 42px; height: 42px; display: grid; place-items: center; margin-bottom: 12px; border-radius: 13px; color: var(--green); background: var(--green-light); }
+.print-steps li b { display: block; color: var(--heading); font-size: 0.9375rem; }
+.print-steps li p { margin: 6px 0 0; color: var(--body-text); font-size: 0.75rem; line-height: 2; }
+.print-directory { margin-bottom: 46px; }
+.print-directory-heading { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+.print-directory-heading h2 { margin: 8px 0 4px; color: var(--heading); font-size: 1.625rem; letter-spacing: -.045em; }
+.print-directory-heading p { margin: 0; color: var(--subtle-text); font-size: 0.8125rem; }
+.print-filters { display: flex; align-items: center; gap: 9px; }
+.print-select-inline { display: inline-flex; align-items: center; gap: 7px; height: 47px; padding-inline: 13px; border: 1px solid var(--border-soft); border-radius: 12px; color: var(--subtle-text); background: var(--paper); }
+.print-select-inline select { border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 0.8125rem; }
+.print-house-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 15px; }
+.print-house-card { display: grid; gap: 13px; padding: 20px; border: 1px solid var(--border-soft); border-radius: 17px; background: var(--paper); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.print-house-card:hover { transform: translateY(-3px); border-color: #cddccd; box-shadow: var(--shadow-card); }
+.print-house-top { display: flex; align-items: center; gap: 12px; }
+.print-house-mark { width: 46px; height: 46px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 14px 14px 14px 5px; color: #fff; background: linear-gradient(145deg,#39775c,#214d3d); font-size: 1.1875rem; font-weight: 700; }
+.print-house-title { display: grid; gap: 3px; min-width: 0; }
+.print-house-title b { color: var(--heading); font-size: 1rem; }
+.print-house-title small { display: inline-flex; align-items: center; gap: 5px; color: var(--subtle-text); font-size: 0.75rem; }
+.print-house-rating { margin-inline-start: auto; display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 20px; color: #a8792c; background: #fbf3e2; font-size: 0.75rem; font-weight: 700; }
+.print-house-desc { margin: 0; color: var(--body-text); font-size: 0.8125rem; line-height: 2.05; }
+.print-house-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.print-house-chips span { padding: 5px 10px; border: 1px solid var(--border-soft); border-radius: 20px; color: var(--ink-soft); background: var(--surface-soft); font-size: 0.6875rem; }
+.print-house-facts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 13px; border-radius: 12px; background: var(--surface-soft); }
+.print-house-facts div { display: grid; gap: 3px; }
+.print-house-facts dt { color: var(--subtle-text); font-size: 0.6875rem; }
+.print-house-facts dd { margin: 0; color: var(--heading); font-size: 0.8125rem; font-weight: 700; }
+.print-house-foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 12px; border-top: 1px dashed var(--border-soft); }
+.print-house-contact { display: inline-flex; align-items: center; gap: 6px; color: var(--subtle-text); font-size: 0.75rem; }
+.print-house-skeleton { height: 300px; border-radius: 17px; background: linear-gradient(100deg,#e7e9e3 25%,#f2f3f0 42%,#e7e9e3 65%); background-size: 250% 100%; animation: shimmer 1.25s infinite linear; }
+
+/* Printing-house contract */
+.print-contract { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; padding: 26px; border: 1px solid var(--border-soft); border-radius: 20px; background: linear-gradient(140deg, #f4f8f2, var(--paper)); }
+.print-contract.is-open { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); }
+.print-contract-intro h2 { margin: 8px 0 10px; color: var(--heading); font-size: 1.5rem; letter-spacing: -.045em; }
+.print-contract-intro p { margin: 0 0 16px; color: var(--body-text); font-size: 0.875rem; line-height: 2.1; }
+.print-contract-points { display: grid; gap: 9px; margin: 0 0 18px; padding: 0; list-style: none; }
+.print-contract-points li { display: flex; align-items: flex-start; gap: 8px; color: var(--ink-soft); font-size: 0.8125rem; line-height: 1.9; }
+.print-contract-points svg { flex: 0 0 auto; margin-top: 3px; color: var(--green); }
+.print-contract-form { display: grid; gap: 13px; align-content: start; padding: 20px; border: 1px solid var(--border-soft); border-radius: 17px; background: var(--paper); box-shadow: var(--shadow-soft); }
+.print-contract-form-head { display: flex; align-items: center; gap: 11px; }
+.print-contract-form-head b { display: block; color: var(--heading); font-size: 0.9375rem; }
+.print-contract-form-head small { color: var(--subtle-text); font-size: 0.75rem; }
+.print-contract-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.print-contract-capabilities { display: grid; gap: 8px; }
+.print-contract-capabilities > span { color: var(--ink-soft); font-size: 0.8125rem; font-weight: 600; }
+.print-contract-capabilities .quick-chips { margin-top: 0; }
+.print-contract-success { text-align: center; justify-items: center; }
+.print-contract-success-icon { width: 54px; height: 54px; display: grid; place-items: center; border-radius: 17px; color: #2f6a4c; background: #dcf0e2; }
+.print-contract-success b { color: var(--heading); font-size: 1.0625rem; }
+.print-contract-success p { margin: 0; color: var(--body-text); font-size: 0.8125rem; line-height: 2; }
+
+/* Account: print orders */
+.print-order-list { display: grid; gap: 11px; }
+.print-order-row { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; align-items: center; gap: 13px; padding: 14px; border: 1px solid var(--border-soft); border-radius: 14px; background: var(--paper); }
+.print-order-cover { width: 58px; height: 76px; display: grid; place-items: center; overflow: hidden; border-radius: 10px; color: #6b8a72; background: var(--surface-soft); }
+.print-order-cover img { width: 100%; height: 100%; object-fit: cover; }
+.print-order-main { display: grid; gap: 3px; min-width: 0; }
+.print-order-main b { color: var(--heading); font-size: 0.9375rem; }
+.print-order-main small { color: var(--subtle-text); font-size: 0.75rem; }
+.print-order-specs { color: var(--body-text); font-size: 0.6875rem; line-height: 1.9; }
+.print-order-side { display: grid; gap: 5px; justify-items: end; text-align: end; }
+.print-order-side b { color: var(--green); font-size: 0.9375rem; }
+.print-order-side small { color: var(--subtle-text); font-size: 0.6875rem; }
+.print-status { padding: 5px 10px; border-radius: 20px; color: #9a7c45; background: #fbf4e5; font-size: 0.6875rem; font-weight: 700; white-space: nowrap; }
+.print-status.confirmed { color: #537c8d; background: #edf5f7; }
+.print-status.printing { color: #806eaa; background: #f0edf8; }
+.print-status.shipped { color: #4f7f8d; background: #e9f2f5; }
+.print-status.delivered { color: #4f845d; background: #eef6ec; }
+.print-status.cancelled { color: #b76155; background: #fff0ed; }
+
+/* Cart: digital books are single copy */
+.cart-line-qty.is-single { display: inline-flex; align-items: center; gap: 5px; padding: 6px 11px; border: 1px solid var(--border-soft); border-radius: 20px; color: var(--green); background: var(--surface-soft); font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+
+/* Dark theme */
+:root[data-theme="dark"] .owned-badge { color: #bde3c6; background: #234533; box-shadow: none; }
+:root[data-theme="dark"] .owned-panel { border-color: #2f5a41; background: #1e3327; }
+:root[data-theme="dark"] .owned-panel b { color: #dcefe0; }
+:root[data-theme="dark"] .owned-panel small { color: #a8c3b0; }
+:root[data-theme="dark"] .owned-panel-icon,
+:root[data-theme="dark"] .print-contract-success-icon { color: #b9e0c4; background: #25412f; }
+:root[data-theme="dark"] .add-cart-button.is-owned { color: var(--green); background: var(--green-light); }
+:root[data-theme="dark"] .print-teaser { border-color: var(--line); background: var(--surface-soft); }
+:root[data-theme="dark"] .print-teaser-icon,
+:root[data-theme="dark"] .print-stat-icon,
+:root[data-theme="dark"] .print-order-icon { color: #f0c39a; background: #3b2c20; }
+:root[data-theme="dark"] .print-house-mark { background: linear-gradient(145deg,#2f6350,#1c4437); }
+:root[data-theme="dark"] .print-house-rating { color: #f0cd93; background: #3a3222; }
+:root[data-theme="dark"] .print-house-card:hover { border-color: #4b6353; }
+:root[data-theme="dark"] .print-house-skeleton { background: linear-gradient(100deg,#1e2b23 25%,#2a3930 42%,#1e2b23 65%); background-size: 250% 100%; }
+:root[data-theme="dark"] .print-contract { background: linear-gradient(140deg, #1b2a22, var(--paper)); border-color: var(--line); }
+:root[data-theme="dark"] .print-owner-note { color: #b7dcc0; background: #1f3428; border-color: #2f5a41; }
+:root[data-theme="dark"] .print-status { color: #efd29a; background: #3a3222; }
+:root[data-theme="dark"] .print-status.delivered { color: #a9d5af; background: #203b2b; }
+:root[data-theme="dark"] .print-status.cancelled { color: #f1b0a6; background: #3d2927; }
+:root[data-theme="dark"] .print-status.printing { color: #c9bce8; background: #302a45; }
+:root[data-theme="dark"] .print-status.confirmed,
+:root[data-theme="dark"] .print-status.shipped { color: #a8d1df; background: #20333a; }
+:root[data-theme="dark"] .cart-line-qty.is-single { color: var(--green); background: var(--surface-soft); border-color: var(--line); }
+
+/* Responsive */
+@media (max-width: 1050px) {
+  .print-house-grid { grid-template-columns: 1fr; }
+  .print-steps ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .print-contract.is-open { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 820px) {
+  .print-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .print-house-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .print-options-row { grid-template-columns: 1fr 1fr; }
+  .print-options-row > .field-label:last-child { grid-column: 1 / -1; }
+  .print-order-row { grid-template-columns: 52px minmax(0, 1fr); }
+  .print-order-cover { width: 52px; height: 68px; }
+  .print-order-side { grid-column: 2; justify-items: start; text-align: start; }
+}
+@media (max-width: 600px) {
+  .print-hero { margin-bottom: 26px; }
+  .print-hero h1 { font-size: 2.125rem; }
+  .print-stats { gap: 9px; margin-bottom: 34px; }
+  .print-stats article { padding: 14px; }
+  .print-steps ol { grid-template-columns: 1fr; }
+  .print-directory-heading { align-items: flex-start; }
+  .print-filters { width: 100%; flex-wrap: wrap; }
+  .print-select-inline { flex: 1; justify-content: space-between; }
+  .print-house-card,
+  .print-contract,
+  .print-order-card { padding: 15px; }
+  .print-house-facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .print-options-row,
+  .print-shipping-grid,
+  .print-contract-grid { grid-template-columns: 1fr; }
+  .print-options-row > .field-label:last-child { grid-column: auto; }
+  .owned-panel { flex-direction: column; align-items: flex-start; }
+  .owned-panel .button { margin-inline-start: 0; width: 100%; }
+  .print-teaser { flex-direction: column; align-items: stretch; }
+  .print-teaser .button { width: 100%; }
+  .print-house-foot { flex-direction: column; align-items: flex-start; }
+}

@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\CheckoutController;
 use App\Http\Controllers\Api\V1\PaymentsController;
+use App\Http\Controllers\Api\V1\PrintController;
+use App\Http\Controllers\Api\V1\PrintOrderController;
 use App\Http\Controllers\Api\V1\ReviewController;
 use App\Http\Controllers\Api\V1\StorefrontController;
 use App\Http\Controllers\Api\V1\WalletController;
@@ -22,6 +24,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('/search/suggest', [StorefrontController::class, 'searchSuggest'])
         ->middleware('throttle:90,1')
         ->name('search.suggest');
+
+    // Physical printing: partner directory and contracting for printing houses.
+    Route::get('/print-houses', [PrintController::class, 'index'])->name('print-houses.index');
+    Route::post('/print-houses/contract-requests', [PrintController::class, 'contractRequest'])
+        ->middleware('throttle:6,1')
+        ->name('print-houses.contract');
     Route::get('/categories', [StorefrontController::class, 'categories'])->name('categories.index');
     Route::get('/faqs', [StorefrontController::class, 'faqs'])->name('faqs.index');
     Route::get('/pages/{slug}', [StorefrontController::class, 'page'])->name('pages.show');
@@ -63,10 +71,17 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/account/profile', [AccountController::class, 'profile'])->name('account.profile');
         Route::put('/account/profile', [AccountController::class, 'updateProfile'])->name('account.profile.update');
         Route::get('/account/orders', [AccountController::class, 'orders'])->name('account.orders');
+        Route::get('/account/library', [AccountController::class, 'library'])->name('account.library');
         Route::get('/account/downloads', [AccountController::class, 'downloads'])->name('account.downloads');
         Route::get('/account/downloads/{fileId}', [AccountController::class, 'download'])->name('account.downloads.download');
         Route::get('/account/tickets', [AccountController::class, 'tickets'])->name('account.tickets');
         Route::post('/account/tickets', [AccountController::class, 'createTicket'])->name('account.tickets.store');
+
+        Route::get('/print-orders', [PrintOrderController::class, 'index'])->name('print-orders.index');
+        Route::post('/print-orders/quote', [PrintOrderController::class, 'quote'])->name('print-orders.quote');
+        Route::post('/print-orders', [PrintOrderController::class, 'store'])
+            ->middleware('throttle:10,1')
+            ->name('print-orders.store');
 
         Route::get('/wallet', [WalletController::class, 'show'])->name('wallet.show');
         Route::post('/wallet/deposits', [WalletController::class, 'deposit'])->middleware('throttle:5,1')->name('wallet.deposits.store');
@@ -121,6 +136,15 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/reviews', [AdminController::class, 'reviews'])->name('reviews.index');
         Route::put('/reviews/{id}', [AdminController::class, 'updateReview'])->name('reviews.update');
         Route::delete('/reviews/{id}', [AdminController::class, 'deleteReview'])->name('reviews.delete');
+        Route::get('/print-houses', [AdminController::class, 'printHouses'])->name('print-houses.index');
+        Route::post('/print-houses', [AdminController::class, 'storePrintHouse'])->name('print-houses.store');
+        Route::put('/print-houses/{id}', [AdminController::class, 'updatePrintHouse'])->name('print-houses.update');
+        Route::delete('/print-houses/{id}', [AdminController::class, 'deletePrintHouse'])->name('print-houses.delete');
+        Route::get('/print-contracts', [AdminController::class, 'printContracts'])->name('print-contracts.index');
+        Route::put('/print-contracts/{id}', [AdminController::class, 'updatePrintContract'])->name('print-contracts.update');
+        Route::get('/print-orders', [AdminController::class, 'printOrders'])->name('print-orders.index');
+        Route::put('/print-orders/{id}', [AdminController::class, 'updatePrintOrder'])->name('print-orders.update');
+
         Route::get('/payments', [AdminController::class, 'payments'])->name('payments.index');
         Route::get('/settings', [AdminController::class, 'settings'])->name('settings.show');
         Route::put('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
