@@ -19,6 +19,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('/home', [StorefrontController::class, 'home'])->name('home');
     Route::get('/products', [StorefrontController::class, 'products'])->name('products.index');
     Route::get('/products/{slug}', [StorefrontController::class, 'product'])->name('products.show');
+    Route::get('/search/suggest', [StorefrontController::class, 'searchSuggest'])
+        ->middleware('throttle:90,1')
+        ->name('search.suggest');
     Route::get('/categories', [StorefrontController::class, 'categories'])->name('categories.index');
     Route::get('/faqs', [StorefrontController::class, 'faqs'])->name('faqs.index');
     Route::get('/pages/{slug}', [StorefrontController::class, 'page'])->name('pages.show');

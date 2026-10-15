@@ -17,6 +17,12 @@ use Illuminate\Support\Facades\DB;
 
 class StorefrontController extends Controller
 {
+    /**
+     * Correlated subquery for the average approved rating of a product.
+     * Used both for filtering (`min_rating`) and for ordering by rating.
+     */
+    private const RATING_SUBQUERY = '(SELECT COALESCE(AVG(reviews.rating), 0) FROM reviews WHERE reviews.product_id = products.id AND reviews.status = ?)';
+
     public function home()
     {
         $products = Product::query()
@@ -54,7 +60,13 @@ class StorefrontController extends Controller
         $validated = $request->validate([
             'q' => ['nullable', 'string', 'max:120'],
             'category' => ['nullable', 'string', 'max:150'],
-            'sort' => ['nullable', 'in:popular,newest,price_asc,price_desc'],
+            'tag' => ['nullable', 'string', 'max:150'],
+            'sort' => ['nullable', 'in:popular,newest,price_asc,price_desc,rating,discount'],
+            'price_min' => ['nullable', 'integer', 'min:0'],
+            'price_max' => ['nullable', 'integer', 'min:0'],
+            'min_rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
+            'on_sale' => ['nullable', 'boolean'],
+            'has_files' => ['nullable', 'boolean'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:48'],
         ]);
 
@@ -77,12 +89,47 @@ class StorefrontController extends Controller
             $query->whereHas('category', fn ($builder) => $builder->where('slug', $category));
         }
 
+        if (!empty($validated['tag'])) {
+            $tag = $validated['tag'];
+            $query->whereHas('tags', fn ($builder) => $builder->where('slug', $tag));
+        }
+
+        // Prices are compared on the effective price the customer actually pays.
+        if (isset($validated['price_min'])) {
+            $query->whereRaw('COALESCE(price, original_price) >= ?', [(int) $validated['price_min']]);
+        }
+
+        if (isset($validated['price_max'])) {
+            $query->whereRaw('COALESCE(price, original_price) <= ?', [(int) $validated['price_max']]);
+        }
+
+        if (!empty($validated['on_sale'])) {
+            $query->whereNotNull('price')->whereColumn('price', '<', 'original_price');
+        }
+
+        if (!empty($validated['has_files'])) {
+            $query->whereHas('files');
+        }
+
+        $minimumRating = (float) ($validated['min_rating'] ?? 0);
+
+        if ($minimumRating > 0) {
+            $query->whereRaw(self::RATING_SUBQUERY . ' >= ?', ['approved', $minimumRating]);
+        }
+
         match ($validated['sort'] ?? 'popular') {
             'newest' => $query->latest(),
             'price_asc' => $query->orderByRaw('COALESCE(price, original_price) ASC'),
             'price_desc' => $query->orderByRaw('COALESCE(price, original_price) DESC'),
+            'rating' => $query->orderByRaw(self::RATING_SUBQUERY . ' DESC', ['approved']),
+            'discount' => $query->orderByRaw(
+                'CASE WHEN original_price > 0 AND price IS NOT NULL THEN (original_price - price) / original_price ELSE 0 END DESC',
+            ),
+            'popular' => $query->orderByDesc('approved_reviews_count'),
             default => $query->latest(),
         };
+
+        $query->orderByDesc('id');
 
         $products = $query->paginate($validated['per_page'] ?? 12)->withQueryString();
 
@@ -92,8 +139,64 @@ class StorefrontController extends Controller
                 'last_page' => $products->lastPage(),
                 'per_page' => $products->perPage(),
                 'total' => $products->total(),
+                'filters' => $this->activeFilters($validated),
             ],
         ]);
+    }
+
+    /**
+     * Instant-search payload for the storefront search box.
+     */
+    public function searchSuggest(Request $request)
+    {
+        $validated = $request->validate([
+            'q' => ['required', 'string', 'min:1', 'max:120'],
+            'limit' => ['nullable', 'integer', 'min:1', 'max:10'],
+        ]);
+
+        $term = trim($validated['q']);
+        $limit = (int) ($validated['limit'] ?? 5);
+
+        $products = Product::query()
+            ->active()
+            ->with('category')
+            ->withAvg('approvedReviews', 'rating')
+            ->withCount('approvedReviews')
+            ->where(function ($builder) use ($term) {
+                $builder->where('title', 'like', "%{$term}%")
+                    ->orWhere('description', 'like', "%{$term}%");
+            })
+            ->orderByDesc('approved_reviews_count')
+            ->limit($limit)
+            ->get();
+
+        $categories = Category::query()
+            ->withCount(['products as active_products_count' => fn ($query) => $query->active()])
+            ->where('name', 'like', "%{$term}%")
+            ->orderBy('name')
+            ->limit(4)
+            ->get();
+
+        return response()->json([
+            'data' => [
+                'query' => $term,
+                'products' => ProductResource::collection($products),
+                'categories' => CategoryResource::collection($categories),
+            ],
+        ]);
+    }
+
+    /**
+     * Echo back only the filters the caller actually applied.
+     */
+    private function activeFilters(array $validated): array
+    {
+        $keys = ['q', 'category', 'tag', 'price_min', 'price_max', 'min_rating', 'on_sale', 'has_files'];
+
+        return collect($validated)
+            ->only($keys)
+            ->reject(fn ($value) => $value === null || $value === '' || $value === false)
+            ->all();
     }
 
     public function product(string $slug)

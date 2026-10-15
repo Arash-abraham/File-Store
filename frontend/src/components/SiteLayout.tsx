@@ -1,8 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Check, ChevronDown, CircleUserRound, Menu, Moon, Search, ShoppingBag, Sun, X } from 'lucide-react';
+import { Link, Outlet, useLocation } from 'react-router-dom';
+import { ArrowLeft, BookOpen, Check, ChevronDown, CircleUserRound, Menu, Moon, ShoppingBag, SlidersHorizontal, Sun, X } from 'lucide-react';
 import { useStore } from '../StoreContext';
 import { apiErrorMessage, demoMode } from '../lib/api';
+import MainNav from './MainNav';
+import SearchBox from './SearchBox';
 
 function Brand() {
   return (
@@ -15,15 +17,7 @@ function Brand() {
 
 function Header() {
   const { user, cart, setLoginOpen, theme, toggleTheme } = useStore();
-  const [search, setSearch] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
-  const navigate = useNavigate();
-
-  function submitSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    navigate(`/catalog${search.trim() ? `?q=${encodeURIComponent(search.trim())}` : ''}`);
-    setMenuOpen(false);
-  }
 
   return (
     <>
@@ -39,17 +33,11 @@ function Header() {
             {menuOpen ? <X size={21} /> : <Menu size={21} />}
           </button>
           <Brand />
-          <nav className={`main-nav ${menuOpen ? 'is-open' : ''}`}>
-            <NavLink to="/" end onClick={() => setMenuOpen(false)}>خانه</NavLink>
-            <NavLink to="/catalog" onClick={() => setMenuOpen(false)}>کتاب‌ها</NavLink>
-            <NavLink to="/about" onClick={() => setMenuOpen(false)}>داستان ما</NavLink>
-            <NavLink to="/faq" onClick={() => setMenuOpen(false)}>راهنما</NavLink>
-          </nav>
-          <form className="header-search" onSubmit={submitSearch} role="search">
-            <Search size={17} />
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="دنبال چه چیزی می‌گردی؟" aria-label="جست‌وجوی کتاب" />
-            <kbd>↵</kbd>
-          </form>
+          <MainNav menuOpen={menuOpen} onNavigate={() => setMenuOpen(false)} />
+          <SearchBox variant="header" onNavigate={() => setMenuOpen(false)} />
+          <Link to="/catalog?advanced=1" className="header-tool" title="جست‌وجوی پیشرفته" aria-label="جست‌وجوی پیشرفته" onClick={() => setMenuOpen(false)}>
+            <SlidersHorizontal size={19} />
+          </Link>
           <div className="header-actions">
             <button
               type="button"

@@ -66,6 +66,12 @@ export type Review = {
   created_at?: string;
 };
 
+export type SearchSuggestions = {
+  query: string;
+  products: Product[];
+  categories: Category[];
+};
+
 export type PageActor = {
   name: string;
   role?: string | null;
