@@ -9,27 +9,28 @@ class PaymentsSeeder extends Seeder
 {
     public function run(): void
     {
-        $now = now();
-        $paidOrderId = DB::table('orders')->where('transaction_id', 'TRX-001')->value('id');
-        $userId = DB::table('users')->where('email', 'user@example.com')->value('id');
-
-        if ($paidOrderId && $userId) {
-            DB::table('payments')->insert([
-                [
-                    'order_id' => $paidOrderId,
-                    'user_id' => $userId,
-                    'gateway' => 'zarinpal',
-                    'gateway_name' => 'Zarinpal',
-                    'amount' => 2450000,
-                    'status' => 'completed',
-                    'transaction_id' => 'PAY-001',
-                    'external_ref' => 'ZP-XYZ-123',
-                    'meta' => json_encode(['card' => '6037 **** **** 1234']),
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ],
-            ]);
+        $order = DB::table('orders')->where('transaction_id', 'DEMO-PAID-001')->first();
+        if (!$order) {
+            return;
         }
+
+        $userId = $order->user_id;
+        $now = now();
+        DB::table('payments')->updateOrInsert(['transaction_id' => 'DEMO-PAYMENT-001'], [
+            'order_id' => $order->id,
+            'user_id' => $userId,
+            'gateway' => 'zarinpal',
+            'gateway_name' => 'زرین‌پال (نمونه)',
+            'amount' => max(0, (int) $order->total_amount - (int) $order->discount_amount),
+            'status' => 'completed',
+            'transaction_id' => 'DEMO-PAYMENT-001',
+            'external_ref' => 'DEMO-REF-001',
+            'meta' => json_encode(['seed' => true], JSON_UNESCAPED_UNICODE),
+            'paid_at' => $order->paid_at,
+            'response_code' => '100',
+            'created_at' => $now->copy()->subDays(2),
+            'updated_at' => $now,
+            'deleted_at' => null,
+        ]);
     }
 }
-

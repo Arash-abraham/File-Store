@@ -1,0 +1,114 @@
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { ArrowLeft, Bookmark, BookOpenCheck, Check, CircleCheck, Download, Heart, MessageSquareText, PackageCheck, Printer, ShieldCheck, ShoppingBag, Star, Truck, ZoomIn } from 'lucide-react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { api, demoMode } from '../lib/api';
+import { demoProducts, demoReviews } from '../data/demo';
+import { formatDate, formatPrice } from '../lib/format';
+import type { Product, Review } from '../types';
+import ProductCard from '../components/ProductCard';
+import PrintOrderForm from '../components/PrintOrderForm';
+import { useStore } from '../StoreContext';
+
+type ProductDetail = { product: Product; files: { id: number; name: string; size?: string; type: string }[]; reviews: Review[] };
+
+export default function ProductPage() {
+  const { slug = '' } = useParams();
+  const navigate = useNavigate();
+  const { addToCart, setNotice, setLoginOpen, user, ownsProduct } = useStore();
+  const [activeTab, setActiveTab] = useState<'overview' | 'features' | 'reviews'>('overview');
+  const [saved, setSaved] = useState(false);
+  const [printOpen, setPrintOpen] = useState(false);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['product', slug],
+    queryFn: async (): Promise<ProductDetail> => {
+      if (demoMode) {
+        const product = demoProducts.find((item) => item.slug === slug);
+        if (!product) throw new Error('این کتاب پیدا نشد.');
+        return { product, files: [{ id: product.id, name: 'نسخه‌ی دیجیتال کتاب', size: 'PDF', type: 'PDF' }], reviews: demoReviews };
+      }
+      const response = await api.get(`/products/${slug}`);
+      return response.data.data as ProductDetail;
+    },
+  });
+
+  if (isLoading) return <div className="container product-loading"><div className="skeleton-cover" /><div><div className="skeleton-line" /><div className="skeleton-line short" /><div className="skeleton-line" /></div></div>;
+  if (isError || !data) return <div className="container empty-state product-error"><h2>کتاب پیدا نشد</h2><p>شاید این عنوان از قفسه جابه‌جا شده است.</p><Link className="button button-primary" to="/catalog">برگشت به کتاب‌ها <ArrowLeft size={15} /></Link></div>;
+
+  const { product, files, reviews } = data;
+  const related = demoProducts.filter((item) => item.id !== product.id).slice(0, 3);
+  const owned = ownsProduct(product.id);
+
+  async function buyNow() {
+    if (!demoMode && !user) {
+      setLoginOpen(true);
+      return;
+    }
+    await addToCart(product);
+    navigate('/cart');
+  }
+
+  return (
+    <section className="container product-page section-pad">
+      <div className="breadcrumbs"><Link to="/">خانه</Link><span>/</span><Link to="/catalog">کتاب‌ها</Link><span>/</span><b>{product.title}</b></div>
+      <div className="product-detail-grid">
+        <div className="product-gallery">
+          <div className="product-main-image">
+            <span className="gallery-label"><Bookmark size={14} /> نسخه‌ی دیجیتال</span>
+            {product.cover_url ? <img src={product.cover_url} alt={`جلد ${product.title}`} /> : <div className="cover-placeholder large"><BookOpenIcon /></div>}
+            <button className={`gallery-save ${saved ? 'saved' : ''}`} onClick={() => { setSaved(!saved); setNotice(saved ? 'از فهرست علاقه‌مندی‌ها حذف شد.' : 'به فهرست علاقه‌مندی‌ها اضافه شد.'); }} aria-label="علاقه‌مندی"><Heart size={18} fill={saved ? 'currentColor' : 'none'} /></button>
+            <span className="gallery-zoom"><ZoomIn size={16} /> تصویر جلد</span>
+          </div>
+          <div className="gallery-note"><span className="gallery-note-icon"><ShieldCheck size={17} /></span><span><b>یک خرید، دسترسی همیشگی</b><small>فایل کتاب بعد از خرید در کتابخانه‌ی تو می‌ماند.</small></span><CircleCheck size={18} className="gallery-note-check" /></div>
+        </div>
+        <div className="product-detail-info">
+          <div className="product-kicker"><Link to={`/catalog?category=${product.category?.slug ?? ''}`}>{product.category?.name ?? 'کتاب دیجیتال'}</Link><span>·</span><span>کد محصول {String(product.id).padStart(4, '0')}</span></div>
+          <h1>{product.title}</h1>
+          <p className="product-detail-desc">{product.description}</p>
+          <div className="product-rating-row"><div className="stars">{[0, 1, 2, 3, 4].map((star) => <Star key={star} size={16} fill={star < Math.round(product.rating) ? 'currentColor' : 'none'} />)}</div><b>{product.rating.toLocaleString('fa-IR')}</b><button onClick={() => setActiveTab('reviews')}>({product.reviews_count.toLocaleString('fa-IR')} دیدگاه)</button><span className="rating-separator" /> <span className="sales-note">پیشنهاد خواننده‌ها</span></div>
+          <div className="detail-divider" />
+          <div className="product-price-row"><div className="product-price-main"><b>{formatPrice(product.price)}</b>{product.original_price > product.price && <del>{formatPrice(product.original_price)}</del>}</div>{product.discount_percent > 0 && <span className="detail-discount">{product.discount_percent.toLocaleString('fa-IR')}٪ کمتر</span>}</div>
+          {owned ? (
+            <div className="owned-panel">
+              <span className="owned-panel-icon"><BookOpenCheck size={19} /></span>
+              <div>
+                <b>این کتاب را قبلاً خریده‌ای</b>
+                <small>یک‌بار خرید کافی است؛ فایل‌ها همیشه در کتابخانه‌ات می‌مانند.</small>
+              </div>
+              <Link className="button button-primary button-small" to="/account?tab=library">رفتن به کتابخانه‌ی من <ArrowLeft size={15} /></Link>
+            </div>
+          ) : (
+            <div className="purchase-actions"><button className="button button-primary button-buy" onClick={() => void buyNow()}><ShoppingBag size={18} /> افزودن به سبد خرید <ArrowLeft size={17} /></button><button className={`button button-icon-only ${saved ? 'is-saved' : ''}`} onClick={() => setSaved(!saved)} aria-label="ذخیره کتاب"><Heart size={18} /></button></div>
+          )}
+          <div className="product-assurances"><div><span><Download size={16} /></span><b>دریافت فوری</b><small>پس از پرداخت</small></div><div><span><PackageCheck size={16} /></span><b>فایل باکیفیت</b><small>نسخه‌ی اصلی PDF</small></div><div><span><Truck size={16} /></span><b>نسخه‌ی کاغذی هم داری</b><small>سفارش چاپ از چاپخانه‌های همکار</small></div></div>
+
+          <div className="print-teaser">
+            <div className="print-teaser-copy">
+              <span className="print-teaser-icon"><Printer size={18} /></span>
+              <div>
+                <b>این کتاب را چاپ‌شده می‌خواهی؟</b>
+                <small>{owned ? 'چون نسخه‌ی دیجیتال را داری، ۱۵٪ تخفیف چاپ می‌گیری.' : 'کاغذ، صحافی و تیراژ را انتخاب کن؛ چاپخانه‌ی همکار چاپش می‌کند.'}</small>
+              </div>
+            </div>
+            <button className="button button-outline button-small" onClick={() => setPrintOpen(!printOpen)} aria-expanded={printOpen}>
+              {printOpen ? 'بستن فرم' : 'سفارش نسخه‌ی چاپی'} <Printer size={15} />
+            </button>
+          </div>
+
+          {printOpen && <PrintOrderForm product={product} compact />}
+          <div className="detail-tabs"><button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>درباره‌ی کتاب</button><button className={activeTab === 'features' ? 'active' : ''} onClick={() => setActiveTab('features')}>مشخصات فایل</button><button className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}>دیدگاه‌ها</button></div>
+          <div className="detail-tab-panel">
+            {activeTab === 'overview' && <><h3>برای کنجکاوها، نه فقط متخصص‌ها</h3><p>{product.description} این نسخه برای مطالعه‌ی راحت روی موبایل، تبلت و رایانه آماده شده است.</p><div className="feature-check-list">{product.key_features.map((feature) => <span key={feature}><Check size={15} /> {feature}</span>)}</div></>}
+            {activeTab === 'features' && <div className="file-specs">{files.map((file) => <div key={file.id}><span className="file-spec-icon"><Download size={17} /></span><span><b>{file.name}</b><small>فرمت {file.type} · {file.size ?? 'دریافت فوری'}</small></span><CircleCheck size={17} /></div>)}<p>فایل‌ها پس از پرداخت در کتابخانه‌ی شخصی شما قابل دریافت خواهند بود.</p></div>}
+            {activeTab === 'reviews' && <div className="review-list">{reviews.length ? reviews.map((review) => <article key={review.id}><div className="review-avatar">{review.author.slice(0, 1)}</div><div><div className="review-author"><b>{review.author}</b><span>{formatDate(review.created_at)}</span></div><div className="stars small-stars">{[0, 1, 2, 3, 4].map((star) => <Star key={star} size={12} fill={star < review.rating ? 'currentColor' : 'none'} />)}</div><p>{review.body}</p></div></article>) : <p>هنوز دیدگاهی برای این کتاب ثبت نشده است.</p>}<div className="review-login-note"><MessageSquareText size={15} /> فقط خریداران این کتاب می‌توانند دیدگاه ثبت کنند.</div></div>}
+          </div>
+        </div>
+      </div>
+      <div className="related-books section-pad"><div className="section-heading section-heading-inline"><div><span className="eyebrow">شاید این‌ها هم به دلت بنشینند</span><h2>کتاب‌های هم‌مسیر</h2></div><Link className="text-link" to="/catalog">دیدن همه <ArrowLeft size={15} /></Link></div><div className="product-grid">{related.map((item, index) => <ProductCard key={item.id} product={item} index={index} />)}</div></div>
+    </section>
+  );
+}
+
+function BookOpenIcon() {
+  return <span className="cover-placeholder-label">فایل‌استور<br />کتاب دیجیتال</span>;
+}

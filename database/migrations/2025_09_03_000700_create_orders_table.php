@@ -12,16 +12,16 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->nullable()->constrained('users');
+            $table->string('session_token')->nullable();
             $table->enum('status', ['pending','paid','failed','refunded','cancelled'])->default('pending');
             $table->unsignedBigInteger('total_amount');
             $table->unsignedBigInteger('discount_amount')->default(0);
             $table->foreignId('coupon_id')->nullable()->constrained('coupons');
             $table->string('payment_gateway', 50)->nullable();
+            $table->string('payment_authority')->nullable();
             $table->string('transaction_id', 191)->nullable();
             $table->string('reference', 191)->nullable();
             $table->timestamp('paid_at')->nullable();
-            $table->string('session_token')->nullable()->after('user_id');
-            $table->string('payment_authority')->nullable()->after('payment_gateway');
             $table->timestamps();
             $table->softDeletes();
 

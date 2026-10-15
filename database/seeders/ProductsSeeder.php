@@ -4,72 +4,90 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class ProductsSeeder extends Seeder
 {
     public function run(): void
     {
         $now = now();
-
-        // Ensure categories exist with provided slugs
-        $softwareCategoryId = DB::table('categories')->where('slug', 'software')->value('id');
-        $coursesCategoryId = DB::table('categories')->where('slug', 'courses')->value('id');
-        $ebooksCategoryId = DB::table('categories')->where('slug', 'ebooks')->value('id');
-
-        DB::table('products')->insert([
+        $categories = DB::table('categories')->pluck('id', 'slug');
+        $products = [
             [
-                'title' => 'Adobe Photoshop 2024',
-                'slug' => 'adobe-photoshop-2024',
-                'type' => 'software',
-                'category_id' => $softwareCategoryId,
+                'title' => 'لینوکس برای هکرها',
+                'slug' => 'linux-for-hackers',
+                'category_id' => $categories['programming'] ?? null,
+                'original_price' => 890000,
+                'price' => 690000,
+                'image' => 'products/linux-basics.svg',
+                'description' => 'راهنمایی خوش‌خوان و کاربردی برای کار با لینوکس، خط فرمان و ابزارهای ضروری امنیت.',
+                'features' => ['آشنایی با خط فرمان لینوکس', 'مدیریت فایل و دسترسی‌ها', 'مناسب برای شروع مسیر امنیت'],
                 'status' => 'active',
                 'availability' => true,
-                'original_price' => 3000000,
-                'price' => 2500000,
-                'rating' => 4.8,
-                'reviews_count' => 126,
-                'image_url' => 'https://images.pexels.com/photos/4348401/pexels-photo-4348401.jpeg?auto=compress&cs=tinysrgb&w=400',
-                'description' => 'نرم‌افزار Adobe Photoshop 2024 نسخه کامل',
-                'created_at' => $now,
-                'updated_at' => $now,
-                'deleted_at' => null,
             ],
             [
-                'title' => 'دوره کامل آموزش React JS',
-                'slug' => Str::slug('دوره کامل آموزش React JS', '-'),
-                'type' => 'course',
-                'category_id' => $coursesCategoryId,
+                'title' => 'HTTP؛ راهنمای قطعی وب',
+                'slug' => 'http-definitive-guide',
+                'category_id' => $categories['programming'] ?? null,
+                'original_price' => 740000,
+                'price' => 590000,
+                'image' => 'products/McDl6J1erH5209ZDd31XZmq7q6xADgn9QHIIxqTU.png',
+                'description' => 'از پروتکل HTTP تا معماری وب؛ مرجعی برای توسعه‌دهندگان و علاقه‌مندان شبکه.',
+                'features' => ['مبانی HTTP و ارتباطات وب', 'مثال‌های عملی و قابل پیگیری', 'مناسب برای توسعه‌دهندگان وب'],
                 'status' => 'active',
                 'availability' => true,
-                'original_price' => 500000,
-                'price' => 450000,
-                'rating' => 4.6,
-                'reviews_count' => 85,
-                'image_url' => 'https://images.pexels.com/photos/11035380/pexels-photo-11035380.jpeg?auto=compress&cs=tinysrgb&w=400',
-                'description' => 'دوره پروژه‌محور React JS',
-                'created_at' => $now,
-                'updated_at' => $now,
-                'deleted_at' => null,
             ],
             [
-                'title' => 'AutoCAD 2024',
-                'slug' => 'autocad-2024',
-                'type' => 'software',
-                'category_id' => $softwareCategoryId,
-                'status' => 'inactive',
-                'availability' => false,
-                'original_price' => 3000000,
-                'price' => null,
-                'rating' => 4.2,
-                'reviews_count' => 50,
-                'image_url' => 'https://images.pexels.com/photos/4348401/pexels-photo-4348401.jpeg?auto=compress&cs=tinysrgb&w=400',
-                'description' => 'نرم‌افزار AutoCAD 2024',
+                'title' => 'آشپزخانه‌ی NGINX',
+                'slug' => 'nginx-cookbook',
+                'category_id' => $categories['programming'] ?? null,
+                'original_price' => 980000,
+                'price' => 790000,
+                'image' => 'products/PaOudnv2sC89NiTqgvaakKlgdiKD05IxBnxUxnPL.png',
+                'description' => 'دستورالعمل‌های عملی برای پیکربندی NGINX، بهینه‌سازی عملکرد و توزیع بار.',
+                'features' => ['پیکربندی سرور وب', 'بهینه‌سازی و کش', 'تعادل بار و امنیت'],
+                'status' => 'active',
+                'availability' => true,
+            ],
+            [
+                'title' => 'نادرشاه افشار',
+                'slug' => 'nader-shah-afshar',
+                'category_id' => $categories['history-literature'] ?? null,
+                'original_price' => 420000,
+                'price' => 350000,
+                'image' => 'products/xyU5n7zAVBYRyBDjJOFOIz4A3YYR5N5kvsCSMYMa.png',
+                'description' => 'روایتی خواندنی از زندگی و زمانه‌ی یکی از تأثیرگذارترین چهره‌های تاریخ ایران.',
+                'features' => ['روایت تاریخی مستند', 'تصویرسازی و صفحه‌آرایی باکیفیت', 'نسخه‌ی دیجیتال قابل دریافت'],
+                'status' => 'active',
+                'availability' => true,
+            ],
+            [
+                'title' => 'ریاضیات جامع تجربی',
+                'slug' => 'comprehensive-math',
+                'category_id' => $categories['science'] ?? null,
+                'original_price' => 520000,
+                'price' => 430000,
+                'image' => 'products/AKavkAP8JhKtVQSnaMnY9pSTyVrLL3ScmL59tNFL.png',
+                'description' => 'مرور مفهومی و تمرین‌محور مباحث منتخب ریاضی برای مطالعه‌ی هدفمند.',
+                'features' => ['درس‌نامه‌ی طبقه‌بندی‌شده', 'تمرین‌های متنوع', 'مناسب مرور و جمع‌بندی'],
+                'status' => 'active',
+                'availability' => true,
+            ],
+        ];
+
+        foreach ($products as $product) {
+            $slug = $product['slug'];
+            $image = $product['image'];
+            $features = $product['features'];
+            unset($product['slug'], $product['image'], $product['features']);
+
+            DB::table('products')->updateOrInsert(['slug' => $slug], $product + [
+                'slug' => $slug,
+                'image_urls' => json_encode([$image], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
+                'key_features' => json_encode($features, JSON_UNESCAPED_UNICODE),
                 'created_at' => $now,
                 'updated_at' => $now,
                 'deleted_at' => null,
-            ],
-        ]);
+            ]);
+        }
     }
 }
-

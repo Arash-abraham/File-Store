@@ -9,19 +9,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class OrderItem extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'order_id',
         'product_id',
+        'product_title',
         'unit_price',
         'quantity',
-        'subtotal'
+        'subtotal',
     ];
 
     protected $casts = [
         'unit_price' => 'integer',
-        'subtotal' => 'integer'
+        'quantity' => 'integer',
+        'subtotal' => 'integer',
     ];
 
     public function order(): BelongsTo

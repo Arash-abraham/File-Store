@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('tickets', function (Blueprint $table) {
-            $table->integer('ticket_number')->default(0);
+            $table->string('ticket_number')->nullable()->unique();
         });
     }
 };

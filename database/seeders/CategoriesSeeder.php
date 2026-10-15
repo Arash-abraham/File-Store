@@ -10,48 +10,20 @@ class CategoriesSeeder extends Seeder
     public function run(): void
     {
         $now = now();
-        DB::table('categories')->insert([
-            [
-                'name' => 'نرم‌افزارها',
-                'slug' => 'software',
-                'icon' => 'fa-laptop-code',
-                'color' => 'blue',
-                'description' => 'انواع نرم‌افزارهای کاربردی',
+        $categories = [
+            ['name' => 'برنامه‌نویسی', 'slug' => 'programming', 'icon' => 'code', 'color' => 'indigo'],
+            ['name' => 'کسب‌وکار و رشد فردی', 'slug' => 'business', 'icon' => 'briefcase', 'color' => 'amber'],
+            ['name' => 'تاریخ و ادبیات', 'slug' => 'history-literature', 'icon' => 'book-open', 'color' => 'rose'],
+            ['name' => 'طراحی و خلاقیت', 'slug' => 'design', 'icon' => 'palette', 'color' => 'violet'],
+            ['name' => 'علم و ریاضی', 'slug' => 'science', 'icon' => 'sparkles', 'color' => 'cyan'],
+        ];
+
+        foreach ($categories as $category) {
+            DB::table('categories')->updateOrInsert(['slug' => $category['slug']], $category + [
                 'created_at' => $now,
                 'updated_at' => $now,
                 'deleted_at' => null,
-            ],
-            [
-                'name' => 'دوره‌های آموزشی',
-                'slug' => 'courses',
-                'icon' => 'fa-play-circle',
-                'color' => 'green',
-                'description' => 'آموزش‌های تخصصی',
-                'created_at' => $now,
-                'updated_at' => $now,
-                'deleted_at' => null,
-            ],
-            [
-                'name' => 'کتاب‌های الکترونیکی',
-                'slug' => 'ebooks',
-                'icon' => 'fa-book',
-                'color' => 'purple',
-                'description' => 'کتاب‌های PDF و EPUB',
-                'created_at' => $now,
-                'updated_at' => $now,
-                'deleted_at' => null,
-            ],
-            [
-                'name' => 'قالب‌ها',
-                'slug' => 'templates',
-                'icon' => 'fa-palette',
-                'color' => 'orange',
-                'description' => 'قالب‌های وب و گرافیک',
-                'created_at' => $now,
-                'updated_at' => $now,
-                'deleted_at' => null,
-            ],
-        ]);
+            ]);
+        }
     }
 }
-

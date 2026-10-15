@@ -1,322 +1,251 @@
-# 📚 FileStore - Digital PDF Book Marketplace
+# File-Store — Digital Bookstore
 
-![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+File-Store is a Persian-first, right-to-left digital bookstore. The storefront is a standalone **React 19 + TypeScript + Vite** application; **Laravel 12 provides the API and server-side business logic only**. The storefront is not rendered with Blade or Inertia.
 
-A modern digital marketplace for PDF books built with Laravel. Purchase, download, and manage your digital books seamlessly.
+**Created by Arash** · [GitHub profile](https://github.com/Arash-abraham) · [Project repository](https://github.com/Arash-abraham/File-Store)
 
-## ✨ Features
+## Storefront preview
 
-### 🏠 Frontend Features
-- **Home Page** with customer satisfaction highlights
-- Dynamic **Admin-configurable menus** (Home, Products, FAQ, About Us)
-- **8 Best-selling products** showcase
-- **Categories section** with product counts
-- **Advanced search** functionality across products
-- **Footer** with site information
+The screenshot below shows the storefront in demo mode.
 
-### 👤 User Features
-- **Shopping Cart** (requires authentication)
-- **Duplicate purchase prevention** for owned products
-- **Discount code system**
-- **Wallet system** with partial payments
-- **User Dashboard** with:
-  - Order history
-  - Purchased file downloads
-  - Ticket submission
-  - Profile management
-  - Password change
-  - Wallet recharge
+![File-Store storefront homepage](docs/screenshots/storefront-home.png)
 
-### ⚡ Admin Panel
-- **Dashboard** with:
-  - Sales analytics
-  - Revenue tracking
-  - Sales charts
-- **Management Sections**:
-  - Products management
-  - File management
-  - Categories
-  - Tags
-  - Discount codes
-  - Comments moderation
-  - Menu settings
-  - Payments
-  - Tickets
-  - FAQ management
+## Features
 
-### 🔐 Authentication System
-- **Three Login Methods**:
-    - Email & Password
-    - 6-digit code via Email
-    - 6-digit code via SMS
+- Persian/RTL storefront with a responsive layout and Vazirmatn typography.
+- Light and dark themes, with system-preference detection and a persistent theme toggle.
+- Home page, category browsing, product detail pages, ratings, and reviews.
+- Instant search suggestions plus an advanced catalog search with price range, rating, discount, and availability filters kept in the URL.
+- Owned books are never sold twice: the storefront marks them, hides the buy action, and the API refuses to add or charge for them again.
+- Print-on-demand section: a directory of partner printing houses, a partnership contract form for printing houses, and per-book print orders with paper, binding, and quantity options.
+- API-driven static pages (starting with «adرباره ما») with structured content the admin can edit from the dashboard.
+- Authenticated cart, coupon codes, checkout, wallet payments, and optional Zarinpal integration.
+- Customer accounts, order history, personal library, protected downloads, and support tickets.
+- Registration, session-based sign-in, sign-out, email verification, password reset, and password change.
+- Admin dashboard for products, private product files, support tickets, and review moderation.
+- Optional frontend demo mode for exploring the UI without a running Laravel API.
 
-### 💳 Payment Gateway
-- **ZarinPal** integration for secure payments
+## Technology
 
-### 📧 Notifications
-- Automated purchase confirmation emails
+| Area | Stack |
+|---|---|
+| API | PHP 8.2+, Laravel 12, Laravel Sanctum |
+| Database | MySQL 8 / MariaDB |
+| Frontend | React 19, TypeScript, Vite 7, React Router, TanStack Query |
+| Payments | Zarinpal (optional for local development) |
 
-## 🚀 Quick Start
+## Requirements
 
-### Prerequisites
-- PHP 8.0+
-- Composer
-- MySQL 5.7+
-- Node.js & NPM
+- PHP 8.2 or newer, Composer 2, and the PHP extensions required by Laravel (including PDO MySQL, cURL, Fileinfo, Mbstring, OpenSSL, and XML).
+- MySQL 8 or MariaDB, with a database created for the application.
+- Node.js 20.19+ or 22.12+ and npm.
+- A terminal with `cp` support, or the equivalent file-copy command for your operating system.
 
-### Installation
+## Local setup
 
-1. **Clone the repository**
+Run Laravel and Vite in separate terminals. The default development addresses are `http://127.0.0.1:8000` for the API and `http://localhost:5173` for the React app.
+
+### 1. Clone the repository
+
 ```bash
-git clone https://github.com/yourusername/File-Store.git
+git clone https://github.com/Arash-abraham/File-Store.git
 cd File-Store
 ```
 
-2. **Install PHP dependencies**
+### 2. Install and configure the Laravel API
+
+From the repository root:
+
 ```bash
 composer install
-```
-
-3. **Install Node.js dependencies**
-```bash
-npm install
-```
-
-4. **Build frontend assets**
-```bash
-npm run build
-```
-
-5. **Environment Setup**
-```bash
 cp .env.example .env
-```
-
-6. **Configure Environment Variables**
-Edit `.env` file with your configuration:
-
-```env
-# Basic App Configuration
-APP_NAME=FileStore
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
-# Database Configuration
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=filestore
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
-
-# Email Configuration (Must be configured by user)
-MAIL_MAILER=smtp
-MAIL_HOST=your_smtp_host
-MAIL_PORT=your_smtp_port
-MAIL_USERNAME=your_smtp_username
-MAIL_PASSWORD=your_smtp_password
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@filestore.com
-MAIL_FROM_NAME="FileStore"
-
-# SMS Configuration (Kaveh Negar)
-KAVEHNEGAR_API_KEY=your_kavehnegar_api_key
-KAVEHNEGAR_SENDER=your_sender_number
-
-# Payment Gateway (ZarinPal)
-ZARINPAL_MERCHANT_ID=your_zarinpal_merchant_id
-ZARINPAL_SANDBOX=true
-
-# File Upload Configuration
-FILESYSTEM_DISK=public
-MAX_FILE_SIZE=30720
-ALLOWED_FILE_TYPES=pdf
-```
-
-7. **Generate application key**
-```bash
 php artisan key:generate
 ```
 
-8. **Run database setup**
-```bash
-php artisan migrate --seed
+Create a database (for example, `file_store`) and set its credentials in `.env`:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=file_store
+DB_USERNAME=root
+DB_PASSWORD=your_database_password
 ```
 
-9. **Create storage link**
+The default local SPA/API settings are already in `.env.example`. If you use the default ports, keep these values aligned between Laravel and Vite:
+
+```env
+APP_URL=http://127.0.0.1:8000
+FRONTEND_URL=http://localhost:5173
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+SANCTUM_STATEFUL_DOMAINS=localhost:5173,127.0.0.1:5173,localhost:8000,127.0.0.1:8000
+SESSION_DOMAIN=null
+```
+
+If you change the frontend port or host, update `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS`, and `SANCTUM_STATEFUL_DOMAINS` to match. The frontend origin must be allowed by Laravel for Sanctum cookie-based authentication.
+
+### 3. Create the schema and seed demo data
+
 ```bash
+php artisan migrate --seed
 php artisan storage:link
 ```
 
-10. **Start development server**
+The seeders create related sample records for users, categories, products, tags, coupons, product files, settings, FAQs, static pages, navigation, wallets, carts, orders, payments, support tickets, and reviews. The sample product files are stored on the private disk; purchased files are served through an authorized API endpoint.
+
+The sample accounts are configurable with `DEMO_USER_EMAIL`, `DEMO_USER_PASSWORD`, `DEMO_ADMIN_EMAIL`, and `DEMO_ADMIN_PASSWORD` in `.env`:
+
+| Role | Email | Default password |
+|---|---|---|
+| Customer | `user@example.com` | `password` |
+| Admin | `admin@example.com` | `password` |
+
+These credentials are for local development only. Change them or remove the demo users before deploying. To rebuild the database from scratch, run `php artisan migrate:fresh --seed`; **this permanently deletes existing database data**.
+
+### 4. Start the Laravel API
+
+In the first terminal, from the repository root:
+
 ```bash
-composer run dev
+php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-## 📸 Screenshots
+The API health check is available at `http://127.0.0.1:8000/api/v1/health`. The root URL returns a JSON service response; it does not render a web storefront.
 
-### Home Page
-<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-34-53.png">
+### 5. Install and start the React app
 
-*Main landing page with customer satisfaction section, best-selling products, and categories*
+In a second terminal:
 
-### Products Page
-<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-36-36.png">
-
-*Product catalog with advanced search and category filtering*
-
-### Category View
-<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-39-44.png">
-
-*Category page showing product count and filtered results*
-
-### User Dashboard
-<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-42-57.png">
-
-*User panel => wallet management*
-
-### Admin Panel
-<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2014-47-05.png">
-
-*Administrative dashboard with analytics and management sections*
-
-### Shopping Cart
-<img src="https://github.com/Arash-abraham/File-Store/blob/main/img/Screenshot%20from%202025-10-18%2015-50-01.png">
-
-*Shopping cart with discount codes and wallet integration*
-
-## 🗃️ Database Structure
-
-### Main Tables
-- `users` - User accounts and profiles
-- `products` - PDF book products
-- `categories` - Product categories
-- `orders` - Purchase records
-- `order_items` - Individual order items
-- `wallets` - User wallet balances
-- `discount_codes` - Promotional codes
-- `tickets` - Support tickets
-- `faqs` - Frequently asked questions
-- `menus` - Dynamic menu management
-- `payments` - Payment transactions
-- `comments` - User comments and reviews
-
-## 🔧 Configuration
-
-### Email Setup
-You must configure your email service in `.env`:
-```env
-MAIL_MAILER=smtp
-MAIL_HOST=your_smtp_host
-MAIL_PORT=your_smtp_port
-MAIL_USERNAME=your_smtp_username
-MAIL_PASSWORD=your_smtp_password
-MAIL_ENCRYPTION=tls
-```
-
-### SMS Setup (Kaveh Negar)
-1. Register at [Kaveh Negar](https://kavenegar.com)
-2. Get your API key from dashboard
-3. Configure in `.env`:
-```env
-KAVEHNEGAR_API_KEY=your_api_key_here
-KAVEHNEGAR_SENDER=your_sender_number
-```
-
-### Payment Gateway (ZarinPal)
-1. Register at [ZarinPal](https://zarinpal.com)
-2. Get your Merchant ID
-3. Configure in `.env`:
-```env
-ZARINPAL_MERCHANT_ID=your_zarinpal_merchant_id
-```
-
-### File Upload Configuration
-Admins can upload files up to 30MB:
-```env
-MAX_FILE_SIZE=30720
-ALLOWED_FILE_TYPES=pdf
-```
-
-## 🚀 Deployment
-
-### Production Deployment Steps:
-
-1. **Environment Setup**
 ```bash
-cp .env.example .env
-# Update production values in .env
+cd frontend
+cp .env.example .env.local
+npm ci
+npm run dev
 ```
 
-2. **Optimize Application**
+Open `http://localhost:5173`. In development, Vite proxies `/api`, `/sanctum`, `/products`, and `/storage` requests to `http://127.0.0.1:8000`. To use a different Laravel host or port, set `API_PROXY_TARGET` in `frontend/.env.local`, for example:
+
+```env
+API_PROXY_TARGET=http://127.0.0.1:8000
+```
+
+## Frontend demo mode
+
+You can preview the React storefront without starting Laravel. In `frontend/.env.local`, set:
+
+```env
+VITE_DEMO_MODE=true
+```
+
+Then restart Vite. Demo users can sign in with either sample email above and the password `password`. The demo cart is stored in `localStorage`; demo checkout and changes are local simulations, not real payments or server-side transactions. Set `VITE_DEMO_MODE=false` to use the Laravel API.
+
+## Theme preferences
+
+Use the sun/moon control in the header to switch between light and dark themes. On the first visit, the app follows the operating system's color preference; the selected theme is then saved in browser storage and restored on subsequent visits.
+
+![File-Store storefront homepage in dark theme](docs/screenshots/storefront-home-dark.png)
+
+## API overview
+
+All API v1 endpoints are under `/api/v1`. Successful JSON responses are generally wrapped in a `data` property.
+
+| Group | Endpoints |
+|---|---|
+| Public storefront | `GET /health`, `/home`, `/products`, `/products/{slug}`, `/search/suggest`, `/categories`, `/faqs`, `/pages/{slug}`, `/print-houses`, `/navigation`, `/settings` |
+| Authentication | `POST /auth/register`, `/auth/login`, `/auth/forgot-password`, `/auth/reset-password`; `GET /auth/me`; `POST /auth/logout` |
+| Cart and checkout | `GET /cart`; `POST /cart/items`, `/cart/coupon`, `/checkout`; `PATCH /cart/items/{itemId}`; `DELETE /cart/items/{itemId}`, `/cart/coupon` |
+| Account | `GET/PUT /account/profile`; `GET /account/overview`, `/account/library`, `/account/orders`, `/account/downloads`, `/account/print-orders`, `/account/tickets`; `POST /account/tickets` |
+| Wallet and reviews | `GET /wallet`; `POST /wallet/deposits`, `/reviews`, `/reviews/{review}/helpful`, `/reviews/{review}/report` |
+| Printing | `POST /print-houses/contract-requests`; `POST /print-orders`, `/print-orders/quote` (authenticated) |
+| Administration | `/admin/dashboard`, `/admin/products`, `/admin/categories`, `/admin/tags`, `/admin/coupons`, `/admin/faqs`, `/admin/pages`, `/admin/menus`, `/admin/tickets`, `/admin/reviews`, `/admin/payments`, `/admin/print-houses`, `/admin/print-contracts`, `/admin/print-orders`, `/admin/settings` |
+
+`GET /products` powers the catalog and its advanced search. It accepts `q`, `category`, `tag`, `price_min`, `price_max`, `min_rating`, `on_sale`, `has_files` and `sort` (`popular`, `newest`, `rating`, `discount`, `price_asc`, `price_desc`); the filters that were actually applied are echoed back under `meta.filters`. `GET /search/suggest?q=` returns instant product and category suggestions for the storefront search box.
+
+A digital book is owned once per account: `POST /cart/items` refuses a title that is already in the reader's library (or already in the cart), and `POST /checkout` removes and reports any owned titles it finds before charging. `GET /account/library` returns the owned product ids the storefront uses to mark owned titles and to hide the buy action.
+
+Physical printing: `GET /print-houses` lists the partner printing houses with their prices and delivery times, `POST /print-houses/contract-requests` lets a printing house apply for a partnership contract, and readers order a printed copy through `POST /print-orders` (price it first with `POST /print-orders/quote`). Printing-house profiles, contract requests and print orders are managed from the admin dashboard.
+
+Admin endpoints require an authenticated Sanctum session with the `admin` role. Download endpoints verify access to a paid order before serving private product files. API documentation is available at `/docs/api` when the Scramble package is enabled.
+
+## Production deployment
+
+### Build and host the frontend
+
 ```bash
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+cd frontend
+npm ci
+npm run typecheck
+npm run build
 ```
 
-3. **Set proper permissions**
+The static production bundle is written to `frontend/dist`. Host it on a static web server or CDN. Set frontend build variables before running `npm run build`:
+
+```env
+VITE_API_BASE_URL=https://api.example.com/api/v1
+VITE_DEMO_MODE=false
+```
+
+### Deploy the Laravel API
+
+Deploy the Laravel application independently and configure the production database and HTTPS. On the initial deployment, provision a secure `APP_KEY` (for a new installation, `php artisan key:generate` can create it). Then run:
+
 ```bash
-chmod -R 755 storage
-chmod -R 755 bootstrap/cache
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan storage:link
 ```
 
-## 🐛 Troubleshooting
+Do not generate a new `APP_KEY` on each release; preserve the same secret for an existing installation. Configure the production web server to point to Laravel's `public/` directory and apply the normal Laravel production hardening steps.
 
-### Common Issues:
+For Sanctum cookie authentication, host the frontend and API on the same top-level domain (for example, `app.example.com` and `api.example.com`). Set `CORS_ALLOWED_ORIGINS` to the exact frontend origin, include both hostnames in `SANCTUM_STATEFUL_DOMAINS`, and configure `SESSION_DOMAIN` for the parent domain. Enable secure cookies over HTTPS with `SESSION_SECURE_COOKIE=true`. `FRONTEND_URL` is also used for payment returns and password-reset links.
 
-**File upload fails:**
-- Check `upload_max_filesize` in php.ini (should be at least 30M)
-- Verify storage permissions
-- Ensure allowed file types in config
+Never enable `VITE_DEMO_MODE` in production. Do not expose demo passwords, API secrets, payment credentials, or `APP_DEBUG=true` on a public deployment.
 
-**Email not sending:**
-- Verify SMTP credentials in `.env`
-- Check spam folder
-- Test with Mailtrap first
+## Optional services and file storage
 
-**SMS not working:**
-- Verify Kaveh Negar API key
-- Check account balance
-- Validate sender number
+### Email
 
-**Payment issues:**
-- Verify ZarinPal Merchant ID
-- Check callback URLs
-- Ensure SSL certificate for production
+For local development, `MAIL_MAILER=log` writes outgoing messages to the Laravel log. Configure SMTP in `.env` to deliver verification and password-reset messages to real inboxes.
 
-**Login issues:**
-- Check email/SMS configuration
-- Verify database connections
-- Check session configuration
+### Zarinpal
 
-## 👥 Authors
+Set `ZARINPAL_MERCHANT_ID` and choose the appropriate sandbox/production setting with `ZARINPAL_SANDBOX`. Payment initiation requires valid gateway configuration; the UI can still be explored in demo mode without a gateway.
 
-<div align="center">
+### Files
 
-| **Arash Ebrahimian** | **Amir Hossein Hosseinzade** |
-|:--------------------:|:--------------------:|
-| <img src="https://github.com/Arash-abraham.png" width="120" style="border-radius: 50%; border: 3px solid #007bff;"> | <img src="https://github.com/iamhosseinzadeh.png" width="120" style="border-radius: 50%; border: 3px solid #28a745;"> |
-| *Lead Developer & Project Architect* | *Co-developer & Template Specialist* |
-| [![GitHub](https://img.shields.io/badge/🚀_GitHub-000?style=flat&logo=github)](https://github.com/Arash-abraham) | [![GitHub](https://img.shields.io/badge/🚀_GitHub-000?style=flat&logo=github)](https://github.com/iamhosseinzadeh) |
+Public product covers can be served from the public storage disk or `public/products`. Purchased product files must remain on the private disk and be served only through the authenticated download endpoint. Seeded text files are small test fixtures, not the actual books.
 
-</div>
+## Tests and checks
 
-## 🙏 Acknowledgments
+Frontend checks:
 
-- Kaveh Negar for SMS service
-- ZarinPal for payment gateway
+```bash
+cd frontend
+npm run typecheck
+npm run build
+```
 
-## 📞 Support
+Laravel tests and route inspection (requires PHP, Composer dependencies, and a configured test database):
 
-For support, email arashebi777@gmail.com .
+```bash
+php artisan test
+php artisan route:list --path=api/v1
+```
 
----
+## Project structure
 
-<div align="center">
-Made with ❤️ using Laravel & JavaScript and Tailwind CSS
-</div>
+```text
+app/Http/Controllers/Api/V1/    Laravel API controllers
+app/Http/Resources/Api/V1/      JSON resources
+routes/api.php                  Versioned API routes
+routes/web.php                  JSON service response; no UI rendering
+database/seeders/               Base and demo records
+frontend/src/                   Standalone React/TypeScript application
+frontend/public/images/books/   Local demo book covers
+docs/screenshots/               Storefront screenshots
+```
+
+## About the creator
+
+File-Store is created by **Arash**. Visit [Arash's GitHub profile](https://github.com/Arash-abraham) or browse the [File-Store repository](https://github.com/Arash-abraham/File-Store).

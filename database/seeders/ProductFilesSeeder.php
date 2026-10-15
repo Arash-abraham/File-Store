@@ -4,44 +4,38 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ProductFilesSeeder extends Seeder
 {
     public function run(): void
     {
         $now = now();
-        $photoshopId = DB::table('products')->where('slug', 'adobe-photoshop-2024')->value('id');
-        $reactCourseId = DB::table('products')->where('slug', 'dwrh-kaml-amwzsh-react-js')->value('id');
+        $sampleFiles = [
+            ['slug' => 'linux-for-hackers', 'name' => 'راهنمای شروع مطالعه', 'path' => 'demo/linux-guide.txt'],
+            ['slug' => 'http-definitive-guide', 'name' => 'نمونه فصل اول', 'path' => 'demo/http-sample.txt'],
+            ['slug' => 'nginx-cookbook', 'name' => 'فایل همراه کتاب', 'path' => 'demo/nginx-notes.txt'],
+        ];
 
-        if ($photoshopId) {
-            DB::table('product_files')->insert([
+        foreach ($sampleFiles as $index => $sample) {
+            $productId = DB::table('products')->where('slug', $sample['slug'])->value('id');
+            if (!$productId) {
+                continue;
+            }
+
+            Storage::disk('private')->put($sample['path'], "فایل نمونه‌ی نمایشی فایل‌استور\nاین فایل برای آزمایش مسیر دانلود در محیط توسعه ساخته شده است.\nمحصول: {$sample['slug']}\n");
+            DB::table('product_files')->updateOrInsert(
+                ['product_id' => $productId, 'name' => $sample['name']],
                 [
-                    'product_id' => $photoshopId,
-                    'name' => 'Setup Files',
-                    'path' => '/storage/products/photoshop/setup.zip',
-                    'size_label' => '2GB',
-                    'type' => 'zip',
-                    'sort_order' => 1,
+                    'path' => $sample['path'],
+                    'size_label' => 'کمتر از ۱ کیلوبایت',
+                    'type' => 'txt',
+                    'sort_order' => $index + 1,
                     'created_at' => $now,
                     'updated_at' => $now,
+                    'deleted_at' => null,
                 ],
-            ]);
-        }
-
-        if ($reactCourseId) {
-            DB::table('product_files')->insert([
-                [
-                    'product_id' => $reactCourseId,
-                    'name' => 'Video Pack 1',
-                    'path' => '/storage/products/react/video-pack-1.zip',
-                    'size_label' => '1.2GB',
-                    'type' => 'zip',
-                    'sort_order' => 1,
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ],
-            ]);
+            );
         }
     }
 }
-

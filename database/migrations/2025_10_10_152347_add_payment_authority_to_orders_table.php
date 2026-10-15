@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -6,17 +7,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->string('payment_authority')->nullable()->after('id');
-        });
+        if (!Schema::hasColumn('orders', 'payment_authority')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->string('payment_authority')
+                    ->nullable()
+                    ->after('id');
+            });
+        }
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->dropColumn('payment_authority');
-        });
+        // Do not drop the column here because it may
+        // have been created by the original migration.
     }
 };

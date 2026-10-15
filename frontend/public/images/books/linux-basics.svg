@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 840" role="img" aria-labelledby="title desc">
+  <title id="title">لینوکس برای هکرها</title>
+  <desc id="desc">جلد انتزاعی سبز تیره با طرح پنجره‌ی ترمینال</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#122b30"/><stop offset=".55" stop-color="#1c5148"/><stop offset="1" stop-color="#183a36"/></linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#b7dcaa" stop-opacity=".24"/><stop offset="1" stop-color="#b7dcaa" stop-opacity="0"/></linearGradient>
+    <pattern id="grid" width="34" height="34" patternUnits="userSpaceOnUse"><path d="M34 0H0V34" fill="none" stroke="#d7eee0" stroke-opacity=".07" stroke-width="1"/></pattern>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%"><feDropShadow dx="0" dy="16" stdDeviation="14" flood-color="#071a18" flood-opacity=".35"/></filter>
+  </defs>
+  <rect width="600" height="840" fill="url(#bg)"/>
+  <rect width="600" height="840" fill="url(#grid)"/>
+  <circle cx="500" cy="95" r="190" fill="url(#glow)"/>
+  <path d="M0 635C122 580 211 699 347 641s183-35 253-92v291H0Z" fill="#d47b51" opacity=".94"/>
+  <path d="M0 688c143-70 233 43 365-5s176-35 235-73" fill="none" stroke="#f5d39b" stroke-opacity=".48" stroke-width="2"/>
+  <rect x="0" y="0" width="23" height="840" fill="#e2bb73"/>
+  <text x="62" y="77" fill="#d1e6d4" font-family="Arial, sans-serif" font-size="17" letter-spacing="4">FIELD NOTES  /  07</text>
+  <text x="62" y="183" fill="#f2f4e9" font-family="Arial, sans-serif" font-size="88" font-weight="700" letter-spacing="-3">LINUX</text>
+  <text x="62" y="227" fill="#e8c68b" font-family="Arial, sans-serif" font-size="22" letter-spacing="2">COMMAND LINE • SECURITY</text>
+  <text x="540" y="291" text-anchor="end" direction="rtl" fill="#f5f1df" font-family="Tahoma, Arial, sans-serif" font-size="30" font-weight="700">لینوکس برای هکرها</text>
+  <text x="540" y="330" text-anchor="end" direction="rtl" fill="#c1d8cb" font-family="Tahoma, Arial, sans-serif" font-size="17">از خط فرمان تا ابزارهای امنیت</text>
+  <g filter="url(#shadow)">
+    <rect x="64" y="380" width="472" height="195" rx="18" fill="#0d2427" stroke="#8db29a" stroke-opacity=".42" stroke-width="2"/>
+    <path d="M64 422h472" stroke="#6f9980" stroke-opacity=".35"/>
+    <circle cx="91" cy="401" r="6" fill="#e48b67"/><circle cx="113" cy="401" r="6" fill="#e5c36f"/><circle cx="135" cy="401" r="6" fill="#8bc18b"/>
+    <text x="90" y="466" fill="#8dbd91" font-family="monospace" font-size="21">$ whoami</text>
+    <text x="90" y="505" fill="#e3efe2" font-family="monospace" font-size="19">curious_reader</text>
+    <text x="90" y="545" fill="#8dbd91" font-family="monospace" font-size="21">$ learn --secure</text>
+    <rect x="305" y="540" width="12" height="21" fill="#e9c886"/>
+  </g>
+  <text x="62" y="741" fill="#fff5df" font-family="Tahoma, Arial, sans-serif" font-size="18">راهنمایی برای مسیر یادگیری و کشف</text>
+  <text x="62" y="779" fill="#f4dbb2" font-family="Arial, sans-serif" font-size="14" letter-spacing="3">FILESTORE  •  DIGITAL EDITION</text>
+  <path d="M565 0h35v840h-35z" fill="#0b2224" opacity=".35"/>
+</svg>
