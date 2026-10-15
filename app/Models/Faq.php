@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Faq extends Model
 {
     use SoftDeletes;
-    protected $fillable = ['question','answer'];
 
+    protected $fillable = ['question', 'answer', 'status'];
 }

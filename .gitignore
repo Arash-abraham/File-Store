@@ -1,62 +1,46 @@
+# Generated logs and operating-system files
 *.log
 .DS_Store
+Thumbs.db
+
+# Sensitive environment and credentials files
 .env
 .env.backup
 .env.production
+.env.local
+.env.*.local
+/auth.json
 .phpactor.json
 .phpunit.result.cache
+/storage/*.key
+
+# IDE / local tooling
 /.fleet
 /.idea
 /.nova
 /.phpunit.cache
 /.vscode
 /.zed
-/auth.json
-/node_modules
+/.vagrant
+Homestead.json
+Homestead.yaml
+*.sublime-project
+
+# Dependencies and generated application output
+/vendor/
+/node_modules/
+node_modules/
+/frontend/dist/
 /public/build
 /public/hot
 /public/storage
-/storage/*.key
 /storage/pail
-/vendor
-Homestead.json
-Homestead.yaml
-Thumbs.db
-=======
-# Dependencies
-/vendor/
-node_modules/
+/storage/logs/*.log
 npm-debug.log
 yarn-error.log
 
-# Laravel 4 specific
+# Legacy Laravel paths
 bootstrap/compiled.php
 app/storage/
-
-# Laravel 5 & Lumen specific
-public/storage
-public/hot
-
-# Laravel 5 & Lumen specific with changed public path
 public_html/storage
 public_html/hot
-
-# Sensitive and temporary files
-storage/*.key
-.env
-.env.backup
-.env.production
-Homestead.yaml
-Homestead.json
-/.vagrant
-.phpunit.result.cache
-/public/build
-/storage/pail
-.phpactor.json
-auth.json
-
-# IDE-specific files
-.idea/  # PhpStorm
-.vscode/  # VS Code
-*.sublime-project  # Sublime Text
-storage/logs/*.log

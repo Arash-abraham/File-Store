@@ -1,322 +1,197 @@
-# 📚 FileStore - Digital PDF Book Marketplace
+# فایل‌استور — فروشگاه کتاب دیجیتال
 
-![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
-![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+فایل‌استور یک فروشگاه فارسی و راست‌چین برای کتاب‌های دیجیتال است. رابط کاربری با **React، TypeScript و Vite** به‌صورت یک برنامه‌ی مستقل ساخته شده و **Laravel 12 فقط API** و منطق سمت سرور را ارائه می‌کند؛ صفحات فروشگاه با Blade یا Inertia رندر نمی‌شوند.
 
-A modern digital marketplace for PDF books built with Laravel. Purchase, download, and manage your digital books seamlessly.
+## فناوری‌ها
 
-## ✨ Features
+- **API:** PHP 8.2+، Laravel 12، Laravel Sanctum، MySQL/MariaDB
+- **رابط کاربری:** React 19، TypeScript، Vite 7، React Router، TanStack Query
+- **رابط:** فارسی، RTL، واکنش‌گرا، فونت Vazirmatn
+- **پرداخت:** زرین‌پال (اختیاری برای محیط محلی)
 
-### 🏠 Frontend Features
-- **Home Page** with customer satisfaction highlights
-- Dynamic **Admin-configurable menus** (Home, Products, FAQ, About Us)
-- **8 Best-selling products** showcase
-- **Categories section** with product counts
-- **Advanced search** functionality across products
-- **Footer** with site information
+## امکانات
 
-### 👤 User Features
-- **Shopping Cart** (requires authentication)
-- **Duplicate purchase prevention** for owned products
-- **Discount code system**
-- **Wallet system** with partial payments
-- **User Dashboard** with:
-  - Order history
-  - Purchased file downloads
-  - Ticket submission
-  - Profile management
-  - Password change
-  - Wallet recharge
+- خانه، دسته‌بندی و جست‌وجوی کتاب‌ها، جزئیات محصول و دیدگاه‌ها
+- سبد خرید احراز هویت‌شده، کد تخفیف، پرداخت با کیف پول یا زرین‌پال
+- حساب کاربری، سفارش‌ها، کتابخانه و دانلود امن، تیکت پشتیبانی و ویرایش اطلاعات
+- ثبت‌نام، ورود نشست‌محور، خروج، بازیابی و تغییر گذرواژه
+- پنل مدیریت برای نمای کلی، مدیریت محصولات، وضعیت تیکت‌ها و تأیید/رد دیدگاه‌ها
+- حالت نمایشی فرانت‌اند برای بازبینی رابط بدون اتصال به API
 
-### ⚡ Admin Panel
-- **Dashboard** with:
-  - Sales analytics
-  - Revenue tracking
-  - Sales charts
-- **Management Sections**:
-  - Products management
-  - File management
-  - Categories
-  - Tags
-  - Discount codes
-  - Comments moderation
-  - Menu settings
-  - Payments
-  - Tickets
-  - FAQ management
+## پیش‌نیازها
 
-### 🔐 Authentication System
-- **Three Login Methods**:
-    - Email & Password
-    - 6-digit code via Email
-    - 6-digit code via SMS
+- PHP 8.2 یا جدیدتر و افزونه‌های موردنیاز Laravel
+- Composer 2
+- MySQL 8 / MariaDB یا یک دیتابیس سازگار با Laravel
+- Node.js سازگار با Vite 7 (نسخه‌ی 20.19+ یا 22.12+) و npm
 
-### 💳 Payment Gateway
-- **ZarinPal** integration for secure payments
+## راه‌اندازی محلی
 
-### 📧 Notifications
-- Automated purchase confirmation emails
+### ۱. نصب وابستگی‌های Laravel و تنظیم محیط
 
-## 🚀 Quick Start
+از ریشه‌ی مخزن:
 
-### Prerequisites
-- PHP 8.0+
-- Composer
-- MySQL 5.7+
-- Node.js & NPM
-
-### Installation
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/yourusername/File-Store.git
-cd File-Store
-```
-
-2. **Install PHP dependencies**
 ```bash
 composer install
-```
-
-3. **Install Node.js dependencies**
-```bash
-npm install
-```
-
-4. **Build frontend assets**
-```bash
-npm run build
-```
-
-5. **Environment Setup**
-```bash
 cp .env.example .env
-```
-
-6. **Configure Environment Variables**
-Edit `.env` file with your configuration:
-
-```env
-# Basic App Configuration
-APP_NAME=FileStore
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8000
-
-# Database Configuration
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=filestore
-DB_USERNAME=your_username
-DB_PASSWORD=your_password
-
-# Email Configuration (Must be configured by user)
-MAIL_MAILER=smtp
-MAIL_HOST=your_smtp_host
-MAIL_PORT=your_smtp_port
-MAIL_USERNAME=your_smtp_username
-MAIL_PASSWORD=your_smtp_password
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@filestore.com
-MAIL_FROM_NAME="FileStore"
-
-# SMS Configuration (Kaveh Negar)
-KAVEHNEGAR_API_KEY=your_kavehnegar_api_key
-KAVEHNEGAR_SENDER=your_sender_number
-
-# Payment Gateway (ZarinPal)
-ZARINPAL_MERCHANT_ID=your_zarinpal_merchant_id
-ZARINPAL_SANDBOX=true
-
-# File Upload Configuration
-FILESYSTEM_DISK=public
-MAX_FILE_SIZE=30720
-ALLOWED_FILE_TYPES=pdf
-```
-
-7. **Generate application key**
-```bash
 php artisan key:generate
 ```
 
-8. **Run database setup**
-```bash
-php artisan migrate --seed
+در `.env` اتصال دیتابیس را تنظیم کنید. دیتابیس را پیش از اجرای migration بسازید. در صورت استفاده از MySQL، نمونه‌ی تنظیمات زیر را تکمیل کنید:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=file_store
+DB_USERNAME=root
+DB_PASSWORD=
 ```
 
-9. **Create storage link**
+برای توسعه‌ی محلی، مقادیر مربوط به SPA/API نیز در `.env.example` آمده‌اند. در صورت تغییر پورت‌ها، هم‌زمان این موارد را به‌روزرسانی کنید:
+
+```env
+APP_URL=http://127.0.0.1:8000
+FRONTEND_URL=http://localhost:5173
+CORS_ALLOWED_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+SANCTUM_STATEFUL_DOMAINS=localhost:5173,127.0.0.1:5173,localhost:8000,127.0.0.1:8000
+SESSION_DOMAIN=null
+```
+
+### ۲. ایجاد schema و داده‌های نمونه
+
 ```bash
+php artisan migrate --seed
 php artisan storage:link
 ```
 
-10. **Start development server**
+Seederها برای راه‌اندازی و نمایش پروژه داده‌های مرتبط را می‌سازند: حساب مدیر و کاربر، دسته‌ها، برچسب‌ها، محصولات، فایل‌های نمونه در دیسک خصوصی، کدهای تخفیف، تنظیمات، پرسش‌های متداول، منو، کیف پول، سبد، سفارش‌ها، پرداخت نمونه، تیکت و دیدگاه. اجرای دوباره‌ی Seederها برای رکوردهای نمونه عمدتاً idempotent است؛ برای بازسازی کامل دیتابیس از `migrate:fresh --seed` استفاده کنید، با این هشدار که **تمام داده‌های فعلی دیتابیس حذف می‌شود**.
+
+### ۳. اجرای API
+
+در یک ترمینال:
+
 ```bash
-composer run dev
+php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-## 📸 Screenshots
+Laravel در ریشه‌ی `/` یک پاسخ JSON معرفی سرویس می‌دهد. مسیر سلامت API برابر `/api/v1/health` است. رابط کاربری از routeهای Blade استفاده نمی‌کند.
 
-### Home Page
-<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-34-53.png">
+### ۴. اجرای React
 
-*Main landing page with customer satisfaction section, best-selling products, and categories*
+در ترمینال دوم:
 
-### Products Page
-<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-36-36.png">
-
-*Product catalog with advanced search and category filtering*
-
-### Category View
-<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-39-44.png">
-
-*Category page showing product count and filtered results*
-
-### User Dashboard
-<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2015-42-57.png">
-
-*User panel => wallet management*
-
-### Admin Panel
-<img src="https://raw.githubusercontent.com/Arash-abraham/File-Store/refs/heads/main/img/Screenshot%20from%202025-10-18%2014-47-05.png">
-
-*Administrative dashboard with analytics and management sections*
-
-### Shopping Cart
-<img src="https://github.com/Arash-abraham/File-Store/blob/main/img/Screenshot%20from%202025-10-18%2015-50-01.png">
-
-*Shopping cart with discount codes and wallet integration*
-
-## 🗃️ Database Structure
-
-### Main Tables
-- `users` - User accounts and profiles
-- `products` - PDF book products
-- `categories` - Product categories
-- `orders` - Purchase records
-- `order_items` - Individual order items
-- `wallets` - User wallet balances
-- `discount_codes` - Promotional codes
-- `tickets` - Support tickets
-- `faqs` - Frequently asked questions
-- `menus` - Dynamic menu management
-- `payments` - Payment transactions
-- `comments` - User comments and reviews
-
-## 🔧 Configuration
-
-### Email Setup
-You must configure your email service in `.env`:
-```env
-MAIL_MAILER=smtp
-MAIL_HOST=your_smtp_host
-MAIL_PORT=your_smtp_port
-MAIL_USERNAME=your_smtp_username
-MAIL_PASSWORD=your_smtp_password
-MAIL_ENCRYPTION=tls
-```
-
-### SMS Setup (Kaveh Negar)
-1. Register at [Kaveh Negar](https://kavenegar.com)
-2. Get your API key from dashboard
-3. Configure in `.env`:
-```env
-KAVEHNEGAR_API_KEY=your_api_key_here
-KAVEHNEGAR_SENDER=your_sender_number
-```
-
-### Payment Gateway (ZarinPal)
-1. Register at [ZarinPal](https://zarinpal.com)
-2. Get your Merchant ID
-3. Configure in `.env`:
-```env
-ZARINPAL_MERCHANT_ID=your_zarinpal_merchant_id
-```
-
-### File Upload Configuration
-Admins can upload files up to 30MB:
-```env
-MAX_FILE_SIZE=30720
-ALLOWED_FILE_TYPES=pdf
-```
-
-## 🚀 Deployment
-
-### Production Deployment Steps:
-
-1. **Environment Setup**
 ```bash
-cp .env.example .env
-# Update production values in .env
+cd frontend
+cp .env.example .env.local
+npm install
+npm run dev
 ```
 
-2. **Optimize Application**
+آدرس پیش‌فرض رابط کاربری `http://localhost:5173` است. Vite درخواست‌های `/api`، `/sanctum`، `/products` و `/storage` را به Laravel روی `http://127.0.0.1:8000` پروکسی می‌کند. مقصد پروکسی را می‌توانید در `frontend/.env.local` با `API_PROXY_TARGET` تغییر دهید.
+
+### ورودهای نمونه‌ی Seeder
+
+| نقش | ایمیل | گذرواژه‌ی پیش‌فرض |
+|---|---|---|
+| کاربر | `user@example.com` | `password` |
+| مدیر | `admin@example.com` | `password` |
+
+این اعتبارنامه‌ها فقط برای توسعه و دمو هستند. در محیط واقعی، گذرواژه‌ها را با متغیرهای `DEMO_USER_PASSWORD` و `DEMO_ADMIN_PASSWORD` عوض کنید یا داده‌های حساب نمونه را seed نکنید.
+
+## حالت نمایشی فرانت‌اند
+
+برای مشاهده‌ی صفحات و جریان سبد خرید بدون اجرای Laravel، مقدار زیر را در `frontend/.env.local` بگذارید و Vite را دوباره اجرا کنید:
+
+```env
+VITE_DEMO_MODE=true
+```
+
+در این حالت کاتالوگ و حساب‌ها از داده‌های نمونه‌ی داخل فرانت‌اند استفاده می‌کنند و سبد در `localStorage` می‌ماند. ورود نمایشی با همان ایمیل‌های نمونه و گذرواژه‌ی `password` انجام می‌شود. **پرداخت و ثبت داده در حالت نمایشی واقعی نیستند.** برای کار با API مقدار را روی `false` بگذارید.
+
+## تنظیم فرانت‌اند و API در تولید
+
+برای ساخت نسخه‌ی static:
+
 ```bash
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+cd frontend
+npm ci
+npm run build
 ```
 
-3. **Set proper permissions**
+خروجی در `frontend/dist` قرار می‌گیرد. آن را روی میزبانی static جداگانه منتشر کنید و `VITE_API_BASE_URL` را پیش از build به آدرس API تنظیم کنید، برای مثال:
+
+```env
+VITE_API_BASE_URL=https://api.example.com/api/v1
+VITE_DEMO_MODE=false
+```
+
+برای احراز هویت نشست‌محور Sanctum، انتشار فرانت‌اند و API روی زیردامنه‌های یک دامنه‌ی اصلی (مثلاً `app.example.com` و `api.example.com`) پیشنهاد می‌شود. دامنه‌ی فرانت‌اند را در `CORS_ALLOWED_ORIGINS`، دامنه‌های میزبان را در `SANCTUM_STATEFUL_DOMAINS` و دامنه‌ی اصلی cookie را در `SESSION_DOMAIN` وارد کنید؛ در HTTPS مقدار `SESSION_SECURE_COOKIE=true` را تنظیم کنید. دامنه‌ی `FRONTEND_URL` نیز مقصد بازگشت پرداخت و پیوندهای بازیابی گذرواژه است.
+
+## API
+
+همه‌ی endpointهای نسخه‌ی اول زیر پیشوند `/api/v1` هستند. پاسخ‌های موفق معمولاً در کلید `data` قرار می‌گیرند.
+
+| گروه | مسیرها |
+|---|---|
+| عمومی | `GET /health`, `GET /home`, `GET /products`, `GET /products/{slug}`, `GET /categories`, `GET /faqs`, `GET /navigation`, `GET /settings` |
+| احراز هویت | `POST /auth/register`, `POST /auth/login`, `POST /auth/forgot-password`, `POST /auth/reset-password`, `GET /auth/me`, `POST /auth/logout` |
+| سبد و پرداخت | `GET /cart`, `POST /cart/items`, `PATCH /cart/items/{id}`, `DELETE /cart/items/{id}`, `POST /cart/coupon`, `POST /checkout` |
+| حساب | `GET/PUT /account/profile`, `GET /account/overview`, `GET /account/orders`, `GET /account/downloads`, `GET/POST /account/tickets` |
+| کیف پول و دیدگاه | `GET /wallet`, `POST /wallet/deposits`, `POST /reviews`, مسیرهای helpful و report دیدگاه |
+| مدیریت | `/admin/dashboard`, محصولات، دسته‌ها، برچسب‌ها، کوپن‌ها، FAQ، منو، تیکت‌ها، دیدگاه‌ها، پرداخت‌ها و تنظیمات |
+
+مسیرهای مدیریت به نشست معتبر با نقش `admin` نیاز دارند. فایل‌های خریداری‌شده از endpoint حساب کاربر و پس از بررسی مالکیت سفارش تحویل داده می‌شوند؛ برای استفاده از فایل‌های واقعی باید فایل محصول را در دیسک خصوصی بارگذاری کرد.
+
+در نصب‌های دارای Scramble، مستندات API از مسیر `/docs/api` در دسترس است.
+
+## پیکربندی سرویس‌ها
+
+### ایمیل
+
+در توسعه می‌توانید `MAIL_MAILER=log` نگه دارید؛ پیام‌های ایمیلی در لاگ Laravel ثبت می‌شوند. برای ایمیل واقعی، SMTP را در `.env` تنظیم کنید. ارسال پیوند بازیابی گذرواژه و تأیید ایمیل به ایمیل قابل‌دسترسی نیاز دارد.
+
+### زرین‌پال
+
+برای پرداخت واقعی، `ZARINPAL_MERCHANT_ID` را تنظیم کنید و مقادیر sandbox/production را مطابق حساب درگاه قرار دهید. بدون Merchant ID، endpoint پرداخت پاسخ پیکربندی‌نشده می‌دهد؛ اجرای دمو با درگاه واقعی لازم نیست.
+
+### فایل‌ها
+
+تصاویر عمومی محصولات از `public/products`/دیسک public ارائه می‌شوند. فایل‌های قابل دانلود در دیسک خصوصی ذخیره شده و فقط پس از بررسی سفارش پرداخت‌شده قابل دریافت هستند. Seeder فایل‌های کوچک متنیِ نمونه را برای آزمایش مسیر دانلود ایجاد می‌کند؛ آن‌ها کتاب واقعی نیستند.
+
+## آزمون و بررسی
+
+فرانت‌اند:
+
 ```bash
-chmod -R 755 storage
-chmod -R 755 bootstrap/cache
+cd frontend
+npm run typecheck
+npm run build
 ```
 
-## 🐛 Troubleshooting
+Laravel (در محیطی که PHP و وابستگی‌ها نصب باشند):
 
-### Common Issues:
+```bash
+php artisan test
+```
 
-**File upload fails:**
-- Check `upload_max_filesize` in php.ini (should be at least 30M)
-- Verify storage permissions
-- Ensure allowed file types in config
+برای بررسی routeها نیز می‌توان از `php artisan route:list --path=api/v1` استفاده کرد.
 
-**Email not sending:**
-- Verify SMTP credentials in `.env`
-- Check spam folder
-- Test with Mailtrap first
+## ساختار مهم
 
-**SMS not working:**
-- Verify Kaveh Negar API key
-- Check account balance
-- Validate sender number
+```text
+app/Http/Controllers/Api/V1/    کنترلرهای نسخه‌ی اول API
+app/Http/Resources/Api/V1/      منابع JSON محصولات و دسته‌ها
+routes/api.php                  endpointهای نسخه‌ی اول
+routes/web.php                  پاسخ JSON معرفی سرویس؛ بدون UI
+database/seeders/               داده‌های پایه و نمونه
+frontend/src/                   برنامه‌ی مستقل React/TypeScript
+frontend/public/images/books/   جلدهای محلی برای حالت دمو
+```
 
-**Payment issues:**
-- Verify ZarinPal Merchant ID
-- Check callback URLs
-- Ensure SSL certificate for production
+## یادداشت امنیتی
 
-**Login issues:**
-- Check email/SMS configuration
-- Verify database connections
-- Check session configuration
-
-## 👥 Authors
-
-<div align="center">
-
-| **Arash Ebrahimian** | **Amir Hossein Hosseinzade** |
-|:--------------------:|:--------------------:|
-| <img src="https://github.com/Arash-abraham.png" width="120" style="border-radius: 50%; border: 3px solid #007bff;"> | <img src="https://github.com/iamhosseinzadeh.png" width="120" style="border-radius: 50%; border: 3px solid #28a745;"> |
-| *Lead Developer & Project Architect* | *Co-developer & Template Specialist* |
-| [![GitHub](https://img.shields.io/badge/🚀_GitHub-000?style=flat&logo=github)](https://github.com/Arash-abraham) | [![GitHub](https://img.shields.io/badge/🚀_GitHub-000?style=flat&logo=github)](https://github.com/iamhosseinzadeh) |
-
-</div>
-
-## 🙏 Acknowledgments
-
-- Kaveh Negar for SMS service
-- ZarinPal for payment gateway
-
-## 📞 Support
-
-For support, email arashebi777@gmail.com .
-
----
-
-<div align="center">
-Made with ❤️ using Laravel & JavaScript and Tailwind CSS
-</div>
+- `VITE_DEMO_MODE` را در تولید روشن نکنید.
+- گذرواژه‌های نمونه، Merchant ID آزمایشی و APP_DEBUG را در محیط عمومی استفاده نکنید.
+- برای SPA و API، تنظیم CORS، دامنه‌ی Sanctum و کوکی session باید با دامنه و HTTPS واقعی هماهنگ باشد.
+- فایل‌های قابل خرید را در دیسک private نگه دارید؛ از لینک عمومی مستقیم برای محتوای خریداری‌شده استفاده نکنید.

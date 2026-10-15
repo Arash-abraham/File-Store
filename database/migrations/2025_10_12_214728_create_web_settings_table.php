@@ -7,8 +7,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    /**
+     * The initial web-settings table is created by an earlier migration.
+     * Keep this historical duplicate safe for fresh databases and old installs.
+     */
+    public function up(): void
     {
+        if (Schema::hasTable('web_settings')) {
+            return;
+        }
+
         Schema::create('web_settings', function (Blueprint $table) {
             $table->id();
             $table->string('site_title');
@@ -21,20 +29,19 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Insert default settings
         DB::table('web_settings')->insert([
-            'site_title' => 'فایل استور',
-            'site_description' => 'بهترین و معتبرترین فروشگاه محصولات دیجیتال در ایران',
-            'phone' => '021-12345678',
-            'email' => 'info@shop.com',
-            'address' => 'تهران، خیابان آزادی',
+            'site_title' => 'فایل‌استور',
+            'site_description' => 'کتاب‌های دیجیتال، برای مسیرهای تازه‌ی یادگیری.',
+            'phone' => '021-9100-2626',
+            'email' => 'hello@filestore.local',
+            'address' => 'تهران، ایران',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
     }
 
-    public function down()
+    public function down(): void
     {
-        Schema::dropIfExists('web_settings');
+        // The table belongs to the earlier create_web_settings migration.
     }
 };

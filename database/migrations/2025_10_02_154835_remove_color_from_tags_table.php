@@ -22,7 +22,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('tags', function (Blueprint $table) {
-            $table->integer('tags')->default(0);
+            $table->string('color', 50)->default('gray');
         });
     }
 };

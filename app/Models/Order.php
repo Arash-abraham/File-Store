@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Order extends Model
 {
@@ -14,26 +13,29 @@ class Order extends Model
 
     protected $fillable = [
         'user_id',
-        'session_token', 
+        'session_token',
         'total_amount',
         'discount_amount',
-        'final_amount',
-        'paid_from_wallet', 
-        'remaining_amount', 
+        'coupon_id',
+        'payment_gateway',
+        'transaction_id',
+        'reference',
+        'paid_at',
+        'paid_from_wallet',
+        'remaining_amount',
         'payment_method',
-        'payment_status',
         'status',
-        'payment_authority'
+        'payment_authority',
     ];
 
     protected $casts = [
-        'total_amount' => 'decimal:2',
-        'discount_amount' => 'decimal:2',
-        'final_amount' => 'decimal:2',
-        'paid_from_wallet' => 'decimal:2', 
-        'remaining_amount' => 'decimal:2', 
+        'total_amount' => 'integer',
+        'discount_amount' => 'integer',
+        'paid_from_wallet' => 'integer',
+        'remaining_amount' => 'integer',
+        'paid_at' => 'datetime',
     ];
-    // روابط
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -49,25 +51,14 @@ class Order extends Model
         return $this->hasMany(OrderItem::class);
     }
 
-    public function getFinalAmountAttribute(): int
+    public function payments(): HasMany
     {
-        $total = (int)$this->total_amount;
-        $discount = (int)($this->discount_amount ?? 0);
-        return max(0, $total - $discount);
+        return $this->hasMany(Payment::class);
     }
 
-    /*
-    public function getTotalAmountAttribute()
+    public function getFinalAmountAttribute(): int
     {
-        return $this->items->sum(function ($item) {
-            return $item->quantity * $item->price;
-        });
-    }
-    */
-    
-    public function product()
-    {
-        return $this->belongsTo(Product::class);
+        return max(0, (int) $this->total_amount - (int) $this->discount_amount);
     }
 
     public function markAsPaid(string $paymentGateway, string $transactionId): void
@@ -75,9 +66,8 @@ class Order extends Model
         $this->update([
             'status' => 'paid',
             'payment_gateway' => $paymentGateway,
-            'payment_authority' => $this->payment_authority ?? null, 
             'transaction_id' => $transactionId,
-            'paid_at' => now()
+            'paid_at' => now(),
         ]);
     }
 }

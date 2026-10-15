@@ -11,58 +11,51 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
-    use HasApiTokens;
+    use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'phone'
+        'phone',
+        'avatar_url',
+        'birthdate',
+        'marketing_opt_in',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'birthdate' => 'date',
+            'marketing_opt_in' => 'boolean',
         ];
     }
-    use HasApiTokens;
 
-    public function getAuthIdentifierName()
-    {
-        return 'id';
-    }
     public function wallet()
     {
         return $this->hasOne(Wallet::class);
     }
 
+    /** Compatibility accessor for existing services; create wallets explicitly in API use cases. */
     public function getWalletAttribute(): Wallet
     {
         return $this->wallet()->firstOrCreate([], ['balance' => 0]);
     }
 
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new CustomVerifyEmail());
+    }
 }

@@ -9,23 +9,28 @@ class ProductTagSeeder extends Seeder
 {
     public function run(): void
     {
+        $relationships = [
+            'linux-for-hackers' => ['coding', 'linux', 'bestseller'],
+            'http-definitive-guide' => ['coding', 'networking'],
+            'nginx-cookbook' => ['coding', 'networking'],
+            'nader-shah-afshar' => ['history'],
+        ];
         $now = now();
-        $photoshopId = DB::table('products')->where('slug', 'adobe-photoshop-2024')->value('id');
-        $reactCourseId = DB::table('products')->where('slug', 'dwrh-kaml-amwzsh-react-js')->value('id');
-        $adobeTagId = DB::table('tags')->where('slug', 'adobe')->value('id');
-        $microsoftTagId = DB::table('tags')->where('slug', 'microsoft')->value('id');
 
-        $inserts = [];
-        if ($photoshopId && $adobeTagId) {
-            $inserts[] = ['product_id' => $photoshopId, 'tag_id' => $adobeTagId, 'created_at' => $now, 'updated_at' => $now];
-        }
-        if ($reactCourseId && $microsoftTagId) {
-            $inserts[] = ['product_id' => $reactCourseId, 'tag_id' => $microsoftTagId, 'created_at' => $now, 'updated_at' => $now];
-        }
-
-        if (!empty($inserts)) {
-            DB::table('product_tag')->insert($inserts);
+        foreach ($relationships as $productSlug => $tagSlugs) {
+            $productId = DB::table('products')->where('slug', $productSlug)->value('id');
+            if (!$productId) {
+                continue;
+            }
+            foreach ($tagSlugs as $tagSlug) {
+                $tagId = DB::table('tags')->where('slug', $tagSlug)->value('id');
+                if ($tagId) {
+                    DB::table('product_tag')->updateOrInsert(
+                        ['product_id' => $productId, 'tag_id' => $tagId],
+                        ['created_at' => $now, 'updated_at' => $now],
+                    );
+                }
+            }
         }
     }
 }
-

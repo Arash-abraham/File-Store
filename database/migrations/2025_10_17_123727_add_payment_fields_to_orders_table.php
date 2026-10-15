@@ -20,9 +20,8 @@ return new class extends Migration
         Schema::table('orders', function (Blueprint $table) {
             $table->dropColumn([
                 'paid_from_wallet',
-                'remaining_amount', 
+                'remaining_amount',
                 'payment_method',
-                'final_amount'
             ]);
         });
     }

@@ -10,17 +10,21 @@ class CartsSeeder extends Seeder
 {
     public function run(): void
     {
+        $userId = DB::table('users')->where('email', mb_strtolower(env('DEMO_USER_EMAIL', 'user@example.com')))->value('id');
+        if (!$userId) {
+            return;
+        }
+
         $now = now();
-        $userId = DB::table('users')->where('email', 'user@example.com')->value('id');
-        DB::table('carts')->insert([
+        DB::table('carts')->updateOrInsert(
+            ['user_id' => $userId, 'status' => 'active'],
             [
-                'user_id' => $userId,
-                'session_token' => Str::random(32),
-                'status' => 'active',
+                'session_token' => Str::random(40),
+                'discount' => 0,
+                'coupon_code' => null,
                 'created_at' => $now,
                 'updated_at' => $now,
             ],
-        ]);
+        );
     }
 }
-
