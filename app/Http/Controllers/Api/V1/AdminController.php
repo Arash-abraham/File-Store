@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\Api\V1\PageResource;
 use App\Http\Resources\Api\V1\ProductResource;
 use App\Models\Category;
 use App\Models\Coupon;
@@ -10,6 +11,7 @@ use App\Models\Faq;
 use App\Models\FileProduct;
 use App\Models\Menu;
 use App\Models\Order;
+use App\Models\Page;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\Review;
@@ -267,6 +269,117 @@ class AdminController extends Controller
     {
         Faq::query()->findOrFail($id)->delete();
         return response()->json(['message' => 'سوال متداول حذف شد.']);
+    }
+
+    public function pages()
+    {
+        return response()->json([
+            'data' => Page::query()->orderBy('slug')->get()->map(fn (Page $page) => (new PageResource($page))->resolve()),
+        ]);
+    }
+
+    public function updatePage(Request $request, int $id)
+    {
+        $page = Page::query()->findOrFail($id);
+
+        // Drop rows an admin left completely blank before validating, so a freshly
+        // added (but unused) editor row never fails the request.
+        if (is_array($request->input('content'))) {
+            $request->merge(['content' => $this->normalizePageContent($request->input('content'))]);
+        }
+
+        $data = $request->validate([
+            'title' => ['sometimes', 'required', 'string', 'max:200'],
+            'subtitle' => ['sometimes', 'nullable', 'string', 'max:300'],
+            'status' => ['sometimes', Rule::in(['draft', 'published'])],
+            'content' => ['sometimes', 'nullable', 'array'],
+            'content.story' => ['sometimes', 'nullable', 'array'],
+            'content.story.heading' => ['sometimes', 'nullable', 'string', 'max:200'],
+            'content.story.paragraphs' => ['sometimes', 'nullable', 'array', 'max:12'],
+            'content.story.paragraphs.*' => ['nullable', 'string', 'max:4000'],
+            'content.founders' => ['sometimes', 'nullable', 'array'],
+            'content.founders.heading' => ['sometimes', 'nullable', 'string', 'max:200'],
+            'content.founders.items' => ['sometimes', 'nullable', 'array', 'max:8'],
+            'content.founders.items.*.name' => ['required_with:content.founders.items', 'string', 'max:120'],
+            'content.founders.items.*.role' => ['nullable', 'string', 'max:150'],
+            'content.founders.items.*.bio' => ['nullable', 'string', 'max:2000'],
+            'content.responsibilities' => ['sometimes', 'nullable', 'array'],
+            'content.responsibilities.heading' => ['sometimes', 'nullable', 'string', 'max:200'],
+            'content.responsibilities.items' => ['sometimes', 'nullable', 'array', 'max:12'],
+            'content.responsibilities.items.*.icon' => ['nullable', 'string', 'max:40'],
+            'content.responsibilities.items.*.title' => ['required_with:content.responsibilities.items', 'string', 'max:200'],
+            'content.responsibilities.items.*.description' => ['nullable', 'string', 'max:1000'],
+            'content.timeline' => ['sometimes', 'nullable', 'array'],
+            'content.timeline.heading' => ['sometimes', 'nullable', 'string', 'max:200'],
+            'content.timeline.items' => ['sometimes', 'nullable', 'array', 'max:12'],
+            'content.timeline.items.*.year' => ['nullable', 'string', 'max:20'],
+            'content.timeline.items.*.title' => ['required_with:content.timeline.items', 'string', 'max:200'],
+            'content.timeline.items.*.description' => ['nullable', 'string', 'max:1000'],
+            'content.mission_vision' => ['sometimes', 'nullable', 'array'],
+            'content.mission_vision.mission' => ['sometimes', 'nullable', 'array'],
+            'content.mission_vision.mission.title' => ['sometimes', 'nullable', 'string', 'max:200'],
+            'content.mission_vision.mission.icon' => ['sometimes', 'nullable', 'string', 'max:40'],
+            'content.mission_vision.mission.body' => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'content.mission_vision.vision' => ['sometimes', 'nullable', 'array'],
+            'content.mission_vision.vision.title' => ['sometimes', 'nullable', 'string', 'max:200'],
+            'content.mission_vision.vision.icon' => ['sometimes', 'nullable', 'string', 'max:40'],
+            'content.mission_vision.vision.body' => ['sometimes', 'nullable', 'string', 'max:4000'],
+            'content.stats' => ['sometimes', 'nullable', 'array'],
+            'content.stats.heading' => ['sometimes', 'nullable', 'string', 'max:200'],
+            'content.stats.items' => ['sometimes', 'nullable', 'array', 'max:8'],
+            'content.stats.items.*.value' => ['required_with:content.stats.items', 'string', 'max:40'],
+            'content.stats.items.*.label' => ['required_with:content.stats.items', 'string', 'max:120'],
+            'content.contact' => ['sometimes', 'nullable', 'array'],
+            'content.contact.heading' => ['sometimes', 'nullable', 'string', 'max:200'],
+            'content.contact.body' => ['sometimes', 'nullable', 'string', 'max:2000'],
+            'content.contact.links' => ['sometimes', 'nullable', 'array', 'max:8'],
+            'content.contact.links.*.icon' => ['nullable', 'string', 'max:40'],
+            'content.contact.links.*.label' => ['required_with:content.contact.links', 'string', 'max:150'],
+            'content.contact.links.*.url' => ['required_with:content.contact.links', 'string', 'max:500'],
+        ]);
+
+        $page->update($data);
+
+        return response()->json([
+            'message' => 'محتوای صفحه ذخیره شد.',
+            'data' => (new PageResource($page->fresh()))->resolve(),
+        ]);
+    }
+
+    /**
+     * Drop empty list rows so a partially filled admin form never stores blanks.
+     */
+    private function normalizePageContent(array $content): array
+    {
+        $listSections = [
+            'story' => ['paragraphs'],
+            'founders' => ['items'],
+            'responsibilities' => ['items'],
+            'timeline' => ['items'],
+            'stats' => ['items'],
+            'contact' => ['links'],
+        ];
+
+        foreach ($listSections as $section => $keys) {
+            foreach ($keys as $key) {
+                if (!isset($content[$section][$key]) || !is_array($content[$section][$key])) {
+                    continue;
+                }
+
+                $content[$section][$key] = array_values(array_filter(
+                    $content[$section][$key],
+                    static function ($row) use ($section, $key): bool {
+                        if ($section === 'story' && $key === 'paragraphs') {
+                            return is_string($row) && trim($row) !== '';
+                        }
+
+                        return is_array($row) && collect($row)->contains(fn ($value) => is_string($value) && trim($value) !== '');
+                    },
+                ));
+            }
+        }
+
+        return $content;
     }
 
     public function menus()

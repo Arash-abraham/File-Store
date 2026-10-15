@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\CategoryResource;
+use App\Http\Resources\Api\V1\PageResource;
 use App\Http\Resources\Api\V1\ProductResource;
 use App\Models\Category;
 use App\Models\Faq;
 use App\Models\Menu;
+use App\Models\Page;
 use App\Models\Product;
 use App\Models\WebSetting;
 use Illuminate\Http\Request;
@@ -152,6 +154,16 @@ class StorefrontController extends Controller
                 ->orderBy('id')
                 ->get(['id', 'question', 'answer']),
         ]);
+    }
+
+    public function page(string $slug)
+    {
+        $page = Page::query()
+            ->published()
+            ->where('slug', $slug)
+            ->firstOrFail();
+
+        return response()->json(['data' => (new PageResource($page))->resolve()]);
     }
 
     public function navigation()

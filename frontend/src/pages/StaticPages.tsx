@@ -1,54 +1,235 @@
-import { ArrowLeft, Code2, ExternalLink, Github, HeartHandshake, MessageCircle, ShieldCheck, Sparkles } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import {
+  ArrowLeft,
+  ArrowUpLeft,
+  Code2,
+  ExternalLink,
+  Github,
+  Lightbulb,
+  Mail,
+  MessageCircle,
+  ShieldCheck,
+  Sparkles,
+  Target,
+  Telescope,
+  TrendingUp,
+  Users,
+  type LucideIcon,
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { api, demoMode } from '../lib/api';
+import { demoAboutPage } from '../data/demo';
+import type { PageFeature, PageLink, PageMilestone, PageActor, PageStat, StorePage } from '../types';
 
-const githubProfile = 'https://github.com/Arash-abraham';
-const githubRepository = `${githubProfile}/File-Store`;
+const responsibilityIcons: Record<string, LucideIcon> = {
+  strategy: Target,
+  team: Users,
+  growth: TrendingUp,
+  innovation: Lightbulb,
+};
+
+const pillarIcons: Record<string, LucideIcon> = {
+  mission: ShieldCheck,
+  vision: Telescope,
+};
+
+const linkIcons: Record<string, LucideIcon> = {
+  code: Code2,
+  github: Github,
+  faq: MessageCircle,
+  mail: Mail,
+  external: ExternalLink,
+};
+
+function isExternalLink(url: string) {
+  return /^(https?:)?\/\//.test(url);
+}
+
+function PageLinkItem({ link }: { link: PageLink }) {
+  const Icon = linkIcons[link.icon ?? 'external'] ?? ExternalLink;
+  const external = isExternalLink(link.url);
+  // The shared `.contact-options` styles pin the trailing icon to the row end.
+  const content = <><Icon size={17} /> {link.label} {external ? <ExternalLink size={13} /> : <ArrowLeft size={13} />}</>;
+
+  return external
+    ? <a href={link.url} target="_blank" rel="noreferrer">{content}</a>
+    : <Link to={link.url}>{content}</Link>;
+}
+
+function AboutLoading() {
+  return (
+    <div className="about-skeleton" aria-busy="true" aria-label="در حال دریافت محتوای صفحه">
+      <div className="about-skeleton-bar" />
+      <div className="about-skeleton-block" />
+      <div className="about-skeleton-grid">{[0, 1].map((item) => <div className="about-skeleton-block" key={item} />)}</div>
+    </div>
+  );
+}
 
 export function AboutPage() {
+  const { data, isLoading, isError, refetch } = useQuery<StorePage>({
+    queryKey: ['page', 'about'],
+    queryFn: async () => {
+      if (demoMode) return demoAboutPage;
+      const response = await api.get('/pages/about');
+      return response.data.data as StorePage;
+    },
+  });
+
+  const page = data ?? (demoMode ? demoAboutPage : undefined);
+
+  if (isLoading && !page) {
+    return (
+      <section className="container static-page section-pad">
+        <div className="breadcrumbs"><Link to="/">خانه</Link><span>/</span><b>درباره‌ی ما</b></div>
+        <AboutLoading />
+      </section>
+    );
+  }
+
+  if (!page) {
+    return (
+      <section className="container static-page section-pad">
+        <div className="breadcrumbs"><Link to="/">خانه</Link><span>/</span><b>درباره‌ی ما</b></div>
+        <div className="empty-state">
+          <span className="empty-state-icon"><Sparkles size={22} /></span>
+          <h3>{isError ? 'محتوای این صفحه در دسترس نیست.' : 'این صفحه هنوز منتشر نشده است.'}</h3>
+          <p>اگر چند لحظه‌ی دیگر هم باز نشد، از پشتیبانی پیگیری کن.</p>
+          <button className="button button-outline" onClick={() => void refetch()}>تلاش دوباره <ArrowLeft size={15} /></button>
+        </div>
+      </section>
+    );
+  }
+
+  const { content } = page;
+  const story = content.story;
+  const founders = content.founders;
+  const responsibilities = content.responsibilities;
+  const timeline = content.timeline;
+  const missionVision = content.mission_vision;
+  const stats = content.stats;
+  const contact = content.contact;
+
   return (
     <section className="container static-page section-pad">
-      <div className="breadcrumbs"><Link to="/">خانه</Link><span>/</span><b>درباره‌ی ما</b></div>
+      <div className="breadcrumbs"><Link to="/">خانه</Link><span>/</span><b>{page.title}</b></div>
 
-      <div className="about-intro">
-        <div className="about-intro-copy">
-          <span className="eyebrow">درباره‌ی سازنده</span>
-          <h1>سلام، من آرش هستم؛<br /><em>سازنده‌ی فایل‌استور.</em></h1>
-          <p>فایل‌استور را با این ایده ساختم که پیدا کردن کتاب‌های دیجیتال و رسیدن به محتوای مفید، ساده‌تر و دل‌نشین‌تر باشد. این پروژه ترکیبی از یک فروشگاه مستقل React و یک API با Laravel است که قدم‌به‌قدم توسعه‌اش می‌دهم.</p>
-          <div className="about-intro-actions">
-            <a className="button button-primary" href={githubProfile} target="_blank" rel="noreferrer">
-              <Github size={17} /> گیت‌هاب آرش <ExternalLink size={14} />
-            </a>
-            <Link to="/catalog" className="text-link">گشت‌وگذار در کتاب‌ها <ArrowLeft size={15} /></Link>
+      <header className="static-hero about-hero">
+        <span className="eyebrow">داستان فایل‌استور</span>
+        <h1>{page.title}</h1>
+        {page.subtitle && <p>{page.subtitle}</p>}
+      </header>
+
+      {!!story?.paragraphs?.length && (
+        <article className="about-story">
+          <span className="about-story-mark">“</span>
+          {story.heading && <h2>{story.heading}</h2>}
+          {story.paragraphs.map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+          <span className="about-story-line" />
+        </article>
+      )}
+
+      {!!founders?.items?.length && (
+        <section className="about-section">
+          {founders.heading && <h2 className="about-section-title">{founders.heading}</h2>}
+          <div className="about-founders">
+            {founders.items.map((founder: PageActor, index: number) => (
+              <article className="about-founder-card" key={index}>
+                <span className="about-founder-avatar" aria-hidden="true">{founder.name.trim().slice(0, 1)}</span>
+                <h3>{founder.name}</h3>
+                {founder.role && <span className="about-founder-role">{founder.role}</span>}
+                {founder.bio && <p>{founder.bio}</p>}
+              </article>
+            ))}
           </div>
-        </div>
-        <aside className="about-profile-card">
-          <div className="about-profile-decoration"><i /><i /><i /></div>
-          <div className="about-avatar" aria-hidden="true">آ</div>
-          <span className="about-profile-kicker">خالق فایل‌استور</span>
-          <h2>آرش</h2>
-          <p>توسعه‌دهنده‌ی فروشگاه فایل‌استور</p>
-          <a href={githubProfile} target="_blank" rel="noreferrer"><Github size={15} /> @Arash-abraham <ExternalLink size={13} /></a>
-        </aside>
-      </div>
+        </section>
+      )}
 
-      <div className="about-values">
-        <article><span><Sparkles /></span><b>انتخاب با معنا</b><p>هر عنوان باید چیزی به مسیر یادگیری تو اضافه کند.</p></article>
-        <article><span><ShieldCheck /></span><b>تجربه‌ی قابل اتکا</b><p>رابط روشن، خرید امن و دسترسی حساب‌شده به کتاب‌ها.</p></article>
-        <article><span><HeartHandshake /></span><b>ساخته‌شده با دقت</b><p>از طراحی فارسی و راست‌چین تا جزئیات تجربه‌ی خواننده.</p></article>
-      </div>
+      {!!responsibilities?.items?.length && (
+        <section className="about-section">
+          {responsibilities.heading && <h2 className="about-section-title">{responsibilities.heading}</h2>}
+          <div className="about-responsibilities">
+            {responsibilities.items.map((item: PageFeature, index: number) => {
+              const Icon = responsibilityIcons[item.icon ?? ''] ?? Sparkles;
+              return (
+                <article className={`about-responsibility about-tone-${index % 4}`} key={index}>
+                  <span className="about-responsibility-icon"><Icon size={20} /></span>
+                  <div>
+                    <h3>{item.title}</h3>
+                    {item.description && <p>{item.description}</p>}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        </section>
+      )}
 
-      <div className="about-contact">
-        <div>
-          <span className="eyebrow">کد پروژه</span>
-          <h2>فایل‌استور را در گیت‌هاب ببین.</h2>
-          <p>برای دیدن کد پروژه، خبر گرفتن از تغییرات یا فرستادن پیشنهاد، از لینک‌های گیت‌هاب استفاده کن.</p>
+      {!!timeline?.items?.length && (
+        <section className="about-section">
+          {timeline.heading && <h2 className="about-section-title">{timeline.heading}</h2>}
+          <ol className="about-timeline">
+            {timeline.items.map((milestone: PageMilestone, index: number) => (
+              <li className={index % 2 === 0 ? 'is-start' : 'is-end'} key={index}>
+                <div className="timeline-card">
+                  {milestone.year && <span className="timeline-year">{milestone.year}</span>}
+                  <b>{milestone.title}</b>
+                  {milestone.description && <p>{milestone.description}</p>}
+                </div>
+                <span className="timeline-dot" aria-hidden="true" />
+              </li>
+            ))}
+          </ol>
+        </section>
+      )}
+
+      {(missionVision?.mission?.title || missionVision?.vision?.title) && (
+        <section className="about-pillars">
+          {(['mission', 'vision'] as const).map((key) => {
+            const pillar = missionVision?.[key];
+            if (!pillar?.title) return null;
+            const Icon = pillarIcons[pillar.icon ?? key] ?? Sparkles;
+            return (
+              <article key={key}>
+                <span className={`about-pillar-icon ${key}`}><Icon size={23} /></span>
+                <h3>{pillar.title}</h3>
+                {pillar.body && <p>{pillar.body}</p>}
+              </article>
+            );
+          })}
+        </section>
+      )}
+
+      {!!stats?.items?.length && (
+        <section className="about-stats">
+          {stats.heading && <h2>{stats.heading}</h2>}
+          <div className="about-stats-grid">
+            {stats.items.map((stat: PageStat, index: number) => (
+              <div key={index}>
+                <b>{stat.value}</b>
+                <span>{stat.label}</span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {(contact?.heading || contact?.body) && (
+        <div className="about-contact">
+          <div>
+            <span className="eyebrow">ارتباط با ما</span>
+            {contact?.heading && <h2>{contact.heading}</h2>}
+            {contact?.body && <p>{contact.body}</p>}
+          </div>
+          {!!contact?.links?.length && (
+            <div className="contact-options">
+              {contact.links.map((link: PageLink, index: number) => <PageLinkItem link={link} key={index} />)}
+            </div>
+          )}
         </div>
-        <div className="contact-options">
-          <a href={githubRepository} target="_blank" rel="noreferrer"><Code2 size={17} /> مخزن فایل‌استور <ExternalLink size={14} /></a>
-          <a href={githubProfile} target="_blank" rel="noreferrer"><Github size={17} /> پروفایل آرش <ExternalLink size={14} /></a>
-          <Link to="/faq"><MessageCircle size={17} /> پرسش‌های پرتکرار <ArrowLeft size={15} /></Link>
-        </div>
-      </div>
+      )}
+
+      <div className="about-back"><Link to="/catalog" className="text-link">برو سراغ قفسه‌ی کتاب‌ها <ArrowUpLeft size={15} /></Link></div>
     </section>
   );
 }

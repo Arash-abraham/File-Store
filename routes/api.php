@@ -21,6 +21,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('/products/{slug}', [StorefrontController::class, 'product'])->name('products.show');
     Route::get('/categories', [StorefrontController::class, 'categories'])->name('categories.index');
     Route::get('/faqs', [StorefrontController::class, 'faqs'])->name('faqs.index');
+    Route::get('/pages/{slug}', [StorefrontController::class, 'page'])->name('pages.show');
     Route::get('/navigation', [StorefrontController::class, 'navigation'])->name('navigation');
     Route::get('/settings', [StorefrontController::class, 'settings'])->name('settings');
 
@@ -103,6 +104,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('/faqs', [AdminController::class, 'storeFaq'])->name('faqs.store');
         Route::put('/faqs/{id}', [AdminController::class, 'updateFaq'])->name('faqs.update');
         Route::delete('/faqs/{id}', [AdminController::class, 'deleteFaq'])->name('faqs.delete');
+
+        Route::get('/pages', [AdminController::class, 'pages'])->name('pages.index');
+        Route::put('/pages/{id}', [AdminController::class, 'updatePage'])->name('pages.update');
 
         Route::get('/menus', [AdminController::class, 'menus'])->name('menus.index');
         Route::post('/menus', [AdminController::class, 'storeMenu'])->name('menus.store');

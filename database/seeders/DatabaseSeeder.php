@@ -19,6 +19,7 @@ class DatabaseSeeder extends Seeder
             SettingsSeeder::class,
             WebSettingsSeeder::class,
             FaqsSeeder::class,
+            PagesSeeder::class,
             MenusSeeder::class,
             WalletSeeder::class,
             CartsSeeder::class,

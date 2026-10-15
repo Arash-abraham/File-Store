@@ -3,12 +3,13 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Activity, ArrowLeft, BookOpen, Check, CircleDollarSign, CircleHelp, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Package, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, Users, X, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../StoreContext';
+import PagesEditor from '../components/PagesEditor';
 import { demoCategories, demoProducts } from '../data/demo';
 import { api, apiErrorMessage, demoMode } from '../lib/api';
 import { formatDate, formatPrice } from '../lib/format';
 import type { Category, Product } from '../types';
 
-type AdminTab = 'overview' | 'products' | 'tickets' | 'reviews';
+type AdminTab = 'overview' | 'products' | 'pages' | 'tickets' | 'reviews';
 type ProductForm = { title: string; slug: string; category_id: string; original_price: string; price: string; cover_url: string; description: string; status: 'active' | 'inactive' | 'draft' };
 type AdminStats = { products: number; users: number; orders: number; revenue: number; pending_orders: number; open_tickets: number; pending_reviews: number };
 type AdminOrder = { id: number; status: string; amount?: number; final_amount?: number; customer?: string; created_at?: string };
@@ -326,6 +327,7 @@ export default function AdminPage() {
           <button onClick={() => setTab('overview')} className={tab === 'overview' ? 'active' : ''}><LayoutDashboard size={17} /> نمای کلی</button>
           <button onClick={() => setTab('products')} className={tab === 'products' ? 'active' : ''}><BookOpen size={17} /> کتاب‌ها <span>{stats.products.toLocaleString('fa-IR')}</span></button>
           <button onClick={() => setTab('tickets')} className={tab === 'tickets' ? 'active' : ''}><Ticket size={17} /> پشتیبانی <span className="sidebar-count">{stats.open_tickets.toLocaleString('fa-IR')}</span></button>
+          <button onClick={() => setTab('pages')} className={tab === 'pages' ? 'active' : ''}><FileText size={17} /> صفحه‌های ثابت</button>
           <button onClick={() => setTab('reviews')} className={tab === 'reviews' ? 'active' : ''}><MessageSquareText size={17} /> دیدگاه‌ها <span>{stats.pending_reviews.toLocaleString('fa-IR')}</span></button>
           <div className="admin-sidebar-rule" /><div className="admin-sidebar-label">حساب</div>
           <Link to="/account"><Settings2 size={17} /> حساب کاربری <ArrowLeft size={14} /></Link>
@@ -341,6 +343,8 @@ export default function AdminPage() {
           </>}
 
           {tab === 'products' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>کتاب‌های فروشگاه</h2><p>فهرست، وضعیت و اطلاعات عنوان‌های منتشرشده.</p></div><button className="button button-primary button-small" onClick={openNewProductForm}><Plus size={16} /> افزودن کتاب</button></div><div className="admin-list-toolbar"><label><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="جست‌وجوی کتاب…" /></label><span>{visibleProducts.length.toLocaleString('fa-IR')} عنوان</span></div><div className="admin-product-table"><div className="admin-table-head"><span>کتاب</span><span>دسته‌بندی</span><span>قیمت</span><span>وضعیت</span><span>عملیات</span></div>{visibleProducts.map((product) => <div className="admin-product-row" key={product.id}><div className="admin-product-cell"><span className="admin-product-cover">{product.cover_url ? <img src={product.cover_url} alt="" /> : <BookOpen size={17} />}</span><span><b>{product.title}</b><small>/{product.slug}</small></span></div><span>{product.category?.name ?? '—'}</span><b>{formatPrice(product.price)}</b><span className={`published-status ${product.status === 'active' ? '' : 'inactive'}`}><i /> {product.status === 'draft' ? 'پیش‌نویس' : product.status === 'inactive' ? 'غیرفعال' : 'منتشر'}</span><span className="admin-row-actions"><button className="row-icon-button" title="ویرایش کتاب" onClick={() => openEditProductForm(product)}><Pencil size={15} /></button><button className="row-icon-button delete" title="حذف کتاب" onClick={() => removeProduct(product)}><Trash2 size={15} /></button></span></div>)}</div></div>}
+
+          {tab === 'pages' && <PagesEditor onNotice={setNotice} />}
 
           {tab === 'tickets' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>درخواست‌های پشتیبانی</h2><p>پیگیری گفت‌وگوهای خواننده‌ها.</p></div><span className="admin-table-count">{tickets.length.toLocaleString('fa-IR')} مورد</span></div><div className="admin-ticket-list">{tickets.map((ticket) => <article key={ticket.id}><div className="admin-ticket-icon"><Ticket size={17} /></div><div className="admin-ticket-copy"><b>{ticket.subject}</b><small>{ticket.user?.name ?? 'کاربر فایل‌استور'} · {formatDate(ticket.created_at)}</small><p>{ticket.response || ticket.message}</p></div><div className="admin-ticket-actions"><span className={`ticket-status ${ticket.status}`}>{ticket.status === 'closed' ? 'بسته‌شده' : ticket.status === 'in_progress' ? 'در حال بررسی' : 'جدید'}</span><button className="admin-action-link" onClick={() => changeTicketStatus(ticket)}>{ticket.status === 'closed' ? 'بازگشایی' : 'بستن درخواست'}</button></div></article>)}</div></div>}
 

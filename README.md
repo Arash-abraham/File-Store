@@ -15,6 +15,7 @@ The screenshot below shows the storefront in demo mode.
 - Persian/RTL storefront with a responsive layout and Vazirmatn typography.
 - Light and dark themes, with system-preference detection and a persistent theme toggle.
 - Home page, category browsing, search, product detail pages, ratings, and reviews.
+- API-driven static pages (starting with «adرباره ما») with structured content the admin can edit from the dashboard.
 - Authenticated cart, coupon codes, checkout, wallet payments, and optional Zarinpal integration.
 - Customer accounts, order history, personal library, protected downloads, and support tickets.
 - Registration, session-based sign-in, sign-out, email verification, password reset, and password change.
@@ -88,7 +89,7 @@ php artisan migrate --seed
 php artisan storage:link
 ```
 
-The seeders create related sample records for users, categories, products, tags, coupons, product files, settings, FAQs, navigation, wallets, carts, orders, payments, support tickets, and reviews. The sample product files are stored on the private disk; purchased files are served through an authorized API endpoint.
+The seeders create related sample records for users, categories, products, tags, coupons, product files, settings, FAQs, static pages, navigation, wallets, carts, orders, payments, support tickets, and reviews. The sample product files are stored on the private disk; purchased files are served through an authorized API endpoint.
 
 The sample accounts are configurable with `DEMO_USER_EMAIL`, `DEMO_USER_PASSWORD`, `DEMO_ADMIN_EMAIL`, and `DEMO_ADMIN_PASSWORD` in `.env`:
 
@@ -148,12 +149,12 @@ All API v1 endpoints are under `/api/v1`. Successful JSON responses are generall
 
 | Group | Endpoints |
 |---|---|
-| Public storefront | `GET /health`, `/home`, `/products`, `/products/{slug}`, `/categories`, `/faqs`, `/navigation`, `/settings` |
+| Public storefront | `GET /health`, `/home`, `/products`, `/products/{slug}`, `/categories`, `/faqs`, `/pages/{slug}`, `/navigation`, `/settings` |
 | Authentication | `POST /auth/register`, `/auth/login`, `/auth/forgot-password`, `/auth/reset-password`; `GET /auth/me`; `POST /auth/logout` |
 | Cart and checkout | `GET /cart`; `POST /cart/items`, `/cart/coupon`, `/checkout`; `PATCH /cart/items/{itemId}`; `DELETE /cart/items/{itemId}`, `/cart/coupon` |
 | Account | `GET/PUT /account/profile`; `GET /account/overview`, `/account/orders`, `/account/downloads`, `/account/tickets`; `POST /account/tickets` |
 | Wallet and reviews | `GET /wallet`; `POST /wallet/deposits`, `/reviews`, `/reviews/{review}/helpful`, `/reviews/{review}/report` |
-| Administration | `/admin/dashboard`, `/admin/products`, `/admin/categories`, `/admin/tags`, `/admin/coupons`, `/admin/faqs`, `/admin/menus`, `/admin/tickets`, `/admin/reviews`, `/admin/payments`, `/admin/settings` |
+| Administration | `/admin/dashboard`, `/admin/products`, `/admin/categories`, `/admin/tags`, `/admin/coupons`, `/admin/faqs`, `/admin/pages`, `/admin/menus`, `/admin/tickets`, `/admin/reviews`, `/admin/payments`, `/admin/settings` |
 
 Admin endpoints require an authenticated Sanctum session with the `admin` role. Download endpoints verify access to a paid order before serving private product files. API documentation is available at `/docs/api` when the Scramble package is enabled.
 

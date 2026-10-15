@@ -66,6 +66,58 @@ export type Review = {
   created_at?: string;
 };
 
+export type PageActor = {
+  name: string;
+  role?: string | null;
+  bio?: string | null;
+};
+
+export type PageFeature = {
+  icon?: string | null;
+  title: string;
+  description?: string | null;
+};
+
+export type PageMilestone = {
+  year?: string | null;
+  title: string;
+  description?: string | null;
+};
+
+export type PageStat = {
+  value: string;
+  label: string;
+};
+
+export type PageLink = {
+  icon?: string | null;
+  label: string;
+  url: string;
+};
+
+export type PageContent = {
+  story?: { heading?: string | null; paragraphs?: string[] } | null;
+  founders?: { heading?: string | null; items?: PageActor[] } | null;
+  responsibilities?: { heading?: string | null; items?: PageFeature[] } | null;
+  timeline?: { heading?: string | null; items?: PageMilestone[] } | null;
+  mission_vision?: {
+    mission?: { icon?: string | null; title?: string | null; body?: string | null } | null;
+    vision?: { icon?: string | null; title?: string | null; body?: string | null } | null;
+  } | null;
+  stats?: { heading?: string | null; items?: PageStat[] } | null;
+  contact?: { heading?: string | null; body?: string | null; links?: PageLink[] } | null;
+};
+
+export type StorePage = {
+  id: number;
+  slug: string;
+  title: string;
+  subtitle?: string | null;
+  content: PageContent;
+  status?: 'draft' | 'published' | string;
+  updated_at?: string | null;
+};
+
 export type Order = {
   id: number;
   status: 'pending' | 'paid' | 'failed' | 'refunded' | 'cancelled' | string;
