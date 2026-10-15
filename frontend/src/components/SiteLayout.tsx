@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Check, ChevronDown, CircleUserRound, Menu, Search, ShoppingBag, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, Check, ChevronDown, CircleUserRound, Menu, Moon, Search, ShoppingBag, Sun, X } from 'lucide-react';
 import { useStore } from '../StoreContext';
 import { apiErrorMessage, demoMode } from '../lib/api';
 
@@ -14,7 +14,7 @@ function Brand() {
 }
 
 function Header() {
-  const { user, cart, setLoginOpen } = useStore();
+  const { user, cart, setLoginOpen, theme, toggleTheme } = useStore();
   const [search, setSearch] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -51,6 +51,16 @@ function Header() {
             <kbd>↵</kbd>
           </form>
           <div className="header-actions">
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'فعال‌کردن پوسته‌ی روشن' : 'فعال‌کردن پوسته‌ی تیره'}
+              title={theme === 'dark' ? 'پوسته‌ی روشن' : 'پوسته‌ی تیره'}
+              aria-pressed={theme === 'dark'}
+            >
+              {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+            </button>
             <Link to="/cart" className="header-cart" aria-label="سبد خرید">
               <ShoppingBag size={19} />
               <span>سبد</span>

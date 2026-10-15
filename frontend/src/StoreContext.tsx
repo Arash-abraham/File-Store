@@ -4,8 +4,11 @@ import { demoAdmin, demoUser } from './data/demo';
 import type { Cart, Product, User } from './types';
 
 type CheckoutResult = { redirect?: string; orderId?: number | string; paid?: boolean };
+type Theme = 'light' | 'dark';
 
 type StoreContextValue = {
+  theme: Theme;
+  toggleTheme: () => void;
   user: User | null;
   cart: Cart;
   loginOpen: boolean;
@@ -36,6 +39,16 @@ function readJson<T>(key: string, fallback: T): T {
   }
 }
 
+function getInitialTheme(): Theme {
+  try {
+    const savedTheme = localStorage.getItem('fs-theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') return savedTheme;
+  } catch {
+    // Fall back to the system preference when browser storage is unavailable.
+  }
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
 function normalizeCart(input: Partial<Cart> | undefined): Cart {
   if (!input) return emptyCart;
   return {
@@ -50,10 +63,25 @@ function normalizeCart(input: Partial<Cart> | undefined): Cart {
 }
 
 export function StoreProvider({ children }: { children: ReactNode }) {
+  const [theme, setTheme] = useState<Theme>(getInitialTheme);
   const [user, setUser] = useState<User | null>(() => demoMode ? readJson<User | null>('fs-demo-user', null) : null);
   const [cart, setCart] = useState<Cart>(() => demoMode ? normalizeCart(readJson<Cart>('fs-demo-cart', emptyCart)) : emptyCart);
   const [loginOpen, setLoginOpen] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme === 'dark' ? '#121a16' : '#f8f8f5');
+    try {
+      localStorage.setItem('fs-theme', theme);
+    } catch {
+      // The theme remains active for this visit if browser storage is unavailable.
+    }
+  }, [theme]);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((currentTheme) => currentTheme === 'dark' ? 'light' : 'dark');
+  }, []);
 
   const refreshCart = useCallback(async () => {
     if (demoMode || !user) return;
@@ -258,6 +286,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [cart, user]);
 
   const value = useMemo<StoreContextValue>(() => ({
+    theme,
+    toggleTheme,
     user,
     cart,
     loginOpen,
@@ -274,7 +304,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     applyCoupon,
     removeCoupon,
     checkout,
-  }), [user, cart, loginOpen, notice, login, register, logout, updateUser, addToCart, updateQuantity, removeFromCart, applyCoupon, removeCoupon, checkout]);
+  }), [theme, toggleTheme, user, cart, loginOpen, notice, login, register, logout, updateUser, addToCart, updateQuantity, removeFromCart, applyCoupon, removeCoupon, checkout]);
 
   return <StoreContext.Provider value={value}>{children}</StoreContext.Provider>;
 }

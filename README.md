@@ -1,41 +1,56 @@
-# فایل‌استور — فروشگاه کتاب دیجیتال
+# File-Store — Digital Bookstore
 
-فایل‌استور یک فروشگاه فارسی و راست‌چین برای کتاب‌های دیجیتال است. رابط کاربری با **React، TypeScript و Vite** به‌صورت یک برنامه‌ی مستقل ساخته شده و **Laravel 12 فقط API** و منطق سمت سرور را ارائه می‌کند؛ صفحات فروشگاه با Blade یا Inertia رندر نمی‌شوند.
+File-Store is a Persian-first, right-to-left digital bookstore. The storefront is a standalone **React 19 + TypeScript + Vite** application; **Laravel 12 provides the API and server-side business logic only**. The storefront is not rendered with Blade or Inertia.
 
-## پیش‌نمایش ظاهری
+**Created by Arash** · [GitHub profile](https://github.com/Arash-abraham) · [Project repository](https://github.com/Arash-abraham/File-Store)
 
-تصویر زیر از صفحه‌ی اصلی فروشگاه در حالت نمایشی تهیه شده است.
+## Storefront preview
 
-![تصویر صفحه‌ی اصلی فروشگاه فایل‌استور](docs/screenshots/storefront-home.png)
+The screenshot below shows the storefront in demo mode.
 
-## فناوری‌ها
+![File-Store storefront homepage](docs/screenshots/storefront-home.png)
 
-- **API:** PHP 8.2+، Laravel 12، Laravel Sanctum، MySQL/MariaDB
-- **رابط کاربری:** React 19، TypeScript، Vite 7، React Router، TanStack Query
-- **رابط:** فارسی، RTL، واکنش‌گرا، فونت Vazirmatn
-- **پرداخت:** زرین‌پال (اختیاری برای محیط محلی)
+## Features
 
-## امکانات
+- Persian/RTL storefront with a responsive layout and Vazirmatn typography.
+- Light and dark themes, with system-preference detection and a persistent theme toggle.
+- Home page, category browsing, search, product detail pages, ratings, and reviews.
+- Authenticated cart, coupon codes, checkout, wallet payments, and optional Zarinpal integration.
+- Customer accounts, order history, personal library, protected downloads, and support tickets.
+- Registration, session-based sign-in, sign-out, email verification, password reset, and password change.
+- Admin dashboard for products, private product files, support tickets, and review moderation.
+- Optional frontend demo mode for exploring the UI without a running Laravel API.
 
-- خانه، دسته‌بندی و جست‌وجوی کتاب‌ها، جزئیات محصول و دیدگاه‌ها
-- سبد خرید احراز هویت‌شده، کد تخفیف، پرداخت با کیف پول یا زرین‌پال
-- حساب کاربری، سفارش‌ها، کتابخانه و دانلود امن، تیکت پشتیبانی و ویرایش اطلاعات
-- ثبت‌نام، ورود نشست‌محور، خروج، بازیابی و تغییر گذرواژه
-- پنل مدیریت برای نمای کلی، مدیریت محصولات، وضعیت تیکت‌ها و تأیید/رد دیدگاه‌ها
-- حالت نمایشی فرانت‌اند برای بازبینی رابط بدون اتصال به API
+## Technology
 
-## پیش‌نیازها
+| Area | Stack |
+|---|---|
+| API | PHP 8.2+, Laravel 12, Laravel Sanctum |
+| Database | MySQL 8 / MariaDB |
+| Frontend | React 19, TypeScript, Vite 7, React Router, TanStack Query |
+| Payments | Zarinpal (optional for local development) |
 
-- PHP 8.2 یا جدیدتر و افزونه‌های موردنیاز Laravel
-- Composer 2
-- MySQL 8 / MariaDB یا یک دیتابیس سازگار با Laravel
-- Node.js سازگار با Vite 7 (نسخه‌ی 20.19+ یا 22.12+) و npm
+## Requirements
 
-## راه‌اندازی محلی
+- PHP 8.2 or newer, Composer 2, and the PHP extensions required by Laravel (including PDO MySQL, cURL, Fileinfo, Mbstring, OpenSSL, and XML).
+- MySQL 8 or MariaDB, with a database created for the application.
+- Node.js 20.19+ or 22.12+ and npm.
+- A terminal with `cp` support, or the equivalent file-copy command for your operating system.
 
-### ۱. نصب وابستگی‌های Laravel و تنظیم محیط
+## Local setup
 
-از ریشه‌ی مخزن:
+Run Laravel and Vite in separate terminals. The default development addresses are `http://127.0.0.1:8000` for the API and `http://localhost:5173` for the React app.
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/Arash-abraham/File-Store.git
+cd File-Store
+```
+
+### 2. Install and configure the Laravel API
+
+From the repository root:
 
 ```bash
 composer install
@@ -43,7 +58,7 @@ cp .env.example .env
 php artisan key:generate
 ```
 
-در `.env` اتصال دیتابیس را تنظیم کنید. دیتابیس را پیش از اجرای migration بسازید. در صورت استفاده از MySQL، نمونه‌ی تنظیمات زیر را تکمیل کنید:
+Create a database (for example, `file_store`) and set its credentials in `.env`:
 
 ```env
 DB_CONNECTION=mysql
@@ -51,10 +66,10 @@ DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=file_store
 DB_USERNAME=root
-DB_PASSWORD=
+DB_PASSWORD=your_database_password
 ```
 
-برای توسعه‌ی محلی، مقادیر مربوط به SPA/API نیز در `.env.example` آمده‌اند. در صورت تغییر پورت‌ها، هم‌زمان این موارد را به‌روزرسانی کنید:
+The default local SPA/API settings are already in `.env.example`. If you use the default ports, keep these values aligned between Laravel and Vite:
 
 ```env
 APP_URL=http://127.0.0.1:8000
@@ -64,110 +79,135 @@ SANCTUM_STATEFUL_DOMAINS=localhost:5173,127.0.0.1:5173,localhost:8000,127.0.0.1:
 SESSION_DOMAIN=null
 ```
 
-### ۲. ایجاد schema و داده‌های نمونه
+If you change the frontend port or host, update `FRONTEND_URL`, `CORS_ALLOWED_ORIGINS`, and `SANCTUM_STATEFUL_DOMAINS` to match. The frontend origin must be allowed by Laravel for Sanctum cookie-based authentication.
+
+### 3. Create the schema and seed demo data
 
 ```bash
 php artisan migrate --seed
 php artisan storage:link
 ```
 
-Seederها برای راه‌اندازی و نمایش پروژه داده‌های مرتبط را می‌سازند: حساب مدیر و کاربر، دسته‌ها، برچسب‌ها، محصولات، فایل‌های نمونه در دیسک خصوصی، کدهای تخفیف، تنظیمات، پرسش‌های متداول، منو، کیف پول، سبد، سفارش‌ها، پرداخت نمونه، تیکت و دیدگاه. اجرای دوباره‌ی Seederها برای رکوردهای نمونه عمدتاً idempotent است؛ برای بازسازی کامل دیتابیس از `migrate:fresh --seed` استفاده کنید، با این هشدار که **تمام داده‌های فعلی دیتابیس حذف می‌شود**.
+The seeders create related sample records for users, categories, products, tags, coupons, product files, settings, FAQs, navigation, wallets, carts, orders, payments, support tickets, and reviews. The sample product files are stored on the private disk; purchased files are served through an authorized API endpoint.
 
-### ۳. اجرای API
+The sample accounts are configurable with `DEMO_USER_EMAIL`, `DEMO_USER_PASSWORD`, `DEMO_ADMIN_EMAIL`, and `DEMO_ADMIN_PASSWORD` in `.env`:
 
-در یک ترمینال:
+| Role | Email | Default password |
+|---|---|---|
+| Customer | `user@example.com` | `password` |
+| Admin | `admin@example.com` | `password` |
+
+These credentials are for local development only. Change them or remove the demo users before deploying. To rebuild the database from scratch, run `php artisan migrate:fresh --seed`; **this permanently deletes existing database data**.
+
+### 4. Start the Laravel API
+
+In the first terminal, from the repository root:
 
 ```bash
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Laravel در ریشه‌ی `/` یک پاسخ JSON معرفی سرویس می‌دهد. مسیر سلامت API برابر `/api/v1/health` است. رابط کاربری از routeهای Blade استفاده نمی‌کند.
+The API health check is available at `http://127.0.0.1:8000/api/v1/health`. The root URL returns a JSON service response; it does not render a web storefront.
 
-### ۴. اجرای React
+### 5. Install and start the React app
 
-در ترمینال دوم:
+In a second terminal:
 
 ```bash
 cd frontend
 cp .env.example .env.local
-npm install
+npm ci
 npm run dev
 ```
 
-آدرس پیش‌فرض رابط کاربری `http://localhost:5173` است. Vite درخواست‌های `/api`، `/sanctum`، `/products` و `/storage` را به Laravel روی `http://127.0.0.1:8000` پروکسی می‌کند. مقصد پروکسی را می‌توانید در `frontend/.env.local` با `API_PROXY_TARGET` تغییر دهید.
+Open `http://localhost:5173`. In development, Vite proxies `/api`, `/sanctum`, `/products`, and `/storage` requests to `http://127.0.0.1:8000`. To use a different Laravel host or port, set `API_PROXY_TARGET` in `frontend/.env.local`, for example:
 
-### ورودهای نمونه‌ی Seeder
+```env
+API_PROXY_TARGET=http://127.0.0.1:8000
+```
 
-| نقش | ایمیل | گذرواژه‌ی پیش‌فرض |
-|---|---|---|
-| کاربر | `user@example.com` | `password` |
-| مدیر | `admin@example.com` | `password` |
+## Frontend demo mode
 
-این اعتبارنامه‌ها فقط برای توسعه و دمو هستند. در محیط واقعی، گذرواژه‌ها را با متغیرهای `DEMO_USER_PASSWORD` و `DEMO_ADMIN_PASSWORD` عوض کنید یا داده‌های حساب نمونه را seed نکنید.
-
-## حالت نمایشی فرانت‌اند
-
-برای مشاهده‌ی صفحات و جریان سبد خرید بدون اجرای Laravel، مقدار زیر را در `frontend/.env.local` بگذارید و Vite را دوباره اجرا کنید:
+You can preview the React storefront without starting Laravel. In `frontend/.env.local`, set:
 
 ```env
 VITE_DEMO_MODE=true
 ```
 
-در این حالت کاتالوگ و حساب‌ها از داده‌های نمونه‌ی داخل فرانت‌اند استفاده می‌کنند و سبد در `localStorage` می‌ماند. ورود نمایشی با همان ایمیل‌های نمونه و گذرواژه‌ی `password` انجام می‌شود. **پرداخت و ثبت داده در حالت نمایشی واقعی نیستند.** برای کار با API مقدار را روی `false` بگذارید.
+Then restart Vite. Demo users can sign in with either sample email above and the password `password`. The demo cart is stored in `localStorage`; demo checkout and changes are local simulations, not real payments or server-side transactions. Set `VITE_DEMO_MODE=false` to use the Laravel API.
 
-## تنظیم فرانت‌اند و API در تولید
+## Theme preferences
 
-برای ساخت نسخه‌ی static:
+Use the sun/moon control in the header to switch between light and dark themes. On the first visit, the app follows the operating system's color preference; the selected theme is then saved in browser storage and restored on subsequent visits.
+
+![File-Store storefront homepage in dark theme](docs/screenshots/storefront-home-dark.png)
+
+## API overview
+
+All API v1 endpoints are under `/api/v1`. Successful JSON responses are generally wrapped in a `data` property.
+
+| Group | Endpoints |
+|---|---|
+| Public storefront | `GET /health`, `/home`, `/products`, `/products/{slug}`, `/categories`, `/faqs`, `/navigation`, `/settings` |
+| Authentication | `POST /auth/register`, `/auth/login`, `/auth/forgot-password`, `/auth/reset-password`; `GET /auth/me`; `POST /auth/logout` |
+| Cart and checkout | `GET /cart`; `POST /cart/items`, `/cart/coupon`, `/checkout`; `PATCH /cart/items/{itemId}`; `DELETE /cart/items/{itemId}`, `/cart/coupon` |
+| Account | `GET/PUT /account/profile`; `GET /account/overview`, `/account/orders`, `/account/downloads`, `/account/tickets`; `POST /account/tickets` |
+| Wallet and reviews | `GET /wallet`; `POST /wallet/deposits`, `/reviews`, `/reviews/{review}/helpful`, `/reviews/{review}/report` |
+| Administration | `/admin/dashboard`, `/admin/products`, `/admin/categories`, `/admin/tags`, `/admin/coupons`, `/admin/faqs`, `/admin/menus`, `/admin/tickets`, `/admin/reviews`, `/admin/payments`, `/admin/settings` |
+
+Admin endpoints require an authenticated Sanctum session with the `admin` role. Download endpoints verify access to a paid order before serving private product files. API documentation is available at `/docs/api` when the Scramble package is enabled.
+
+## Production deployment
+
+### Build and host the frontend
 
 ```bash
 cd frontend
 npm ci
+npm run typecheck
 npm run build
 ```
 
-خروجی در `frontend/dist` قرار می‌گیرد. آن را روی میزبانی static جداگانه منتشر کنید و `VITE_API_BASE_URL` را پیش از build به آدرس API تنظیم کنید، برای مثال:
+The static production bundle is written to `frontend/dist`. Host it on a static web server or CDN. Set frontend build variables before running `npm run build`:
 
 ```env
 VITE_API_BASE_URL=https://api.example.com/api/v1
 VITE_DEMO_MODE=false
 ```
 
-برای احراز هویت نشست‌محور Sanctum، انتشار فرانت‌اند و API روی زیردامنه‌های یک دامنه‌ی اصلی (مثلاً `app.example.com` و `api.example.com`) پیشنهاد می‌شود. دامنه‌ی فرانت‌اند را در `CORS_ALLOWED_ORIGINS`، دامنه‌های میزبان را در `SANCTUM_STATEFUL_DOMAINS` و دامنه‌ی اصلی cookie را در `SESSION_DOMAIN` وارد کنید؛ در HTTPS مقدار `SESSION_SECURE_COOKIE=true` را تنظیم کنید. دامنه‌ی `FRONTEND_URL` نیز مقصد بازگشت پرداخت و پیوندهای بازیابی گذرواژه است.
+### Deploy the Laravel API
 
-## API
+Deploy the Laravel application independently and configure the production database and HTTPS. On the initial deployment, provision a secure `APP_KEY` (for a new installation, `php artisan key:generate` can create it). Then run:
 
-همه‌ی endpointهای نسخه‌ی اول زیر پیشوند `/api/v1` هستند. پاسخ‌های موفق معمولاً در کلید `data` قرار می‌گیرند.
+```bash
+composer install --no-dev --optimize-autoloader
+php artisan migrate --force
+php artisan storage:link
+```
 
-| گروه | مسیرها |
-|---|---|
-| عمومی | `GET /health`, `GET /home`, `GET /products`, `GET /products/{slug}`, `GET /categories`, `GET /faqs`, `GET /navigation`, `GET /settings` |
-| احراز هویت | `POST /auth/register`, `POST /auth/login`, `POST /auth/forgot-password`, `POST /auth/reset-password`, `GET /auth/me`, `POST /auth/logout` |
-| سبد و پرداخت | `GET /cart`, `POST /cart/items`, `PATCH /cart/items/{id}`, `DELETE /cart/items/{id}`, `POST /cart/coupon`, `POST /checkout` |
-| حساب | `GET/PUT /account/profile`, `GET /account/overview`, `GET /account/orders`, `GET /account/downloads`, `GET/POST /account/tickets` |
-| کیف پول و دیدگاه | `GET /wallet`, `POST /wallet/deposits`, `POST /reviews`, مسیرهای helpful و report دیدگاه |
-| مدیریت | `/admin/dashboard`, محصولات، دسته‌ها، برچسب‌ها، کوپن‌ها، FAQ، منو، تیکت‌ها، دیدگاه‌ها، پرداخت‌ها و تنظیمات |
+Do not generate a new `APP_KEY` on each release; preserve the same secret for an existing installation. Configure the production web server to point to Laravel's `public/` directory and apply the normal Laravel production hardening steps.
 
-مسیرهای مدیریت به نشست معتبر با نقش `admin` نیاز دارند. فایل‌های خریداری‌شده از endpoint حساب کاربر و پس از بررسی مالکیت سفارش تحویل داده می‌شوند؛ برای استفاده از فایل‌های واقعی باید فایل محصول را در دیسک خصوصی بارگذاری کرد.
+For Sanctum cookie authentication, host the frontend and API on the same top-level domain (for example, `app.example.com` and `api.example.com`). Set `CORS_ALLOWED_ORIGINS` to the exact frontend origin, include both hostnames in `SANCTUM_STATEFUL_DOMAINS`, and configure `SESSION_DOMAIN` for the parent domain. Enable secure cookies over HTTPS with `SESSION_SECURE_COOKIE=true`. `FRONTEND_URL` is also used for payment returns and password-reset links.
 
-در نصب‌های دارای Scramble، مستندات API از مسیر `/docs/api` در دسترس است.
+Never enable `VITE_DEMO_MODE` in production. Do not expose demo passwords, API secrets, payment credentials, or `APP_DEBUG=true` on a public deployment.
 
-## پیکربندی سرویس‌ها
+## Optional services and file storage
 
-### ایمیل
+### Email
 
-در توسعه می‌توانید `MAIL_MAILER=log` نگه دارید؛ پیام‌های ایمیلی در لاگ Laravel ثبت می‌شوند. برای ایمیل واقعی، SMTP را در `.env` تنظیم کنید. ارسال پیوند بازیابی گذرواژه و تأیید ایمیل به ایمیل قابل‌دسترسی نیاز دارد.
+For local development, `MAIL_MAILER=log` writes outgoing messages to the Laravel log. Configure SMTP in `.env` to deliver verification and password-reset messages to real inboxes.
 
-### زرین‌پال
+### Zarinpal
 
-برای پرداخت واقعی، `ZARINPAL_MERCHANT_ID` را تنظیم کنید و مقادیر sandbox/production را مطابق حساب درگاه قرار دهید. بدون Merchant ID، endpoint پرداخت پاسخ پیکربندی‌نشده می‌دهد؛ اجرای دمو با درگاه واقعی لازم نیست.
+Set `ZARINPAL_MERCHANT_ID` and choose the appropriate sandbox/production setting with `ZARINPAL_SANDBOX`. Payment initiation requires valid gateway configuration; the UI can still be explored in demo mode without a gateway.
 
-### فایل‌ها
+### Files
 
-تصاویر عمومی محصولات از `public/products`/دیسک public ارائه می‌شوند. فایل‌های قابل دانلود در دیسک خصوصی ذخیره شده و فقط پس از بررسی سفارش پرداخت‌شده قابل دریافت هستند. Seeder فایل‌های کوچک متنیِ نمونه را برای آزمایش مسیر دانلود ایجاد می‌کند؛ آن‌ها کتاب واقعی نیستند.
+Public product covers can be served from the public storage disk or `public/products`. Purchased product files must remain on the private disk and be served only through the authenticated download endpoint. Seeded text files are small test fixtures, not the actual books.
 
-## آزمون و بررسی
+## Tests and checks
 
-فرانت‌اند:
+Frontend checks:
 
 ```bash
 cd frontend
@@ -175,29 +215,26 @@ npm run typecheck
 npm run build
 ```
 
-Laravel (در محیطی که PHP و وابستگی‌ها نصب باشند):
+Laravel tests and route inspection (requires PHP, Composer dependencies, and a configured test database):
 
 ```bash
 php artisan test
+php artisan route:list --path=api/v1
 ```
 
-برای بررسی routeها نیز می‌توان از `php artisan route:list --path=api/v1` استفاده کرد.
-
-## ساختار مهم
+## Project structure
 
 ```text
-app/Http/Controllers/Api/V1/    کنترلرهای نسخه‌ی اول API
-app/Http/Resources/Api/V1/      منابع JSON محصولات و دسته‌ها
-routes/api.php                  endpointهای نسخه‌ی اول
-routes/web.php                  پاسخ JSON معرفی سرویس؛ بدون UI
-database/seeders/               داده‌های پایه و نمونه
-frontend/src/                   برنامه‌ی مستقل React/TypeScript
-frontend/public/images/books/   جلدهای محلی برای حالت دمو
+app/Http/Controllers/Api/V1/    Laravel API controllers
+app/Http/Resources/Api/V1/      JSON resources
+routes/api.php                  Versioned API routes
+routes/web.php                  JSON service response; no UI rendering
+database/seeders/               Base and demo records
+frontend/src/                   Standalone React/TypeScript application
+frontend/public/images/books/   Local demo book covers
+docs/screenshots/               Storefront screenshots
 ```
 
-## یادداشت امنیتی
+## About the creator
 
-- `VITE_DEMO_MODE` را در تولید روشن نکنید.
-- گذرواژه‌های نمونه، Merchant ID آزمایشی و APP_DEBUG را در محیط عمومی استفاده نکنید.
-- برای SPA و API، تنظیم CORS، دامنه‌ی Sanctum و کوکی session باید با دامنه و HTTPS واقعی هماهنگ باشد.
-- فایل‌های قابل خرید را در دیسک private نگه دارید؛ از لینک عمومی مستقیم برای محتوای خریداری‌شده استفاده نکنید.
+File-Store is created by **Arash**. Visit [Arash's GitHub profile](https://github.com/Arash-abraham) or browse the [File-Store repository](https://github.com/Arash-abraham/File-Store).

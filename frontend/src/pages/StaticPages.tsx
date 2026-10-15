@@ -1,8 +1,56 @@
-import { ArrowLeft, HeartHandshake, Mail, MapPin, MessageCircle, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowLeft, Code2, ExternalLink, Github, HeartHandshake, MessageCircle, ShieldCheck, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
+const githubProfile = 'https://github.com/Arash-abraham';
+const githubRepository = `${githubProfile}/File-Store`;
+
 export function AboutPage() {
-  return <section className="container static-page section-pad"><div className="breadcrumbs"><Link to="/">خانه</Link><span>/</span><b>داستان ما</b></div><div className="static-hero"><span className="eyebrow">چرا فایل‌استور؟</span><h1>برای آدم‌هایی که<br /><em>همیشه کنجکاوند.</em></h1><p>ما باور داریم کتاب خوب نباید پشت شلوغیِ یک فروشگاه گم شود. فایل‌استور از همین فکر شروع شد: قفسه‌ای کوچک‌تر، انتخاب‌هایی دقیق‌تر و دسترسی‌ای که همیشه همراه توست.</p><Link to="/catalog" className="button button-primary">رفتن به قفسه‌ها <ArrowLeft size={16} /></Link></div><div className="about-values"><article><span><Sparkles /></span><b>انتخاب با معنا</b><p>هر عنوان باید چیزی به مسیر یادگیری تو اضافه کند.</p></article><article><span><ShieldCheck /></span><b>اعتماد، نه شعار</b><p>قیمت روشن، پرداخت امن و دسترسی قابل اتکا.</p></article><article><span><HeartHandshake /></span><b>آدم‌ها در مرکز</b><p>پشتیبانی واقعی و تجربه‌ای که برای خواننده ساخته شده.</p></article></div><div className="about-contact"><div><span className="eyebrow">حرفی داری؟</span><h2>ما واقعاً گوش می‌دهیم.</h2><p>پیشنهاد کتاب، پرسش درباره‌ی سفارش یا حتی یک سلام ساده—همه‌شان برای ما مهم‌اند.</p></div><div className="contact-options"><a href="mailto:hello@filestore.local"><Mail size={17} /> hello@filestore.local <ArrowLeft size={15} /></a><a href="/faq"><MessageCircle size={17} /> پرسش‌های پرتکرار <ArrowLeft size={15} /></a><span><MapPin size={17} /> تهران، ایران</span></div></div></section>;
+  return (
+    <section className="container static-page section-pad">
+      <div className="breadcrumbs"><Link to="/">خانه</Link><span>/</span><b>درباره‌ی ما</b></div>
+
+      <div className="about-intro">
+        <div className="about-intro-copy">
+          <span className="eyebrow">درباره‌ی سازنده</span>
+          <h1>سلام، من آرش هستم؛<br /><em>سازنده‌ی فایل‌استور.</em></h1>
+          <p>فایل‌استور را با این ایده ساختم که پیدا کردن کتاب‌های دیجیتال و رسیدن به محتوای مفید، ساده‌تر و دل‌نشین‌تر باشد. این پروژه ترکیبی از یک فروشگاه مستقل React و یک API با Laravel است که قدم‌به‌قدم توسعه‌اش می‌دهم.</p>
+          <div className="about-intro-actions">
+            <a className="button button-primary" href={githubProfile} target="_blank" rel="noreferrer">
+              <Github size={17} /> گیت‌هاب آرش <ExternalLink size={14} />
+            </a>
+            <Link to="/catalog" className="text-link">گشت‌وگذار در کتاب‌ها <ArrowLeft size={15} /></Link>
+          </div>
+        </div>
+        <aside className="about-profile-card">
+          <div className="about-profile-decoration"><i /><i /><i /></div>
+          <div className="about-avatar" aria-hidden="true">آ</div>
+          <span className="about-profile-kicker">خالق فایل‌استور</span>
+          <h2>آرش</h2>
+          <p>توسعه‌دهنده‌ی فروشگاه فایل‌استور</p>
+          <a href={githubProfile} target="_blank" rel="noreferrer"><Github size={15} /> @Arash-abraham <ExternalLink size={13} /></a>
+        </aside>
+      </div>
+
+      <div className="about-values">
+        <article><span><Sparkles /></span><b>انتخاب با معنا</b><p>هر عنوان باید چیزی به مسیر یادگیری تو اضافه کند.</p></article>
+        <article><span><ShieldCheck /></span><b>تجربه‌ی قابل اتکا</b><p>رابط روشن، خرید امن و دسترسی حساب‌شده به کتاب‌ها.</p></article>
+        <article><span><HeartHandshake /></span><b>ساخته‌شده با دقت</b><p>از طراحی فارسی و راست‌چین تا جزئیات تجربه‌ی خواننده.</p></article>
+      </div>
+
+      <div className="about-contact">
+        <div>
+          <span className="eyebrow">کد پروژه</span>
+          <h2>فایل‌استور را در گیت‌هاب ببین.</h2>
+          <p>برای دیدن کد پروژه، خبر گرفتن از تغییرات یا فرستادن پیشنهاد، از لینک‌های گیت‌هاب استفاده کن.</p>
+        </div>
+        <div className="contact-options">
+          <a href={githubRepository} target="_blank" rel="noreferrer"><Code2 size={17} /> مخزن فایل‌استور <ExternalLink size={14} /></a>
+          <a href={githubProfile} target="_blank" rel="noreferrer"><Github size={17} /> پروفایل آرش <ExternalLink size={14} /></a>
+          <Link to="/faq"><MessageCircle size={17} /> پرسش‌های پرتکرار <ArrowLeft size={15} /></Link>
+        </div>
+      </div>
+    </section>
+  );
 }
 
 const faqItems = [
