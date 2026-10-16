@@ -1,12 +1,12 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ArrowUpLeft, BookOpen, Check, CircleHelp, Download, LayoutDashboard, LibraryBig, LogOut, Package, Printer, Settings2, Ticket, UserRound, Wallet, X } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api, apiErrorMessage, demoMode } from '../lib/api';
 import { demoProducts } from '../data/demo';
 import { formatDate, formatPrice } from '../lib/format';
 import SupportTickets from '../components/support/SupportTickets';
-import { printStatusLabels } from '../components/PrintOrderForm';
+import { cancelPrintOrder, fetchPrintOrders, printStatusLabels } from '../lib/print';
 import { demoPrintOrders } from '../data/demo';
 import type { Order, PrintOrder } from '../types';
 import { useStore } from '../StoreContext';
@@ -36,6 +36,7 @@ function demoOverview() {
 
 export default function AccountPage() {
   const { user, setLoginOpen, logout, setNotice, updateUser } = useStore();
+  const queryClient = useQueryClient();
   const [params, setParams] = useSearchParams();
   const activeTab = params.get('tab') ?? 'overview';
   const [profileName, setProfileName] = useState(user?.name ?? '');
@@ -76,7 +77,15 @@ export default function AccountPage() {
     enabled: !!user && activeTab === 'prints',
     queryFn: async () => demoMode
       ? demoPrintOrders as unknown as PrintOrder[]
-      : (await api.get('/print-orders')).data.data as PrintOrder[],
+      : fetchPrintOrders(),
+  });
+  const cancelPrint = useMutation({
+    mutationFn: (id: number) => cancelPrintOrder(id),
+    onSuccess: async (order) => {
+      setNotice(`سفارش چاپی #${order.id} لغو شد.`);
+      await queryClient.invalidateQueries({ queryKey: ['print-orders'] });
+    },
+    onError: (reason) => setNotice(apiErrorMessage(reason, 'لغو سفارش چاپی انجام نشد.')),
   });
   const walletQuery = useQuery({
     queryKey: ['wallet', user?.id],
@@ -158,7 +167,7 @@ export default function AccountPage() {
 
           {activeTab === 'library' && <div className="account-panel"><div className="account-panel-heading"><div><h3>کتابخانه‌ی من</h3><p>هر خرید، برای همیشه در دسترس تو</p></div></div>{downloadsQuery.isLoading ? <div className="loading-inline">در حال بارگذاری کتابخانه…</div> : downloadsQuery.data?.length ? <div className="library-list">{downloadsQuery.data.map((file: any) => <article key={file.id} className="library-item"><div className="library-cover">{file.product?.cover_url ? <img src={file.product.cover_url} alt="" /> : <BookOpen size={22} />}</div><div className="library-info"><b>{file.product?.title ?? file.name}</b><small>{file.name} · {file.type ?? 'PDF'} · {file.size ?? 'نسخه‌ی دیجیتال'}</small></div>{demoMode ? <button className="button button-small button-outline" onClick={() => setNotice('دانلود در حالت نمایشی شبیه‌سازی شده است.')}><Download size={15} /> دریافت</button> : <a className="button button-small button-outline" href={file.download_url} target="_blank" rel="noreferrer"><Download size={15} /> دریافت</a>}</article>)}</div> : <div className="empty-inline"><LibraryBig size={26} /><b>هنوز کتابی اینجا نیست.</b><Link to="/catalog">رفتن به قفسه‌ی کتاب‌ها <ArrowLeft size={14} /></Link></div>}</div>}
 
-          {activeTab === 'prints' && <div className="account-panel"><div className="account-panel-heading"><div><h3>سفارش‌های چاپی</h3><p>نسخه‌های کاغذی که سفارش داده‌ای</p></div><Link className="text-link" to="/print">فهرست چاپخانه‌ها <ArrowLeft size={14} /></Link></div>{printOrdersQuery.isLoading ? <div className="loading-inline">در حال بارگذاری…</div> : printOrdersQuery.data?.length ? <div className="print-order-list">{printOrdersQuery.data.map((order) => <article className="print-order-row" key={order.id}><div className="print-order-cover">{order.product.cover_url ? <img src={order.product.cover_url} alt="" /> : <BookOpen size={20} />}</div><div className="print-order-main"><b>{order.product.title}</b><small>{order.print_house.name} · {order.print_house.city} · {order.quantity.toLocaleString('fa-IR')} نسخه</small><span className="print-order-specs">{order.paper_label} · صحافی {order.binding_label}{order.color_print ? ' · رنگی' : ''}{order.digital_owner ? ' · تخفیف دارنده‌ی نسخه‌ی دیجیتال' : ''}</span></div><div className="print-order-side"><span className={`print-status ${order.status}`}>{printStatusLabels[order.status] ?? order.status}</span><b>{formatPrice(order.total_price)}</b><small>تحویل حدود {order.delivery_days.toLocaleString('fa-IR')} روز · {formatDate(order.created_at)}</small></div></article>)}</div> : <div className="empty-inline"><Printer size={26} /><b>هنوز نسخه‌ی کاغذی سفارش نداده‌ای.</b><p>از صفحه‌ی هر کتاب می‌توانی نسخه‌ی چاپی سفارش بدهی.</p><Link to="/print">دیدن چاپخانه‌ها <ArrowLeft size={14} /></Link></div>}</div>}
+          {activeTab === 'prints' && <div className="account-panel"><div className="account-panel-heading"><div><h3>سفارش‌های چاپی</h3><p>نسخه‌های کاغذی که سفارش داده‌ای</p></div><Link className="text-link" to="/print">فهرست چاپخانه‌ها <ArrowLeft size={14} /></Link></div>{printOrdersQuery.isLoading ? <div className="loading-inline">در حال بارگذاری…</div> : printOrdersQuery.data?.length ? <div className="print-order-list">{printOrdersQuery.data.map((order) => <article className="print-order-row" key={order.id}><div className="print-order-cover">{order.product.cover_url ? <img src={order.product.cover_url} alt="" /> : <BookOpen size={20} />}</div><div className="print-order-main"><b>{order.product.title}</b><small>{order.print_house.name} · {order.print_house.city} · {order.quantity.toLocaleString('fa-IR')} نسخه</small><span className="print-order-specs">{order.paper_label} · صحافی {order.binding_label}{order.color_print ? ' · رنگی' : ''}{order.digital_owner ? ' · تخفیف دارنده‌ی نسخه‌ی دیجیتال' : ''}</span>{order.tracking_code && <span className="print-order-tracking">کد رهگیری: {order.tracking_code}</span>}</div><div className="print-order-side"><span className={`print-status ${order.status}`}>{printStatusLabels[order.status] ?? order.status}</span><b>{formatPrice(order.total_price)}</b><small>تحویل حدود {order.delivery_days.toLocaleString('fa-IR')} روز · {formatDate(order.created_at)}</small>{order.can_cancel && <button className="print-order-cancel" disabled={cancelPrint.isPending} onClick={() => cancelPrint.mutate(order.id)}>لغو سفارش</button>}</div></article>)}</div> : <div className="empty-inline"><Printer size={26} /><b>هنوز نسخه‌ی کاغذی سفارش نداده‌ای.</b><p>از صفحه‌ی هر کتاب می‌توانی نسخه‌ی چاپی سفارش بدهی.</p><Link to="/print">دیدن چاپخانه‌ها <ArrowLeft size={14} /></Link></div>}</div>}
 
           {activeTab === 'orders' && <div className="account-panel"><div className="account-panel-heading"><div><h3>تاریخچه‌ی سفارش‌ها</h3><p>همه‌ی خریدها و وضعیت پرداخت</p></div></div>{ordersQuery.isLoading ? <div className="loading-inline">در حال بارگذاری…</div> : <OrderList orders={ordersQuery.data ?? []} />}</div>}
 

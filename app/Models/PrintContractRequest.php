@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class PrintContractRequest extends Model
 {
@@ -16,10 +17,23 @@ class PrintContractRequest extends Model
         'capabilities',
         'message',
         'status',
+        'admin_note',
+        'print_house_id',
+        'reviewed_at',
     ];
 
     protected $casts = [
         'capabilities' => 'array',
         'monthly_capacity' => 'integer',
+        'reviewed_at' => 'datetime',
     ];
+
+    /**
+     * The printing house that was published for this contract, if the request
+     * has already been approved.
+     */
+    public function printHouse(): BelongsTo
+    {
+        return $this->belongsTo(PrintHouse::class);
+    }
 }

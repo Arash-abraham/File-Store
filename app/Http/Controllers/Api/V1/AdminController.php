@@ -640,19 +640,58 @@ class AdminController extends Controller
     public function printContracts()
     {
         return response()->json([
-            'data' => PrintContractRequest::query()->latest()->get(),
+            'data' => PrintContractRequest::query()
+                ->with('printHouse:id,name,slug,city,status')
+                ->latest()
+                ->get()
+                ->map(fn (PrintContractRequest $contract) => [
+                    'id' => $contract->id,
+                    'company_name' => $contract->company_name,
+                    'contact_name' => $contract->contact_name,
+                    'phone' => $contract->phone,
+                    'email' => $contract->email,
+                    'city' => $contract->city,
+                    'monthly_capacity' => $contract->monthly_capacity,
+                    'capabilities' => $contract->capabilities ?? [],
+                    'message' => $contract->message,
+                    'status' => $contract->status,
+                    'admin_note' => $contract->admin_note,
+                    'reviewed_at' => $contract->reviewed_at?->toISOString(),
+                    'print_house' => $contract->printHouse ? [
+                        'id' => $contract->printHouse->id,
+                        'name' => $contract->printHouse->name,
+                        'slug' => $contract->printHouse->slug,
+                        'status' => $contract->printHouse->status,
+                    ] : null,
+                    'created_at' => $contract->created_at?->toISOString(),
+                ]),
         ]);
     }
 
+    /**
+     * Approving a contract request publishes the printing house in the
+     * directory, so the request never ends in a dead end.
+     */
     public function updatePrintContract(Request $request, int $id)
     {
         $contract = PrintContractRequest::query()->findOrFail($id);
         $data = $request->validate([
             'status' => ['required', Rule::in(['pending', 'reviewing', 'approved', 'rejected'])],
+            'admin_note' => ['nullable', 'string', 'max:2000'],
         ]);
+
+        $data['reviewed_at'] = now();
+
+        if ($data['status'] === 'approved' && ! $contract->print_house_id) {
+            $data['print_house_id'] = $this->publishPrintHouse($contract)->id;
+        }
+
         $contract->update($data);
 
-        return response()->json(['message' => 'وضعیت درخواست قرارداد به‌روز شد.', 'data' => $contract->fresh()]);
+        return response()->json([
+            'message' => 'وضعیت درخواست قرارداد به‌روز شد.',
+            'data' => $contract->fresh(['printHouse:id,name,slug,city,status']),
+        ]);
     }
 
     public function printOrders(Request $request)
@@ -672,9 +711,20 @@ class AdminController extends Controller
                 'customer' => $order->user?->name ?? 'کاربر حذف‌شده',
                 'customer_email' => $order->user?->email,
                 'quantity' => (int) $order->quantity,
+                'paper_type' => $order->paper_type,
+                'binding' => $order->binding,
+                'color_print' => (bool) $order->color_print,
+                'unit_price' => (int) $order->unit_price,
+                'delivery_fee' => (int) $order->delivery_fee,
+                'discount_amount' => (int) $order->discount_amount,
                 'total_price' => (int) $order->total_price,
                 'delivery_days' => (int) $order->delivery_days,
+                'tracking_code' => $order->tracking_code,
+                'shipping_name' => $order->shipping_name,
+                'shipping_phone' => $order->shipping_phone,
                 'shipping_city' => $order->shipping_city,
+                'shipping_address' => $order->shipping_address,
+                'notes' => $order->notes,
                 'created_at' => $order->created_at?->toISOString(),
             ]),
             'meta' => $this->paginationMeta($orders),
@@ -686,10 +736,63 @@ class AdminController extends Controller
         $order = PrintOrder::query()->findOrFail($id);
         $data = $request->validate([
             'status' => ['required', Rule::in(['pending', 'confirmed', 'printing', 'shipped', 'delivered', 'cancelled'])],
+            'tracking_code' => ['nullable', 'string', 'max:60'],
         ]);
+
+        if (array_key_exists('tracking_code', $data)) {
+            $data['tracking_code'] = $data['tracking_code'] !== '' ? $data['tracking_code'] : null;
+        }
+
+        if ($data['status'] === 'cancelled') {
+            $data['cancelled_at'] = now();
+        }
+
         $order->update($data);
 
-        return response()->json(['message' => 'وضعیت سفارش چاپی به‌روز شد.', 'data' => ['id' => $order->id, 'status' => $order->status]]);
+        return response()->json([
+            'message' => 'وضعیت سفارش چاپی به‌روز شد.',
+            'data' => ['id' => $order->id, 'status' => $order->status, 'tracking_code' => $order->tracking_code],
+        ]);
+    }
+
+    /**
+     * Turns an approved contract request into a printing house profile. The
+     * house waits with the "pending" status until its price list is filled in.
+     */
+    private function publishPrintHouse(PrintContractRequest $contract): PrintHouse
+    {
+        return PrintHouse::query()->create([
+            'name' => $contract->company_name,
+            'slug' => $this->printHouseSlug($contract->company_name),
+            'city' => $contract->city,
+            'province' => $contract->city,
+            'description' => $contract->message,
+            'capabilities' => $contract->capabilities ?? [],
+            'phone' => $contract->phone,
+            'email' => $contract->email,
+            'unit_price' => 0,
+            'hardcover_surcharge' => 0,
+            'delivery_fee' => 0,
+            'delivery_days' => 7,
+            'min_quantity' => 1,
+            'max_quantity' => 20,
+            'rating' => 5,
+            'status' => 'pending',
+        ]);
+    }
+
+    /**
+     * Persian names have no latin slug, so a readable fallback is generated.
+     */
+    private function printHouseSlug(string $name): string
+    {
+        $slug = trim((string) preg_replace('/-+/', '-', Str::slug($name)), '-');
+
+        if ($slug === '') {
+            $slug = 'print-house';
+        }
+
+        return $slug.'-'.Str::lower(Str::random(4));
     }
 
     private function validatePrintHouse(Request $request, ?int $ignoreId = null): array
@@ -713,11 +816,12 @@ class AdminController extends Controller
             'min_quantity' => ['nullable', 'integer', 'min:1', 'max:50'],
             'max_quantity' => ['nullable', 'integer', 'min:1', 'max:50'],
             'rating' => ['nullable', 'numeric', 'min:0', 'max:5'],
+            'is_featured' => ['nullable', 'boolean'],
             'status' => ['nullable', Rule::in(['active', 'inactive', 'pending'])],
         ]);
 
         if (empty($data['slug'])) {
-            $data['slug'] = Str::slug($data['name']).'-'.Str::lower(Str::random(4));
+            $data['slug'] = $this->printHouseSlug($data['name']);
         }
 
         return $data;

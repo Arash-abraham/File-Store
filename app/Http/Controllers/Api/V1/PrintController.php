@@ -7,8 +7,8 @@ use App\Http\Resources\Api\V1\PrintHouseResource;
 use App\Models\PrintContractRequest;
 use App\Models\PrintHouse;
 use App\Services\PrintPricingService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 
 class PrintController extends Controller
 {
@@ -19,12 +19,22 @@ class PrintController extends Controller
     public function index(Request $request)
     {
         $validated = $request->validate([
+            'q' => ['nullable', 'string', 'max:80'],
             'city' => ['nullable', 'string', 'max:80'],
             'capability' => ['nullable', 'string', 'max:80'],
             'sort' => ['nullable', 'in:rating,price_asc,price_desc,fastest'],
         ]);
 
         $query = PrintHouse::query()->active()->withCount('printOrders');
+
+        if (!empty($validated['q'])) {
+            $search = trim((string) $validated['q']);
+            $query->where(function (Builder $builder) use ($search) {
+                $builder->where('name', 'like', "%{$search}%")
+                    ->orWhere('city', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
 
         if (!empty($validated['city'])) {
             $city = $validated['city'];
@@ -40,7 +50,7 @@ class PrintController extends Controller
             'price_asc' => $query->orderBy('unit_price'),
             'price_desc' => $query->orderByDesc('unit_price'),
             'fastest' => $query->orderBy('delivery_days'),
-            default => $query->orderByDesc('rating')->orderBy('name'),
+            default => $query->orderByDesc('is_featured')->orderByDesc('rating')->orderBy('name'),
         };
 
         $houses = $query->get();
@@ -54,7 +64,9 @@ class PrintController extends Controller
                     ->whereNotNull('capabilities')
                     ->pluck('capabilities')
                     ->flatten()
+                    ->filter()
                     ->unique()
+                    ->sort()
                     ->values(),
                 'options' => [
                     'paper_types' => $this->labelMap(PrintPricingService::PAPER_LABELS),
@@ -66,6 +78,7 @@ class PrintController extends Controller
                     'print_houses' => $houses->count(),
                     'cities' => $houses->pluck('city')->unique()->count(),
                     'fastest_delivery_days' => (int) ($houses->min('delivery_days') ?? 0),
+                    'from_price' => (int) ($houses->min('unit_price') ?? 0),
                 ],
             ],
         ]);
@@ -92,7 +105,7 @@ class PrintController extends Controller
         $contractRequest = PrintContractRequest::query()->create($validated);
 
         return response()->json([
-            'message' => 'درخواست همکاری ثبت شد؛ کارشناسان ما برای امضای قرارداد تماس می‌گیرند.',
+            'message' => 'درخواست همکاری ثبت شد؛ کارشناسان ما برای امضای قرارداد تماس می‌گیریند.',
             'data' => [
                 'id' => $contractRequest->id,
                 'status' => $contractRequest->status,

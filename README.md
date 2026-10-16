@@ -42,7 +42,7 @@ Created by **Arash** · [GitHub profile](https://github.com/Arash-abraham) · [R
   - Every item needs admin approval before it is shown to the public. Editing an approved item sends it back to pending.
   - Authors see their own pending and rejected items with a status note. Rejected items can be edited and resubmitted.
 - Owned books are never sold twice. The storefront marks them and hides the buy button, and the API refuses to add them to the cart or charge for them again.
-- Print-on-demand: a directory of partner printing houses, a partnership contract form for printing houses, and per-book print orders with paper, binding, and quantity options. Each order can be priced with a quote before it is placed.
+- Print-on-demand: a directory of partner printing houses, a quick order flow (pick a partner, pick a book, order), a partnership contract form for printing houses, and per-book print orders with paper, binding, and quantity options. Each order can be priced with a quote before it is placed, and readers who already own the digital edition get a loyalty discount on the print.
 - Admin-editable static pages (for example, "About us") and FAQs.
 
 ### Customer account
@@ -61,7 +61,7 @@ Created by **Arash** · [GitHub profile](https://github.com/Arash-abraham) · [R
 - **Comments and Q&A moderation:** approve, reject, or delete comments, questions, and replies, filtered by status and type.
 - **Catalog:** products, categories, tags, coupons, private product files, and cover images.
 - **Content:** static pages, FAQs, navigation menus, and site settings.
-- **Printing:** printing houses, contract requests, and print orders.
+- **Printing:** printing houses (price list, delivery time, capabilities), contract requests, and print orders with their status and tracking code.
 - **Payments:** the list of payment transactions and their status.
 
 Visits are counted once per page change on the storefront. Each visit stores a daily salted hash of the visitor's IP address and user agent, so raw IP addresses are not stored. Admin pages are not counted.
@@ -513,7 +513,7 @@ All endpoints are under `/api/v1`. Successful responses are wrapped in a `data` 
 | Account | `GET` and `PUT /account/profile`; `GET /account/overview`, `/account/library`, `/account/orders`, `/account/downloads`, `/account/print-orders`, `/account/tickets`; `GET /account/tickets/{ticket}`; `POST /account/tickets`; `POST /account/tickets/{ticket}/messages` |
 | Reviews, comments, and Q&A | `POST /reviews` (comments, questions, and replies); `POST /reviews/{review}/edit`; `POST /reviews/{review}/helpful`; `POST /reviews/{review}/report` |
 | Wallet | `GET /wallet`; `POST /wallet/deposits` |
-| Printing | `POST /print-houses/contract-requests`; `POST /print-orders/quote`; `POST /print-orders` |
+| Printing | `GET /print-houses`; `POST /print-houses/contract-requests`; `POST /print-orders/quote` (public); `GET /print-orders`; `POST /print-orders`; `POST /print-orders/{id}/cancel` |
 | Administration | `/admin/dashboard`, `/admin/users`, `/admin/users/{id}`, `/admin/tickets`, `/admin/tickets/{id}`, `/admin/tickets/{id}/messages`, `PUT /admin/tickets/{id}`, `/admin/reviews`, `/admin/products`, `/admin/categories`, `/admin/tags`, `/admin/coupons`, `/admin/faqs`, `/admin/pages`, `/admin/menus`, `/admin/payments`, `/admin/print-houses`, `/admin/print-contracts`, `/admin/print-orders`, `/admin/settings` |
 
 ### Rules the API enforces
@@ -524,10 +524,21 @@ All endpoints are under `/api/v1`. Successful responses are wrapped in a `data` 
 - **Moderation:** comments, questions, and replies are visible to the public only after an admin approves them. The author can always see their own pending and rejected items.
 - **Comments:** only buyers can post comments. Questions and replies are open to any logged-in user.
 - **Support tickets:** a customer can read and reply only to their own tickets. Any reply on a closed ticket reopens it.
+- **Printing:** the price of a print order always comes from the server (`PrintPricingService`), so the quote a reader sees is the amount that is stored. The quote is public, but the loyalty discount for owners of the digital edition is only granted for a signed-in owner. A reader can cancel an order while the printing house has not started it, and only their own orders are visible to them.
 
 ### Catalog filters
 
 `GET /products` accepts `q`, `category`, `tag`, `price_min`, `price_max`, `min_rating`, `on_sale`, `has_files`, and `sort`. Valid `sort` values are `popular`, `newest`, `rating`, `discount`, `price_asc`, and `price_desc`. The filters that were applied are returned in `meta.filters`.
+
+### Printing
+
+The printing feature is one flow that starts in the shop and ends with a partner printing house:
+
+1. `GET /print-houses` returns the public directory. It accepts `q` (name, city or description), `city`, `capability`, and `sort` (`rating`, `price_asc`, `price_desc`, `fastest`). The response carries the partner list, the cities and capabilities that can be filtered by, the print options (paper types, bindings, colour surcharge, loyalty discount) and the summary numbers of the directory.
+2. The reader picks a partner and a book. `POST /print-orders/quote` prices the job with `PrintPricingService`, which is also the service that stores the order, so the shown amount and the charged amount can never drift apart. The endpoint is public so a guest sees the price before signing in; the 15% loyalty discount is only granted when the request comes from a reader who owns the digital edition.
+3. `POST /print-orders` places the order. The price, the delivery time and the partner name are stored as a snapshot, so later price changes never rewrite the order history. The order starts in the `pending` state and the reader can cancel it with `POST /print-orders/{id}/cancel` until the printing house confirms it.
+4. The admin works the orders in the dashboard: the status moves from `pending` to `confirmed`, `printing`, `shipped`, `delivered` or `cancelled`, and the tracking code of the shipment is recorded.
+5. Printing houses that want to join apply with `POST /print-houses/contract-requests`. When the admin approves a request with `PUT /admin/print-contracts/{id}`, a printing house profile is created from it with the status `pending`; the admin then fills in the price list and activates it, and from that moment the partner appears in the public directory.
 
 ## Data model
 
@@ -541,7 +552,7 @@ The main tables and models:
 | Community | `reviews` (type, status, rating, parent, image), `review_helpfuls`, `review_reports` |
 | Support | `tickets` (status: `open`, `in_progress`, `closed`), `ticket_messages` |
 | Content | `pages`, `faqs`, `menus`, `web_settings` |
-| Printing | `print_houses`, `print_contract_requests`, `print_orders` |
+| Printing | `print_houses` (price list, delivery, capabilities), `print_contract_requests` (partner applications), `print_orders` (per-book print jobs with status and tracking code) |
 | Analytics | `page_views` (daily salted visitor hash, path, timestamp) |
 
 ## Configuration

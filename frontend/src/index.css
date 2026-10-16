@@ -1720,13 +1720,17 @@ main { flex: 1; }
 
 /* Print page */
 .print-page { padding-top: 24px; }
-.print-hero { max-width: 860px; margin: 26px auto 34px; text-align: center; }
+.print-hero { position: relative; margin: 20px 0 26px; padding: 40px 32px 34px; border: 1px solid var(--border-soft); border-radius: 28px; background: radial-gradient(120% 130% at 85% -10%, #edf3ea 0%, var(--paper) 58%); box-shadow: var(--shadow-soft); overflow: hidden; text-align: center; }
+.print-hero::before { content: ''; position: absolute; inset-block-start: -70px; inset-inline-start: -50px; width: 220px; height: 220px; border-radius: 50%; background: radial-gradient(circle, rgba(233,123,81,.13), transparent 68%); }
+.print-hero::after { content: ''; position: absolute; inset-block-end: -90px; inset-inline-end: -60px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(33,84,70,.12), transparent 70%); }
+.print-hero > * { position: relative; z-index: 1; }
 .print-hero h1 { margin: 10px 0 12px; color: var(--heading); font-size: clamp(2.125rem, 4.4vw, 3.375rem); line-height: 1.4; letter-spacing: -.06em; }
 .print-hero h1 em { color: var(--green); font-style: normal; }
 .print-hero > p { max-width: 640px; margin: 0 auto 22px; color: var(--body-text); font-size: 0.9375rem; line-height: 2.15; }
 .print-hero-actions { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 12px; }
 .print-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 13px; margin-bottom: 44px; }
-.print-stats article { padding: 18px; border: 1px solid var(--border-soft); border-radius: 15px; background: var(--paper); text-align: center; }
+.print-stats article { padding: 18px; border: 1px solid var(--border-soft); border-radius: 15px; background: var(--paper); text-align: center; transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
+.print-stats article:hover { transform: translateY(-3px); border-color: #cddccd; box-shadow: var(--shadow-soft); }
 .print-stat-icon { width: 40px; height: 40px; display: grid; place-items: center; margin: 0 auto 10px; border-radius: 12px; color: #8a5a2b; background: #fbeedc; }
 .print-stats b { display: block; color: var(--heading); font-size: 1.0625rem; }
 .print-stats small { color: var(--subtle-text); font-size: 0.75rem; }
@@ -1763,6 +1767,81 @@ main { flex: 1; }
 .print-house-foot { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding-top: 12px; border-top: 1px dashed var(--border-soft); }
 .print-house-contact { display: inline-flex; align-items: center; gap: 6px; color: var(--subtle-text); font-size: 0.75rem; }
 .print-house-skeleton { height: 300px; border-radius: 17px; background: linear-gradient(100deg,#e7e9e3 25%,#f2f3f0 42%,#e7e9e3 65%); background-size: 250% 100%; animation: shimmer 1.25s infinite linear; }
+
+/* Quick order panel: partner, book, and the order form in one place */
+.print-order-panel { margin-bottom: 46px; padding: 26px; border: 1px solid var(--border-soft); border-radius: 24px; background: var(--paper); box-shadow: var(--shadow-soft); scroll-margin-top: 90px; }
+.print-panel-heading { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; margin-bottom: 22px; }
+.print-panel-heading h2 { margin: 8px 0 4px; color: var(--heading); font-size: 1.625rem; letter-spacing: -.045em; }
+.print-panel-heading p { margin: 0; max-width: 560px; color: var(--subtle-text); font-size: 0.8125rem; line-height: 2; }
+.print-panel-steps { display: flex; align-items: center; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.print-panel-steps li { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 20px; color: var(--subtle-text); background: var(--surface-soft); font-size: 0.75rem; font-weight: 700; }
+.print-panel-steps li span { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; color: var(--muted); background: var(--paper); font-size: 0.6875rem; }
+.print-panel-steps li.is-active { color: var(--green); background: var(--green-light); }
+.print-panel-steps li.is-active span { color: #fff; background: var(--green); }
+.print-panel-steps li.is-done { color: var(--ink-soft); background: var(--surface-soft); }
+.print-panel-steps li.is-done span { color: #fff; background: #7fae94; }
+.print-order-panel-body { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.print-order-picker { display: grid; gap: 18px; }
+.print-picker-block { display: grid; gap: 10px; padding: 16px; border: 1px solid var(--border-soft); border-radius: 16px; background: var(--surface-soft); }
+.print-picker-title { display: inline-flex; align-items: center; gap: 7px; color: var(--heading); font-size: 0.875rem; font-weight: 700; }
+.print-picker-title svg { color: var(--green); }
+.print-picker-error { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; color: var(--body-text); font-size: 0.8125rem; }
+.print-picker-empty { margin: 0; color: var(--subtle-text); font-size: 0.8125rem; }
+.print-house-chips .print-house-chip { display: grid; gap: 2px; padding: 10px 14px; border: 1px solid var(--border-soft); border-radius: 13px; background: var(--paper); cursor: pointer; text-align: start; transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+.print-house-chips .print-house-chip:hover { transform: translateY(-2px); border-color: #b9cfbe; box-shadow: var(--shadow-soft); }
+.print-house-chips .print-house-chip.is-active { border-color: var(--green); box-shadow: 0 0 0 3px rgba(33,84,70,.1); }
+.print-house-chips .print-house-chip b { color: var(--heading); font-size: 0.8125rem; }
+.print-house-chips .print-house-chip small { color: var(--subtle-text); font-size: 0.6875rem; }
+.print-house-chips .print-house-chip.is-active b { color: var(--green); }
+.print-chip-skeleton { display: block; width: 100%; height: 58px; border-radius: 13px; background: linear-gradient(100deg,#e7e9e3 25%,#f2f3f0 42%,#e7e9e3 65%); background-size: 250% 100%; animation: shimmer 1.25s infinite linear; }
+.print-book-search { display: flex; align-items: center; gap: 8px; height: 46px; padding-inline: 13px; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--paper); color: var(--subtle-text); }
+.print-book-search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 0.8125rem; }
+.print-book-search button { display: grid; place-items: center; border: 0; padding: 0; background: transparent; color: var(--muted); cursor: pointer; }
+.print-book-search button:hover { color: var(--orange); }
+.print-book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 10px; max-height: 292px; overflow-y: auto; padding-inline-end: 4px; }
+.print-book-card { position: relative; display: grid; gap: 7px; padding: 9px; border: 1px solid var(--border-soft); border-radius: 13px; background: var(--paper); cursor: pointer; text-align: start; transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease; }
+.print-book-card:hover { transform: translateY(-2px); border-color: #b9cfbe; box-shadow: var(--shadow-soft); }
+.print-book-card.is-active { border-color: var(--green); box-shadow: 0 0 0 3px rgba(33,84,70,.1); }
+.print-book-cover { height: 92px; display: grid; place-items: center; overflow: hidden; border-radius: 9px; color: #6b8a72; background: var(--canvas); }
+.print-book-cover img { width: 100%; height: 100%; object-fit: cover; }
+.print-book-card b { color: var(--heading); font-size: 0.75rem; line-height: 1.7; }
+.print-book-check { position: absolute; inset-block-start: 6px; inset-inline-end: 6px; width: 22px; height: 22px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: var(--green); }
+.print-book-skeleton { height: 132px; border-radius: 13px; background: linear-gradient(100deg,#e7e9e3 25%,#f2f3f0 42%,#e7e9e3 65%); background-size: 250% 100%; animation: shimmer 1.25s infinite linear; }
+.print-order-panel-form { position: sticky; top: 90px; }
+.print-order-placeholder { display: grid; justify-items: center; gap: 8px; padding: 42px 24px; border: 1px dashed var(--border-soft); border-radius: 17px; background: var(--surface-soft); text-align: center; }
+.print-order-placeholder > span { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 14px; color: #8a5a2b; background: #fbeedc; }
+.print-order-placeholder b { color: var(--heading); font-size: 0.9375rem; }
+.print-order-placeholder p { margin: 0; max-width: 320px; color: var(--subtle-text); font-size: 0.8125rem; line-height: 1.95; }
+
+/* Print order form details */
+.print-house-brief { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 16px; padding: 11px 13px; border: 1px dashed var(--border-soft); border-radius: 12px; color: var(--subtle-text); font-size: 0.75rem; }
+.print-house-brief span { display: inline-flex; align-items: center; gap: 6px; }
+.print-house-brief svg { color: var(--green); }
+.print-quantity-box { display: grid; grid-template-columns: 38px minmax(0, 1fr) 38px; align-items: center; height: 47px; border: 1px solid var(--border-soft); border-radius: 12px; background: var(--paper); overflow: hidden; }
+.print-quantity-box button { height: 100%; display: grid; place-items: center; border: 0; background: var(--surface-soft); color: var(--ink-soft); cursor: pointer; transition: background .18s ease, color .18s ease; }
+.print-quantity-box button:hover:not(:disabled) { background: var(--green-light); color: var(--green); }
+.print-quantity-box button:disabled { opacity: .45; cursor: not-allowed; }
+.print-quantity-box input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--ink); text-align: center; font-weight: 700; }
+.print-order-done { justify-items: center; gap: 9px; padding: 30px 24px; border-color: #cfe3d3; background: linear-gradient(140deg,#f3f9f2,var(--paper)); text-align: center; }
+.print-order-done-icon { width: 58px; height: 58px; display: grid; place-items: center; border-radius: 18px; color: #2f6a4c; background: #dcf0e2; }
+.print-order-done > b { color: var(--heading); font-size: 1.0625rem; }
+.print-order-done > p { margin: 0; max-width: 460px; color: var(--body-text); font-size: 0.8125rem; line-height: 2.05; }
+.print-order-done-actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 4px; }
+
+/* Directory filters and cards */
+.print-filters { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; }
+.print-search-inline { display: inline-flex; align-items: center; gap: 7px; height: 47px; padding-inline: 13px; border: 1px solid var(--border-soft); border-radius: 12px; color: var(--subtle-text); background: var(--paper); }
+.print-search-inline input { width: 190px; border: 0; outline: 0; color: var(--ink); background: transparent; font-size: 0.8125rem; }
+.print-house-card.is-featured { border-color: #e3d3b8; box-shadow: 0 14px 34px rgba(138,90,43,.09); }
+.print-house-badge { display: inline-flex; align-items: center; gap: 5px; justify-self: start; padding: 4px 10px; border-radius: 20px; color: #8a5a2b; background: #fbeedc; font-size: 0.6875rem; font-weight: 700; }
+.print-house-foot .text-link { background: transparent; border: 0; cursor: pointer; }
+
+/* Account: print order tracking and cancelling */
+.print-order-tracking { color: var(--green); font-size: 0.6875rem; }
+.print-order-cancel { border: 1px solid #eccfc8; border-radius: 9px; padding: 3px 10px; color: #b76155; background: #fff6f4; font-size: 0.6875rem; font-weight: 700; cursor: pointer; }
+.print-order-cancel:hover { background: #ffece7; }
+.print-order-cancel:disabled { opacity: .6; cursor: wait; }
+.print-contract-success-actions { display: flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 4px; }
 
 /* Printing-house contract */
 .print-contract { display: grid; grid-template-columns: minmax(0, 1fr); gap: 22px; padding: 26px; border: 1px solid var(--border-soft); border-radius: 20px; background: linear-gradient(140deg, #f4f8f2, var(--paper)); }
@@ -2056,3 +2135,50 @@ main { flex: 1; }
 .admin-sidebar > button.active, .admin-sidebar > button:hover { background: #f1f6f2; color: var(--green); }
 .admin-content-heading h2 { font-size: 1.25rem; }
 .admin-review-filters { gap: 8px; }
+
+/* Admin: printing houses, contracts and print orders */
+.adm-print-contracts { display: grid; gap: 11px; }
+.adm-print-contract { display: grid; gap: 10px; padding: 16px; border: 1px solid #e7eae4; border-radius: 15px; background: #fff; }
+.adm-print-contract header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.adm-print-contract header > div { display: grid; gap: 3px; min-width: 0; }
+.adm-print-contract header b { color: var(--heading); font-size: 0.9375rem; }
+.adm-print-contract header small { color: var(--muted); font-size: 0.75rem; }
+.adm-print-contract p { margin: 0; color: var(--body-text); font-size: 0.8125rem; line-height: 2; }
+.adm-print-linked { color: var(--green); font-size: 0.75rem; font-weight: 700; }
+.adm-print-contract .admin-row-actions { justify-content: flex-start; gap: 8px; }
+.admin-status-select { height: 34px; padding-inline: 9px; border: 1px solid var(--line); border-radius: 9px; background: var(--paper); color: var(--ink); font: inherit; font-size: 0.75rem; cursor: pointer; }
+:root[data-theme="dark"] .adm-print-contract { border-color: var(--line); background: var(--paper); }
+:root[data-theme="dark"] .adm-print-contract header b { color: var(--heading); }
+
+/* Print section in the dark theme */
+:root[data-theme="dark"] .print-hero { background: radial-gradient(120% 130% at 85% -10%, #1d2c24 0%, var(--paper) 58%); border-color: var(--line); }
+:root[data-theme="dark"] .print-order-panel { border-color: var(--line); background: var(--paper); }
+:root[data-theme="dark"] .print-picker-block { border-color: var(--line); background: var(--surface-soft); }
+:root[data-theme="dark"] .print-house-chips .print-house-chip,
+:root[data-theme="dark"] .print-book-card { border-color: var(--line); background: var(--paper); }
+:root[data-theme="dark"] .print-house-chips .print-house-chip.is-active,
+:root[data-theme="dark"] .print-book-card.is-active { border-color: var(--green); box-shadow: 0 0 0 3px rgba(139,194,157,.16); }
+:root[data-theme="dark"] .print-book-search { border-color: var(--line); background: var(--paper); }
+:root[data-theme="dark"] .print-quantity-box { border-color: var(--line); background: var(--paper); }
+:root[data-theme="dark"] .print-order-done { border-color: #2f5a41; background: linear-gradient(140deg,#1c2f24,var(--paper)); }
+:root[data-theme="dark"] .print-order-done-icon { color: #b9e0c4; background: #25412f; }
+:root[data-theme="dark"] .print-house-card.is-featured { border-color: #4a3f2c; box-shadow: 0 14px 34px rgba(0,0,0,.22); }
+:root[data-theme="dark"] .print-house-badge { color: #f0c39a; background: #3b2c20; }
+:root[data-theme="dark"] .print-search-inline { border-color: var(--line); background: var(--paper); }
+:root[data-theme="dark"] .print-panel-steps li { background: var(--surface-soft); }
+:root[data-theme="dark"] .print-panel-steps li.is-active { background: var(--green-light); }
+:root[data-theme="dark"] .print-order-cancel { border-color: #5c3733; color: #f1b0a6; background: #2e2320; }
+:root[data-theme="dark"] .print-order-cancel:hover { background: #3d2927; }
+
+/* Print layout on small screens */
+@media (max-width: 1050px) {
+  .print-order-panel-body { grid-template-columns: minmax(0, 1fr); }
+  .print-order-panel-form { position: static; }
+  .print-book-grid { max-height: 240px; }
+}
+@media (max-width: 820px) {
+  .print-hero { padding: 30px 20px 26px; border-radius: 22px; }
+  .print-order-panel { padding: 20px 16px; border-radius: 20px; }
+  .print-panel-heading { align-items: flex-start; }
+  .print-search-inline input { width: 130px; }
+}

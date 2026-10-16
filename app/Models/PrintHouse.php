@@ -26,6 +26,7 @@ class PrintHouse extends Model
         'min_quantity',
         'max_quantity',
         'rating',
+        'is_featured',
         'status',
     ];
 
@@ -38,6 +39,7 @@ class PrintHouse extends Model
         'min_quantity' => 'integer',
         'max_quantity' => 'integer',
         'rating' => 'float',
+        'is_featured' => 'boolean',
     ];
 
     public function scopeActive(Builder $query): Builder

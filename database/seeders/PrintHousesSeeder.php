@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\PrintHouse;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class PrintHousesSeeder extends Seeder
 {
@@ -13,8 +13,6 @@ class PrintHousesSeeder extends Seeder
      */
     public function run(): void
     {
-        $now = now();
-
         $houses = [
             [
                 'name' => 'چاپخانه‌ی نقش جهان',
@@ -25,6 +23,7 @@ class PrintHousesSeeder extends Seeder
                 'capabilities' => ['کاغذ تحریر', 'گلاسه', 'صحافی سخت', 'چاپ رنگی'],
                 'phone' => '021-55667788',
                 'email' => 'order@naqshjahan.example',
+                'address' => 'تهران، خیابان کارگر شمالی، پلاک ۲۱',
                 'website' => 'https://naqshjahan.example',
                 'unit_price' => 245000,
                 'hardcover_surcharge' => 95000,
@@ -33,6 +32,7 @@ class PrintHousesSeeder extends Seeder
                 'min_quantity' => 1,
                 'max_quantity' => 10,
                 'rating' => 4.8,
+                'is_featured' => true,
             ],
             [
                 'name' => 'مجموعه‌ی چاپ آفتاب',
@@ -43,6 +43,7 @@ class PrintHousesSeeder extends Seeder
                 'capabilities' => ['چاپ رنگی', 'صحافی سخت', 'گلاسه', 'ارسال سراسری'],
                 'phone' => '031-32233445',
                 'email' => 'hello@aftabprint.example',
+                'address' => 'اصفهان، خیابان چهارباغ بالا، ساختمان چاپ',
                 'website' => null,
                 'unit_price' => 268000,
                 'hardcover_surcharge' => 78000,
@@ -51,6 +52,7 @@ class PrintHousesSeeder extends Seeder
                 'min_quantity' => 1,
                 'max_quantity' => 15,
                 'rating' => 4.6,
+                'is_featured' => true,
             ],
             [
                 'name' => 'چاپ و صحافی پارس',
@@ -61,6 +63,7 @@ class PrintHousesSeeder extends Seeder
                 'capabilities' => ['کاغذ کرافت', 'صحافی فنر', 'تیراژ بالا', 'قیمت اقتصادی'],
                 'phone' => '051-37654321',
                 'email' => 'salam@parsprint.example',
+                'address' => 'مشهد، بلوار سجاد، نبش خیابان بهار',
                 'website' => null,
                 'unit_price' => 198000,
                 'hardcover_surcharge' => 88000,
@@ -69,6 +72,7 @@ class PrintHousesSeeder extends Seeder
                 'min_quantity' => 2,
                 'max_quantity' => 20,
                 'rating' => 4.4,
+                'is_featured' => false,
             ],
             [
                 'name' => 'چاپخانه‌ی مدرن شیراز',
@@ -79,6 +83,7 @@ class PrintHousesSeeder extends Seeder
                 'capabilities' => ['تحویل سریع', 'بسته‌بندی هدیه', 'کاغذ تحریر', 'چاپ رنگی'],
                 'phone' => '071-36221100',
                 'email' => 'info@modernshiraz.example',
+                'address' => 'شیراز، بلوار زند، مجتمع چاپ و نشر',
                 'website' => 'https://modernshiraz.example',
                 'unit_price' => 232000,
                 'hardcover_surcharge' => 84000,
@@ -87,6 +92,7 @@ class PrintHousesSeeder extends Seeder
                 'min_quantity' => 1,
                 'max_quantity' => 12,
                 'rating' => 4.9,
+                'is_featured' => true,
             ],
             [
                 'name' => 'چاپخانه‌ی تبریز آرا',
@@ -97,6 +103,7 @@ class PrintHousesSeeder extends Seeder
                 'capabilities' => ['کتاب فنی', 'کاغذ گلاسه', 'صحافی سخت', 'تیراژ بالا'],
                 'phone' => '041-33344556',
                 'email' => 'base@tabrizara.example',
+                'address' => 'تبریز، خیابان آزادی، ساختمان آرا',
                 'website' => null,
                 'unit_price' => 255000,
                 'hardcover_surcharge' => 90000,
@@ -105,18 +112,34 @@ class PrintHousesSeeder extends Seeder
                 'min_quantity' => 1,
                 'max_quantity' => 20,
                 'rating' => 4.5,
+                'is_featured' => false,
+            ],
+            [
+                'name' => 'چاپخانه‌ی کویر یزد',
+                'slug' => 'kavir-yazd',
+                'city' => 'یزد',
+                'province' => 'یزد',
+                'description' => 'صحافی کلاسیک با کاغذ کرافت و جلد نرم؛ مناسب کتاب‌های ادبی و شعر.',
+                'capabilities' => ['کاغذ کرافت', 'صحافی نرم', 'بسته‌بندی هدیه', 'ارسال سراسری'],
+                'phone' => '035-32233445',
+                'email' => 'hello@kavirprint.example',
+                'address' => 'یزد، خیابان کاشانی، کوچه‌ی چاپ',
+                'website' => null,
+                'unit_price' => 215000,
+                'hardcover_surcharge' => 86000,
+                'delivery_fee' => 55000,
+                'delivery_days' => 6,
+                'min_quantity' => 1,
+                'max_quantity' => 15,
+                'rating' => 4.3,
+                'is_featured' => false,
             ],
         ];
 
         foreach ($houses as $house) {
-            DB::table('print_houses')->updateOrInsert(
+            PrintHouse::query()->updateOrCreate(
                 ['slug' => $house['slug']],
-                array_merge($house, [
-                    'capabilities' => json_encode($house['capabilities'], JSON_UNESCAPED_UNICODE),
-                    'status' => 'active',
-                    'created_at' => $now,
-                    'updated_at' => $now,
-                ]),
+                array_merge($house, ['status' => 'active']),
             );
         }
     }

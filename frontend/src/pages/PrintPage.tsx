@@ -1,70 +1,108 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, BadgeCheck, Building2, Check, ClipboardList, Factory, Handshake, Loader2, MapPin, PackageCheck, Phone, Search, Send, Sparkles, Star, Truck, Wallet } from 'lucide-react';
+import { ArrowLeft, BadgeCheck, BookOpen, Building2, Check, ClipboardList, Factory, Handshake, Loader2, MapPin, PackageCheck, Phone, Search, Send, Sparkles, Star, Truck, Wallet, X } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { api, apiErrorMessage, demoMode } from '../lib/api';
-import { demoPrintHouses } from '../data/demo';
+import { demoProducts } from '../data/demo';
+import { fetchPrintDirectory, submitPrintContract } from '../lib/print';
 import { formatPrice, toman } from '../lib/format';
-import type { PrintHouse } from '../types';
+import type { PrintHouse, Product } from '../types';
 import { useStore } from '../StoreContext';
+import PrintOrderForm from '../components/PrintOrderForm';
 
-type DirectoryPayload = { houses: PrintHouse[]; cities: string[]; capabilities: string[] };
-
-function unwrapDirectory(value: unknown): DirectoryPayload {
-  const empty: DirectoryPayload = { houses: [], cities: [], capabilities: [] };
-  if (!value || typeof value !== 'object') return empty;
-  const payload = (value as { data?: unknown }).data ?? value;
-  if (!payload || typeof payload !== 'object') return empty;
-  const record = payload as Record<string, unknown>;
-  return {
-    houses: (record.print_houses as PrintHouse[]) ?? [],
-    cities: (record.cities as string[]) ?? [],
-    capabilities: (record.capabilities as string[]) ?? [],
-  };
-}
+type SortKey = 'rating' | 'price_asc' | 'price_desc' | 'fastest';
 
 const capabilityOptions = ['کاغذ تحریر', 'گلاسه', 'کاغذ کرافت', 'صحافی سخت', 'صحافی فنر', 'چاپ رنگی', 'تیراژ بالا', 'تحویل سریع'];
+
+function unwrapProducts(value: unknown): Product[] {
+  const payload = (value as { data?: unknown })?.data;
+  return Array.isArray(payload) ? (payload as Product[]) : [];
+}
 
 export default function PrintPage() {
   const { setNotice } = useStore();
   const [city, setCity] = useState('');
-  const [sort, setSort] = useState('rating');
+  const [capability, setCapability] = useState('');
+  const [search, setSearch] = useState('');
+  const [sort, setSort] = useState<SortKey>('rating');
   const [contractOpen, setContractOpen] = useState(false);
 
-  const { data, isLoading } = useQuery<DirectoryPayload>({
+  // The quick order flow: a partner, a book, and the order form itself.
+  const [orderHouse, setOrderHouse] = useState<number | null>(null);
+  const [orderBook, setOrderBook] = useState<Product | null>(null);
+  const [bookQuery, setBookQuery] = useState('');
+  const [bookTerm, setBookTerm] = useState('');
+
+  // The search box talks to the API, so the term is debounced first.
+  useEffect(() => {
+    const timer = setTimeout(() => setBookTerm(bookQuery.trim()), 350);
+    return () => clearTimeout(timer);
+  }, [bookQuery]);
+
+  const { data, isLoading, isError, refetch } = useQuery({
     queryKey: ['print-directory'],
     staleTime: 5 * 60 * 1000,
+    queryFn: fetchPrintDirectory,
+  });
+
+  const houses = useMemo(() => data?.houses ?? [], [data]);
+
+  const books = useQuery<Product[]>({
+    queryKey: ['print-books', bookTerm],
+    staleTime: 60 * 1000,
     queryFn: async () => {
       if (demoMode) {
-        return {
-          houses: demoPrintHouses,
-          cities: [...new Set(demoPrintHouses.map((house) => house.city))],
-          capabilities: [...new Set(demoPrintHouses.flatMap((house) => house.capabilities))],
-        };
+        return bookTerm
+          ? demoProducts.filter((item) => item.title.includes(bookTerm)).slice(0, 8)
+          : demoProducts.slice(0, 8);
       }
-      const response = await api.get('/print-houses');
-      return unwrapDirectory(response.data);
+      const response = await api.get('/products', { params: { q: bookTerm || undefined, per_page: 12 } });
+      return unwrapProducts(response.data);
     },
   });
 
-  const houses = useMemo(() => {
-    const list = (data?.houses ?? []).filter((house) => !city || house.city === city);
+  const visibleHouses = useMemo(() => {
+    const term = search.trim();
+    const list = houses.filter((house) => {
+      if (city && house.city !== city) return false;
+      if (capability && !house.capabilities.includes(capability)) return false;
+      if (term && !`${house.name} ${house.city} ${house.description ?? ''}`.includes(term)) return false;
+      return true;
+    });
+
     const sorted = [...list];
     switch (sort) {
       case 'price_asc': sorted.sort((a, b) => a.unit_price - b.unit_price); break;
       case 'price_desc': sorted.sort((a, b) => b.unit_price - a.unit_price); break;
       case 'fastest': sorted.sort((a, b) => a.delivery_days - b.delivery_days); break;
-      default: sorted.sort((a, b) => b.rating - a.rating);
+      default: sorted.sort((a, b) => Number(b.is_featured) - Number(a.is_featured) || b.rating - a.rating);
     }
     return sorted;
-  }, [data, city, sort]);
+  }, [houses, city, capability, search, sort]);
 
-  const stats = useMemo(() => ({
-    houses: data?.houses.length ?? 0,
-    cities: data?.cities.length ?? 0,
-    fastest: Math.min(...(data?.houses ?? []).map((house) => house.delivery_days), 99),
-    from: Math.min(...(data?.houses ?? []).map((house) => house.unit_price), 0),
-  }), [data]);
+  const stats = data?.stats;
+  const fastest = stats?.fastest_delivery_days ?? 0;
+  const fromPrice = stats?.from_price ?? 0;
+
+  // The first partner is preselected, so the order flow is always one step ahead.
+  useEffect(() => {
+    if (!orderHouse && houses.length) setOrderHouse(houses[0].id);
+  }, [houses, orderHouse]);
+
+  function startOrder(house: PrintHouse) {
+    setOrderHouse(house.id);
+    document.getElementById('print-order')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function selectBook(book: Product) {
+    setOrderBook(book);
+    // On small screens the form sits under the picker, so bring it into view.
+    if (window.innerWidth < 1050) {
+      window.setTimeout(() => {
+        document.getElementById('print-order-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 140);
+    }
+  }
 
   return (
     <section className="container print-page section-pad">
@@ -75,26 +113,114 @@ export default function PrintPage() {
         <h1>کتاب‌هایت را <em>چاپ‌شده</em> داشته باش.</h1>
         <p>بعضی کتاب‌ها باید ورق بخورند. نسخه‌ی کاغذی همان کتابی را که خریده‌ای، از میان چاپخانه‌های همکار فایل‌استور سفارش بده — با انتخاب کاغذ، صحافی و تیراژ.</p>
         <div className="print-hero-actions">
-          <Link className="button button-primary" to="/catalog">انتخاب کتاب برای چاپ <ArrowLeft size={16} /></Link>
+          <a className="button button-primary" href="#print-order">سفارش نسخه‌ی چاپی <ArrowLeft size={16} /></a>
           <button className="button button-outline" onClick={() => setContractOpen(true)}><Handshake size={16} /> من چاپخانه دارم</button>
         </div>
       </header>
 
       <div className="print-stats">
-        <article><span className="print-stat-icon"><Factory size={20} /></span><b>{stats.houses.toLocaleString('fa-IR')} چاپخانه</b><small>چاپخانه‌ی همکار فعال</small></article>
-        <article><span className="print-stat-icon"><MapPin size={20} /></span><b>{stats.cities.toLocaleString('fa-IR')} شهر</b><small>پوشش سراسری ارسال</small></article>
-        <article><span className="print-stat-icon"><Truck size={20} /></span><b>از {stats.fastest === 99 ? '—' :  toman(stats.fastest) } روز</b><small>سریع‌ترین تحویل</small></article>
-        <article><span className="print-stat-icon"><Wallet size={20} /></span><b>از {stats.from ? formatPrice(stats.from) : '—'}</b><small>هزینه‌ی هر نسخه</small></article>
+        <article><span className="print-stat-icon"><Factory size={20} /></span><b>{(stats?.print_houses ?? 0).toLocaleString('fa-IR')} چاپخانه</b><small>چاپخانه‌ی همکار فعال</small></article>
+        <article><span className="print-stat-icon"><MapPin size={20} /></span><b>{(stats?.cities ?? 0).toLocaleString('fa-IR')} شهر</b><small>پوشش سراسری ارسال</small></article>
+        <article><span className="print-stat-icon"><Truck size={20} /></span><b>از {fastest ? toman(fastest) : '—'} روز</b><small>سریع‌ترین تحویل</small></article>
+        <article><span className="print-stat-icon"><Wallet size={20} /></span><b>از {fromPrice ? formatPrice(fromPrice) : '—'}</b><small>هزینه‌ی هر نسخه</small></article>
       </div>
 
       <section className="print-steps">
         <h2>چطور کتاب چاپی‌ات را بگیری؟</h2>
         <ol>
-          <li><span><ClipboardList size={19} /></span><b>کتاب را انتخاب کن</b><p>از صفحه‌ی هر کتاب، دکمه‌ی «سفارش نسخه‌ی چاپی» را بزن.</p></li>
+          <li><span><ClipboardList size={19} /></span><b>کتاب را انتخاب کن</b><p>در همین صفحه کتابت را جست‌وجو کن یا از صفحه‌ی هر کتاب دکمه‌ی «سفارش نسخه‌ی چاپی» را بزن.</p></li>
           <li><span><Factory size={19} /></span><b>چاپخانه و کاغذ</b><p>چاپخانه‌ی شهرت را با قیمت و زمان تحویلش انتخاب کن.</p></li>
           <li><span><PackageCheck size={19} /></span><b>ثبت و تأیید</b><p>سفارش ثبت می‌شود؛ چاپخانه تأیید می‌کند و چاپ شروع می‌شود.</p></li>
           <li><span><Truck size={19} /></span><b>تحویل درِ خانه</b><p>نسخه‌ی صحافی‌شده با پست برایت ارسال می‌شود.</p></li>
         </ol>
+      </section>
+
+      <section className="print-order-panel" id="print-order">
+        <div className="print-panel-heading">
+          <div>
+            <span className="eyebrow">سفارش سریع</span>
+            <h2>همین حالا نسخه‌ی چاپی را سفارش بده</h2>
+            <p>چاپخانه را انتخاب کن، کتابت را پیدا کن و فرم سفارش را پر کن؛ قیمت همان لحظه از سرور گرفته می‌شود.</p>
+          </div>
+          <ol className="print-panel-steps">
+            <li className={orderHouse ? 'is-done' : 'is-active'}><span>۱</span> چاپخانه</li>
+            <li className={orderBook ? 'is-done' : orderHouse ? 'is-active' : ''}><span>۲</span> کتاب</li>
+            <li className={orderBook ? 'is-active' : ''}><span>۳</span> ثبت سفارش</li>
+          </ol>
+        </div>
+
+        <div className="print-order-panel-body">
+          <div className="print-order-picker">
+            <div className="print-picker-block">
+              <span className="print-picker-title"><Factory size={15} /> ۱. چاپخانه‌ی همکار</span>
+              {isLoading ? (
+                <div className="print-house-chips">{[0, 1, 2].map((item) => <span className="print-chip-skeleton" key={item} />)}</div>
+              ) : isError ? (
+                <div className="print-picker-error">
+                  <span>فهرست چاپخانه‌ها دریافت نشد.</span>
+                  <button className="button button-outline button-small" onClick={() => refetch()}>تلاش دوباره</button>
+                </div>
+              ) : (
+                <div className="print-house-chips">
+                  {houses.map((house) => (
+                    <button
+                      type="button"
+                      key={house.id}
+                      className={`print-house-chip ${orderHouse === house.id ? 'is-active' : ''}`}
+                      onClick={() => setOrderHouse(house.id)}
+                    >
+                      <b>{house.name}</b>
+                      <small>{house.city} · {formatPrice(house.unit_price)} · {house.delivery_days.toLocaleString('fa-IR')} روزه</small>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="print-picker-block">
+              <span className="print-picker-title"><BookOpen size={15} /> ۲. کتابی که می‌خواهی چاپ شود</span>
+              <label className="print-book-search">
+                <Search size={16} />
+                <input value={bookQuery} onChange={(event) => setBookQuery(event.target.value)} placeholder="جست‌وجوی نام کتاب…" />
+                {bookQuery && <button type="button" onClick={() => setBookQuery('')} aria-label="پاک کردن"><X size={15} /></button>}
+              </label>
+              {books.isLoading ? (
+                <div className="print-book-grid">{[0, 1, 2, 3].map((item) => <div className="print-book-skeleton" key={item} />)}</div>
+              ) : books.data?.length ? (
+                <div className="print-book-grid">
+                  {books.data.map((book) => (
+                    <button
+                      type="button"
+                      key={book.id}
+                      className={`print-book-card ${orderBook?.id === book.id ? 'is-active' : ''}`}
+                      onClick={() => selectBook(book)}
+                    >
+                      <span className="print-book-cover">
+                        {book.cover_url ? <img src={book.cover_url} alt="" /> : <BookOpen size={18} />}
+                      </span>
+                      <b>{book.title}</b>
+                      {orderBook?.id === book.id && <span className="print-book-check"><Check size={13} /></span>}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <p className="print-picker-empty">کتابی با این نام پیدا نشد؛ عبارت دیگری را امتحان کن.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="print-order-panel-form" id="print-order-form">
+            {orderBook ? (
+              <PrintOrderForm product={orderBook} initialHouseId={orderHouse} />
+            ) : (
+              <div className="print-order-placeholder">
+                <span><BookOpen size={22} /></span>
+                <b>کتابت را انتخاب کن</b>
+                <p>از فهرست بالا یک کتاب بردار تا فرم سفارش نسخه‌ی چاپی اینجا باز شود.</p>
+              </div>
+            )}
+          </div>
+        </div>
       </section>
 
       <section className="print-directory">
@@ -105,14 +231,24 @@ export default function PrintPage() {
             <p>قیمت‌ها بابت چاپ هر نسخه است و هزینه‌ی ارسال جدا محاسبه می‌شود.</p>
           </div>
           <div className="print-filters">
-            <label className="print-select-inline"><Search size={15} />
+            <label className="print-search-inline">
+              <Search size={15} />
+              <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="نام چاپخانه یا شهر…" />
+            </label>
+            <label className="print-select-inline">
               <select value={city} onChange={(event) => setCity(event.target.value)}>
                 <option value="">همه‌ی شهرها</option>
                 {(data?.cities ?? []).map((item) => <option key={item} value={item}>{item}</option>)}
               </select>
             </label>
             <label className="print-select-inline">
-              <select value={sort} onChange={(event) => setSort(event.target.value)}>
+              <select value={capability} onChange={(event) => setCapability(event.target.value)}>
+                <option value="">همه‌ی توانمندی‌ها</option>
+                {(data?.capabilities ?? []).map((item) => <option key={item} value={item}>{item}</option>)}
+              </select>
+            </label>
+            <label className="print-select-inline">
+              <select value={sort} onChange={(event) => setSort(event.target.value as SortKey)}>
                 <option value="rating">بیشترین امتیاز</option>
                 <option value="price_asc">ارزان‌ترین</option>
                 <option value="price_desc">گران‌ترین</option>
@@ -122,13 +258,13 @@ export default function PrintPage() {
           </div>
         </div>
 
-        {isLoading ? (
-          <div className="print-house-grid">{[0, 1, 2].map((item) => <div className="print-house-skeleton" key={item} />)}</div>
-        ) : houses.length === 0 ? (
-          <div className="empty-state"><span className="empty-state-icon"><Factory size={22} /></span><h3>چاپخانه‌ای با این فیلتر پیدا نشد</h3><p>شهر دیگری را امتحان کن یا فیلتر را پاک کن.</p><button className="button button-outline" onClick={() => setCity('')}>همه‌ی شهرها</button></div>
+        {visibleHouses.length === 0 && !isLoading ? (
+          <div className="empty-state"><span className="empty-state-icon"><Factory size={22} /></span><h3>چاپخانه‌ای با این فیلتر پیدا نشد</h3><p>شهر دیگری را امتحان کن یا فیلترها را پاک کن.</p><button className="button button-outline" onClick={() => { setCity(''); setCapability(''); setSearch(''); }}>پاک کردن فیلترها</button></div>
         ) : (
           <div className="print-house-grid">
-            {houses.map((house) => <PrintHouseCard key={house.id} house={house} />)}
+            {isLoading
+              ? [0, 1, 2].map((item) => <div className="print-house-skeleton" key={item} />)
+              : visibleHouses.map((house) => <PrintHouseCard key={house.id} house={house} onOrder={() => startOrder(house)} />)}
           </div>
         )}
       </section>
@@ -137,7 +273,7 @@ export default function PrintPage() {
         <div className="print-contract-intro">
           <span className="eyebrow">همکاری با فایل‌استور</span>
           <h2>چاپخانه‌ات را به فروشگاه وصل کن</h2>
-          <p>اگر چاپخانه، صحافی یا مجموعه‌ی چاپ دیجیتال دارید، فرم همکاری را پر کنید. پس از بررسی، قرارداد همکاری و شرایط تسویه را برایتان می‌فرستیم و چاپخانه‌ی شما در فهرست بالا نمایش داده می‌شود.</p>
+          <p>اگر چاپخانه، صحافی یا مجموعه‌ی چاپ دیجیتال دارید، فرم همکاری را پر کنید. پس از بررسی و تأیید، پروفایل چاپخانه‌ی شما با قیمت و زمان تحویل در همین صفحه نمایش داده می‌شود و سفارش‌های کتاب‌های فروشگاه به شما می‌رسد.</p>
           <ul className="print-contract-points">
             <li><BadgeCheck size={16} /> سفارش‌های آماده‌ی کتاب‌های دیجیتال فروشگاه</li>
             <li><BadgeCheck size={16} /> تسویه‌ی منظم و قرارداد شفاف</li>
@@ -145,15 +281,15 @@ export default function PrintPage() {
           </ul>
           {!contractOpen && <button className="button button-primary" onClick={() => setContractOpen(true)}><Handshake size={16} /> پر کردن فرم قرارداد</button>}
         </div>
-        {contractOpen && <ContractForm onDone={() => { setContractOpen(false); setNotice('درخواست همکاری ثبت شد؛ به‌زودی با شما تماس می‌گیریم.'); }} />}
+        {contractOpen && <ContractForm onClose={() => setContractOpen(false)} onDone={() => setNotice('درخواست همکاری ثبت شد؛ به‌زودی با شما تماس می‌گیریم.')} />}
       </section>
     </section>
   );
 }
 
-function PrintHouseCard({ house }: { house: PrintHouse }) {
+function PrintHouseCard({ house, onOrder }: { house: PrintHouse; onOrder: () => void }) {
   return (
-    <article className="print-house-card">
+    <article className={`print-house-card ${house.is_featured ? 'is-featured' : ''}`}>
       <div className="print-house-top">
         <span className="print-house-mark" aria-hidden="true">{house.name.trim().slice(0, 1)}</span>
         <div className="print-house-title">
@@ -162,6 +298,8 @@ function PrintHouseCard({ house }: { house: PrintHouse }) {
         </div>
         <span className="print-house-rating"><Star size={13} fill="currentColor" /> {house.rating.toLocaleString('fa-IR')}</span>
       </div>
+
+      {house.is_featured && <span className="print-house-badge"><Sparkles size={13} /> چاپخانه‌ی ویژه</span>}
 
       {house.description && <p className="print-house-desc">{house.description}</p>}
 
@@ -180,13 +318,13 @@ function PrintHouseCard({ house }: { house: PrintHouse }) {
 
       <div className="print-house-foot">
         {house.phone && <span className="print-house-contact"><Phone size={14} /> {house.phone}</span>}
-        <Link className="text-link" to="/catalog">انتخاب کتاب برای این چاپخانه <ArrowLeft size={14} /></Link>
+        <button className="text-link" onClick={onOrder}>سفارش با این چاپخانه <ArrowLeft size={14} /></button>
       </div>
     </article>
   );
 }
 
-function ContractForm({ onDone }: { onDone: () => void }) {
+function ContractForm({ onDone, onClose }: { onDone: () => void; onClose: () => void }) {
   const [form, setForm] = useState({ company_name: '', contact_name: '', phone: '', email: '', city: '', monthly_capacity: '', message: '' });
   const [capabilities, setCapabilities] = useState<string[]>([]);
   const [error, setError] = useState('');
@@ -202,14 +340,12 @@ function ContractForm({ onDone }: { onDone: () => void }) {
     setError('');
     setSending(true);
     try {
-      if (!demoMode) {
-        await api.post('/print-houses/contract-requests', {
-          ...form,
-          monthly_capacity: form.monthly_capacity ? Number(form.monthly_capacity) : null,
-          capabilities,
-          email: form.email || null,
-        });
-      }
+      await submitPrintContract({
+        ...form,
+        monthly_capacity: form.monthly_capacity ? Number(form.monthly_capacity) : null,
+        capabilities,
+        email: form.email || null,
+      });
       setSent(true);
       onDone();
     } catch (reason) {
@@ -224,8 +360,11 @@ function ContractForm({ onDone }: { onDone: () => void }) {
       <div className="print-contract-form print-contract-success">
         <span className="print-contract-success-icon"><Check size={22} /></span>
         <b>درخواست شما ثبت شد.</b>
-        <p>کارشناس قراردادهای فایل‌استور برای بررسی ظرفیت و امضای قرارداد با شما تماس می‌گیرد.</p>
-        <button className="button button-outline button-small" onClick={() => { setSent(false); setForm({ company_name: '', contact_name: '', phone: '', email: '', city: '', monthly_capacity: '', message: '' }); setCapabilities([]); }}>ثبت درخواست دیگر</button>
+        <p>کارشناس قراردادهای فایل‌استور برای بررسی ظرفیت و امضای قرارداد با شما تماس می‌گیرد. پس از تأیید، پروفایل چاپخانه در همین صفحه نمایش داده می‌شود.</p>
+        <div className="print-contract-success-actions">
+          <button className="button button-outline button-small" onClick={() => { setSent(false); setForm({ company_name: '', contact_name: '', phone: '', email: '', city: '', monthly_capacity: '', message: '' }); setCapabilities([]); }}>ثبت درخواست دیگر</button>
+          <button className="button button-primary button-small" onClick={onClose}>بستن</button>
+        </div>
       </div>
     );
   }

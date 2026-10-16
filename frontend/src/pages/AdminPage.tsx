@@ -1,11 +1,12 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Activity, ArrowLeft, BookOpen, Check, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Paperclip, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, Users, X, XCircle } from 'lucide-react';
+import { Activity, ArrowLeft, BookOpen, Check, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Paperclip, Pencil, Plus, Printer, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, Users, X, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../StoreContext';
 import PagesEditor from '../components/PagesEditor';
 import { demoCategories, demoProducts } from '../data/demo';
 import AdminOverview, { demoDashboard, type AdminDashboard, type AdminTabKey } from '../components/admin/AdminOverview';
+import AdminPrint from '../components/admin/AdminPrint';
 import AdminTickets from '../components/admin/AdminTickets';
 import AdminUsers from '../components/admin/AdminUsers';
 import { api, apiErrorMessage, demoMode } from '../lib/api';
@@ -351,6 +352,7 @@ export default function AdminPage() {
           <button onClick={() => setTab('tickets')} className={tab === 'tickets' ? 'active' : ''}><Ticket size={17} /> پشتیبانی <span className="sidebar-count">{stats.open_tickets.toLocaleString('fa-IR')}</span></button>
           <button onClick={() => setTab('pages')} className={tab === 'pages' ? 'active' : ''}><FileText size={17} /> صفحه‌های ثابت</button>
           <button onClick={() => setTab('reviews')} className={tab === 'reviews' ? 'active' : ''}><MessageSquareText size={17} /> دیدگاه‌ها <span>{stats.pending_reviews.toLocaleString('fa-IR')}</span></button>
+          <button onClick={() => setTab('print')} className={tab === 'print' ? 'active' : ''}><Printer size={17} /> چاپ و چاپخانه‌ها</button>
           <div className="admin-sidebar-rule" /><div className="admin-sidebar-label">حساب</div>
           <Link to="/account"><Settings2 size={17} /> حساب کاربری <ArrowLeft size={14} /></Link>
           <div className="admin-sidebar-note"><Activity size={17} /><span><b>همه‌چیز رو به راه است</b><small>سرویس فروشگاه فعال است.</small></span></div>
@@ -364,6 +366,8 @@ export default function AdminPage() {
           {tab === 'pages' && <PagesEditor onNotice={setNotice} />}
 
           {tab === 'tickets' && <AdminTickets initialSearch={ticketSeed} key={ticketSeed} />}
+
+          {tab === 'print' && <AdminPrint />}
 
           {tab === 'users' && <AdminUsers onOpenTickets={(email) => { setTicketSeed(email); setTab('tickets'); }} />}
 

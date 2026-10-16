@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             PagesSeeder::class,
             MenusSeeder::class,
             PrintHousesSeeder::class,
+            PrintOrdersSeeder::class,
             WalletSeeder::class,
             CartsSeeder::class,
             CartItemsSeeder::class,

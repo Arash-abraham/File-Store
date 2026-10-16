@@ -29,7 +29,9 @@ class PrintOrder extends Model
         'total_price',
         'digital_owner',
         'delivery_days',
+        'tracking_code',
         'status',
+        'cancelled_at',
     ];
 
     protected $casts = [
@@ -41,6 +43,7 @@ class PrintOrder extends Model
         'discount_amount' => 'integer',
         'total_price' => 'integer',
         'delivery_days' => 'integer',
+        'cancelled_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

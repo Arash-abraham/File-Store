@@ -34,6 +34,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::post('/print-houses/contract-requests', [PrintController::class, 'contractRequest'])
         ->middleware('throttle:6,1')
         ->name('print-houses.contract');
+    // The price preview is public: a guest has to see the cost before signing in.
+    Route::post('/print-orders/quote', [PrintOrderController::class, 'quote'])
+        ->middleware('throttle:120,1')
+        ->name('print-orders.quote');
     Route::get('/categories', [StorefrontController::class, 'categories'])->name('categories.index');
     Route::get('/faqs', [StorefrontController::class, 'faqs'])->name('faqs.index');
     Route::get('/pages/{slug}', [StorefrontController::class, 'page'])->name('pages.show');
@@ -89,10 +93,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
             ->name('account.tickets.reply');
 
         Route::get('/print-orders', [PrintOrderController::class, 'index'])->name('print-orders.index');
-        Route::post('/print-orders/quote', [PrintOrderController::class, 'quote'])->name('print-orders.quote');
         Route::post('/print-orders', [PrintOrderController::class, 'store'])
             ->middleware('throttle:10,1')
             ->name('print-orders.store');
+        Route::post('/print-orders/{id}/cancel', [PrintOrderController::class, 'cancel'])
+            ->middleware('throttle:10,1')
+            ->name('print-orders.cancel');
 
         Route::get('/wallet', [WalletController::class, 'show'])->name('wallet.show');
         Route::post('/wallet/deposits', [WalletController::class, 'deposit'])->middleware('throttle:5,1')->name('wallet.deposits.store');

@@ -1,68 +1,66 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, BadgePercent, Check, Factory, Info, Loader2, MapPin, Printer, Sparkles } from 'lucide-react';
-import { api, apiErrorMessage, demoMode } from '../lib/api';
-import { demoPrintHouses, demoPrintOptions } from '../data/demo';
+import { ArrowLeft, BadgePercent, Check, CircleCheck, Factory, Info, Loader2, MapPin, Minus, Phone, Plus, Printer, Sparkles, Truck } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { apiErrorMessage } from '../lib/api';
+import { createPrintOrder, fetchPrintDirectory, fetchPrintQuote } from '../lib/print';
 import { formatPrice } from '../lib/format';
-import type { PrintHouse, PrintOptions, PrintQuote, Product } from '../types';
+import type { PrintOrder, PrintQuote, Product } from '../types';
 import { useStore } from '../StoreContext';
 
-function unwrapHouses(value: unknown): PrintHouse[] {
-  if (Array.isArray(value)) return value as PrintHouse[];
-  if (value && typeof value === 'object' && 'data' in value) {
-    const nested = (value as { data: unknown }).data;
-    if (Array.isArray(nested)) return nested as PrintHouse[];
-    if (nested && typeof nested === 'object' && 'print_houses' in nested) {
-      const houses = (nested as { print_houses: unknown }).print_houses;
-      if (Array.isArray(houses)) return houses as PrintHouse[];
-    }
-  }
-  return [];
-}
-
-export const printStatusLabels: Record<string, string> = {
-  pending: 'در انتظار تأیید چاپخانه',
-  confirmed: 'تأییدشده',
-  printing: 'در حال چاپ',
-  shipped: 'ارسال‌شده',
-  delivered: 'تحویل‌شده',
-  cancelled: 'لغوشده',
+type Props = {
+  product: Product;
+  compact?: boolean;
+  /** Preselects a partner, for example when the reader picked one in the directory. */
+  initialHouseId?: number | null;
+  onPlaced?: (order: PrintOrder) => void;
 };
 
-export default function PrintOrderForm({ product, compact = false }: { product: Product; compact?: boolean }) {
+export default function PrintOrderForm({ product, compact = false, initialHouseId = null, onPlaced }: Props) {
   const { user, setLoginOpen, setNotice, ownsProduct, refreshLibrary } = useStore();
   const queryClient = useQueryClient();
-  const [houseId, setHouseId] = useState<number | null>(null);
+  const [houseId, setHouseId] = useState<number | null>(initialHouseId);
   const [quantity, setQuantity] = useState(1);
   const [paperType, setPaperType] = useState('standard');
   const [binding, setBinding] = useState('paperback');
   const [colorPrint, setColorPrint] = useState(false);
   const [form, setForm] = useState({ shipping_name: '', shipping_phone: '', shipping_city: '', shipping_address: '', postal_code: '', notes: '' });
   const [error, setError] = useState('');
+  const [placed, setPlaced] = useState<PrintOrder | null>(null);
 
   const ownsDigital = ownsProduct(product.id);
 
-  const { data: houses = [], isLoading } = useQuery<PrintHouse[]>({
-    queryKey: ['print-houses'],
+  const directory = useQuery({
+    queryKey: ['print-directory'],
     staleTime: 5 * 60 * 1000,
-    queryFn: async () => demoMode ? demoPrintHouses : unwrapHouses((await api.get('/print-houses')).data.data),
+    queryFn: fetchPrintDirectory,
   });
 
-  const options: PrintOptions = demoMode
-    ? demoPrintOptions
-    : { paper_types: [], bindings: [], color_surcharge: 45000, digital_owner_discount: 0.15 };
+  const houses = useMemo(() => directory.data?.houses ?? [], [directory.data]);
+  const options = directory.data?.options;
 
-  const selectedHouse = useMemo(() => houses.find((house) => house.id === houseId) ?? houses[0], [houses, houseId]);
+  const selectedHouse = useMemo(
+    () => houses.find((house) => house.id === houseId) ?? houses.find((house) => house.id === initialHouseId) ?? houses[0],
+    [houses, houseId, initialHouseId],
+  );
 
   useEffect(() => {
-    if (!houseId && houses.length) {
-      setHouseId(houses[0].id);
-      setQuantity(Math.max(1, houses[0].min_quantity));
+    if (!houseId && selectedHouse) {
+      setHouseId(selectedHouse.id);
     }
-  }, [houses, houseId]);
+  }, [selectedHouse, houseId]);
+
+  // The directory can hand over a different partner while the form is open.
+  useEffect(() => {
+    if (initialHouseId && initialHouseId !== houseId) {
+      setHouseId(initialHouseId);
+    }
+  }, [initialHouseId]);
 
   useEffect(() => {
-    if (selectedHouse) setQuantity((current) => Math.max(selectedHouse.min_quantity, Math.min(selectedHouse.max_quantity, current)));
+    if (selectedHouse) {
+      setQuantity((current) => Math.max(selectedHouse.min_quantity, Math.min(selectedHouse.max_quantity, current)));
+    }
   }, [selectedHouse]);
 
   useEffect(() => {
@@ -77,47 +75,46 @@ export default function PrintOrderForm({ product, compact = false }: { product: 
 
   /**
    * The server owns the pricing rules; the form only displays the returned quote.
-   * In demo mode the same rules are applied locally.
    */
   const quote = useQuery<PrintQuote>({
     queryKey: ['print-quote', selectedHouse?.id, product.id, quantity, paperType, binding, colorPrint],
     enabled: !!selectedHouse,
-    queryFn: async () => {
-      if (demoMode && selectedHouse) return demoQuote(selectedHouse, { quantity, paperType, binding, colorPrint }, ownsDigital, demoPrintOptions);
-      const response = await api.post('/print-orders/quote', {
+    staleTime: 30 * 1000,
+    queryFn: () => fetchPrintQuote(
+      {
         print_house_id: selectedHouse!.id,
         product_id: product.id,
         quantity,
         paper_type: paperType,
         binding,
         color_print: colorPrint,
-      });
-      return response.data.data as PrintQuote;
-    },
+      },
+      ownsDigital,
+    ),
   });
 
   const submitOrder = useMutation({
-    mutationFn: async () => {
-      if (demoMode) {
-        return { id: Math.floor(3100 + Math.random() * 500), status: 'pending' };
-      }
-      const response = await api.post('/print-orders', {
-        print_house_id: selectedHouse!.id,
-        product_id: product.id,
-        quantity,
-        paper_type: paperType,
-        binding,
-        color_print: colorPrint,
-        ...form,
-      });
-      return response.data.data;
-    },
+    mutationFn: () => createPrintOrder({
+      print_house_id: selectedHouse!.id,
+      product_id: product.id,
+      quantity,
+      paper_type: paperType,
+      binding,
+      color_print: colorPrint,
+      shipping_name: form.shipping_name,
+      shipping_phone: form.shipping_phone,
+      shipping_city: form.shipping_city,
+      shipping_address: form.shipping_address,
+      postal_code: form.postal_code,
+      notes: form.notes,
+    }),
     onSuccess: async (order) => {
       setError('');
+      setPlaced(order);
       setNotice(`سفارش نسخه‌ی چاپی #${order.id} ثبت شد؛ وضعیت آن را در حساب کاربری ببین.`);
       await queryClient.invalidateQueries({ queryKey: ['print-orders'] });
       await refreshLibrary();
-      setForm((current) => ({ ...current, notes: '' }));
+      onPlaced?.(order);
     },
     onError: (reason) => setError(apiErrorMessage(reason, 'ثبت سفارش نسخه‌ی چاپی انجام نشد.')),
   });
@@ -133,15 +130,53 @@ export default function PrintOrderForm({ product, compact = false }: { product: 
     submitOrder.mutate();
   }
 
-  if (isLoading) {
+  function changeQuantity(next: number) {
+    if (!selectedHouse) return;
+    setQuantity(Math.max(selectedHouse.min_quantity, Math.min(selectedHouse.max_quantity, next)));
+  }
+
+  if (directory.isLoading) {
     return <div className={`print-order-card ${compact ? 'is-compact' : ''}`}><p className="print-loading"><Loader2 size={16} className="search-spinner" /> در حال دریافت چاپخانه‌ها…</p></div>;
   }
 
+  if (directory.isError) {
+    return (
+      <div className={`print-order-card ${compact ? 'is-compact' : ''}`}>
+        <p className="print-loading">دریافت فهرست چاپخانه‌ها انجام نشد.</p>
+        <button type="button" className="button button-outline button-small" onClick={() => directory.refetch()}>
+          <Loader2 size={15} className="search-spinner" /> تلاش دوباره
+        </button>
+      </div>
+    );
+  }
+
   if (!selectedHouse) {
-    return <div className={`print-order-card ${compact ? 'is-compact' : ''}`}><p className="print-loading">چاپخانه‌ی فعالی برای سفارش ثبت نشده است.</p></div>;
+    return (
+      <div className={`print-order-card ${compact ? 'is-compact' : ''}`}>
+        <p className="print-loading">در حال حاضر چاپخانه‌ی فعالی برای سفارش ثبت نشده است. کمی بعد دوباره سر بزنید.</p>
+      </div>
+    );
+  }
+
+  if (placed) {
+    return (
+      <div className={`print-order-card print-order-done ${compact ? 'is-compact' : ''}`}>
+        <span className="print-order-done-icon"><CircleCheck size={24} /></span>
+        <b>سفارش نسخه‌ی چاپی ثبت شد</b>
+        <p>
+          سفارش شماره‌ی <b>#{placed.id}</b> برای «{product.title}» به چاپخانه‌ی {selectedHouse.name} فرستاده شد.
+          پس از تأیید چاپخانه، وضعیت چاپ و کد رهگیری در حساب کاربری شما نمایش داده می‌شود.
+        </p>
+        <div className="print-order-done-actions">
+          <Link className="button button-primary button-small" to="/account?tab=prints">پیگیری سفارش <ArrowLeft size={15} /></Link>
+          <button type="button" className="button button-outline button-small" onClick={() => setPlaced(null)}>ثبت سفارش دیگر</button>
+        </div>
+      </div>
+    );
   }
 
   const currentQuote = quote.data;
+  const discountRate = Math.round((options?.digital_owner_discount ?? 0) * 100);
 
   return (
     <form className={`print-order-card ${compact ? 'is-compact' : ''}`} onSubmit={submit}>
@@ -156,7 +191,7 @@ export default function PrintOrderForm({ product, compact = false }: { product: 
       {ownsDigital && (
         <div className="print-owner-note">
           <BadgePercent size={16} />
-          <span>چون نسخه‌ی دیجیتال این کتاب را داری، {(demoPrintOptions.digital_owner_discount * 100).toLocaleString('fa-IR')}٪ تخفیف چاپ روی این سفارش اعمال می‌شود.</span>
+          <span>چون نسخه‌ی دیجیتال این کتاب را داری، {discountRate.toLocaleString('fa-IR')}٪ تخفیف چاپ روی این سفارش اعمال می‌شود.</span>
         </div>
       )}
 
@@ -171,40 +206,43 @@ export default function PrintOrderForm({ product, compact = false }: { product: 
         </select>
       </label>
 
+      <div className="print-house-brief">
+        <span><MapPin size={14} /> {selectedHouse.city}{selectedHouse.province && selectedHouse.province !== selectedHouse.city ? ` · ${selectedHouse.province}` : ''}</span>
+        <span><Truck size={14} /> تحویل حدود {selectedHouse.delivery_days.toLocaleString('fa-IR')} روزه</span>
+        {selectedHouse.phone && <span><Phone size={14} /> {selectedHouse.phone}</span>}
+      </div>
+
       <div className="print-options-row">
         <label className="field-label">کاغذ
           <select value={paperType} onChange={(event) => setPaperType(event.target.value)}>
-            {(demoMode ? demoPrintOptions.paper_types : [
-              { value: 'standard', label: 'کاغذ تحریر معمولی' },
-              { value: 'cream', label: 'کاغذ کرافت/کرم' },
-              { value: 'premium', label: 'کاغذ گلاسه‌ی درجه‌یک' },
-            ]).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            {(options?.paper_types ?? []).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </label>
         <label className="field-label">صحافی
           <select value={binding} onChange={(event) => setBinding(event.target.value)}>
-            {(demoMode ? demoPrintOptions.bindings : [
-              { value: 'paperback', label: 'شومیز' },
-              { value: 'hardcover', label: 'سخت (گالینگور)' },
-              { value: 'spiral', label: 'فنر' },
-            ]).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+            {(options?.bindings ?? []).map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
           </select>
         </label>
-        <label className="field-label">تعداد نسخه
-          <input
-            type="number"
-            min={selectedHouse.min_quantity}
-            max={selectedHouse.max_quantity}
-            value={quantity}
-            onChange={(event) => setQuantity(Number(event.target.value) || selectedHouse.min_quantity)}
-          />
-        </label>
+        <div className="field-label print-quantity">
+          تعداد نسخه
+          <div className="print-quantity-box">
+            <button type="button" onClick={() => changeQuantity(quantity - 1)} disabled={quantity <= selectedHouse.min_quantity} aria-label="کمتر"><Minus size={15} /></button>
+            <input
+              type="number"
+              min={selectedHouse.min_quantity}
+              max={selectedHouse.max_quantity}
+              value={quantity}
+              onChange={(event) => changeQuantity(Number(event.target.value) || selectedHouse.min_quantity)}
+            />
+            <button type="button" onClick={() => changeQuantity(quantity + 1)} disabled={quantity >= selectedHouse.max_quantity} aria-label="بیشتر"><Plus size={15} /></button>
+          </div>
+        </div>
       </div>
 
       <button type="button" className={`toggle-row print-color-toggle ${colorPrint ? 'is-on' : ''}`} onClick={() => setColorPrint(!colorPrint)} aria-pressed={colorPrint}>
         <span>
           <b><Sparkles size={14} /> چاپ رنگی</b>
-          <small>{options.color_surcharge.toLocaleString('fa-IR')} تومان اضافه برای هر نسخه</small>
+          <small>{(options?.color_surcharge ?? 0).toLocaleString('fa-IR')} تومان اضافه برای هر نسخه</small>
         </span>
         <span className={`switch ${colorPrint ? 'is-on' : ''}`}><i /></span>
       </button>
@@ -223,7 +261,9 @@ export default function PrintOrderForm({ product, compact = false }: { product: 
 
       <div className="print-quote-box">
         <div className="print-quote-head"><Factory size={15} /> برآورد هزینه</div>
-        {quote.isFetching && !currentQuote ? (
+        {quote.isError ? (
+          <p className="print-loading">محاسبه‌ی هزینه انجام نشد؛ اتصال را بررسی کنید.</p>
+        ) : quote.isFetching && !currentQuote ? (
           <p className="print-loading"><Loader2 size={15} className="search-spinner" /> محاسبه…</p>
         ) : currentQuote ? (
           <>
@@ -248,47 +288,10 @@ export default function PrintOrderForm({ product, compact = false }: { product: 
       <p className="print-terms"><Info size={14} /> پرداخت چاپ پس از تأیید چاپخانه و به‌صورت جدا از خرید نسخه‌ی دیجیتال انجام می‌شود.</p>
       {error && <div className="form-error">{error}</div>}
 
-      <button className="button button-primary button-full" disabled={submitOrder.isPending}>
+      <button className="button button-primary button-full" disabled={submitOrder.isPending || quote.isError}>
         {submitOrder.isPending ? <><Loader2 size={16} className="search-spinner" /> در حال ثبت…</> : <><Printer size={16} /> ثبت سفارش نسخه‌ی چاپی <ArrowLeft size={15} /></>}
       </button>
       <p className="print-confirm-note"><Check size={14} /> بدون پرداخت آنلاین؛ پس از ثبت، کارشناس چاپخانه برای هماهنگی تماس می‌گیرد.</p>
     </form>
   );
-}
-
-/** Demo-mode mirror of `PrintPricingService`. */
-export function demoQuote(
-  house: PrintHouse,
-  options: { quantity: number; paperType: string; binding: string; colorPrint: boolean },
-  ownsDigital: boolean,
-  printOptions: PrintOptions,
-): PrintQuote {
-  const paperSurcharge = options.paperType === 'premium' ? 60000 : options.paperType === 'cream' ? 35000 : 0;
-  const bindingSurcharge = options.binding === 'hardcover' ? house.hardcover_surcharge : options.binding === 'spiral' ? 25000 : 0;
-  const colorSurcharge = options.colorPrint ? printOptions.color_surcharge : 0;
-  const quantity = Math.max(house.min_quantity, Math.min(house.max_quantity, options.quantity));
-  const unitPrice = house.unit_price + paperSurcharge + bindingSurcharge + colorSurcharge;
-  const subtotal = unitPrice * quantity;
-  const discount = ownsDigital ? Math.round(subtotal * printOptions.digital_owner_discount) : 0;
-
-  const breakdown: { label: string; amount: number }[] = [{ label: 'چاپ هر نسخه', amount: house.unit_price }];
-  if (paperSurcharge) breakdown.push({ label: printOptions.paper_types.find((item) => item.value === options.paperType)?.label ?? 'کاغذ', amount: paperSurcharge });
-  if (bindingSurcharge) breakdown.push({ label: `صحافی ${printOptions.bindings.find((item) => item.value === options.binding)?.label ?? ''}`, amount: bindingSurcharge });
-  if (colorSurcharge) breakdown.push({ label: 'چاپ رنگی', amount: colorSurcharge });
-  breakdown.push({ label: 'تعداد نسخه', amount: subtotal });
-  if (house.delivery_fee) breakdown.push({ label: 'هزینه‌ی ارسال', amount: house.delivery_fee });
-  if (discount) breakdown.push({ label: 'تخفیف دارندگان نسخه‌ی دیجیتال (۱۵٪)', amount: -discount });
-
-  return {
-    unit_price: unitPrice,
-    subtotal,
-    delivery_fee: house.delivery_fee,
-    discount_amount: discount,
-    total_price: Math.max(0, subtotal - discount) + house.delivery_fee,
-    delivery_days: house.delivery_days,
-    min_quantity: house.min_quantity,
-    max_quantity: house.max_quantity,
-    breakdown,
-    digital_owner: ownsDigital,
-  };
 }

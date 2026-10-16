@@ -33,6 +33,10 @@ class PrintOrderController extends Controller
     /**
      * Price preview for the order form. Uses the same service as order creation,
      * so what the reader sees is exactly what gets charged.
+     *
+     * The endpoint is public on purpose: a guest must see the price before the
+     * form asks them to sign in. The loyalty discount is only granted when the
+     * request carries a signed-in reader who owns the digital edition.
      */
     public function quote(Request $request, PrintPricingService $pricing)
     {
@@ -46,8 +50,10 @@ class PrintOrderController extends Controller
         ]);
 
         $house = PrintHouse::query()->active()->findOrFail($validated['print_house_id']);
+        $reader = $request->user('sanctum');
         $ownsDigital = !empty($validated['product_id'])
-            && $request->user()->ownsProduct((int) $validated['product_id']);
+            && $reader !== null
+            && $reader->ownsProduct((int) $validated['product_id']);
 
         $quote = $pricing->quote($house, $validated, $ownsDigital);
 
@@ -114,6 +120,30 @@ class PrintOrderController extends Controller
         ], 201);
     }
 
+    /**
+     * A reader can call off an order while the printing house has not started
+     * to work on it yet.
+     */
+    public function cancel(Request $request, int $id)
+    {
+        $order = PrintOrder::query()
+            ->where('user_id', $request->user()->id)
+            ->findOrFail($id);
+
+        if ($order->status !== 'pending') {
+            return response()->json([
+                'message' => 'این سفارش پردازش شده است و دیگر قابل لغو نیست؛ با پشتیبانی تماس بگیرید.',
+            ], 422);
+        }
+
+        $order->update(['status' => 'cancelled', 'cancelled_at' => now()]);
+
+        return response()->json([
+            'message' => 'سفارش چاپی لغو شد.',
+            'data' => $this->orderPayload($order->fresh(['printHouse:id,name,slug,city,phone', 'product:id,title,slug,image_urls'])),
+        ]);
+    }
+
     private function orderPayload(PrintOrder $order): array
     {
         return [
@@ -143,6 +173,8 @@ class PrintOrderController extends Controller
             'total_price' => (int) $order->total_price,
             'digital_owner' => (bool) $order->digital_owner,
             'delivery_days' => (int) $order->delivery_days,
+            'tracking_code' => $order->tracking_code,
+            'can_cancel' => $order->status === 'pending',
             'shipping' => [
                 'name' => $order->shipping_name,
                 'phone' => $order->shipping_phone,
@@ -150,6 +182,7 @@ class PrintOrderController extends Controller
                 'address' => $order->shipping_address,
                 'postal_code' => $order->postal_code,
             ],
+            'notes' => $order->notes,
             'created_at' => $order->created_at?->toISOString(),
         ];
     }

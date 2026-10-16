@@ -27,6 +27,7 @@ class PrintHouseResource extends JsonResource
             'min_quantity' => (int) $this->min_quantity,
             'max_quantity' => (int) $this->max_quantity,
             'rating' => round((float) $this->rating, 1),
+            'is_featured' => (bool) $this->is_featured,
             'orders_count' => $this->when(isset($this->print_orders_count), fn () => (int) $this->print_orders_count),
         ];
     }

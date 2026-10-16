@@ -6,6 +6,7 @@ use App\Models\Cart;
 use App\Models\Category;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\PrintContractRequest;
 use App\Models\PrintHouse;
 use App\Models\Product;
 use App\Models\User;
@@ -304,6 +305,86 @@ class OwnershipAndPrintingTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.0.product_id', $book->id)
             ->assertJsonPath('meta.total', 1);
+    }
+
+    public function test_a_guest_can_see_the_price_of_a_print_order(): void
+    {
+        $house = $this->house();
+
+        // The quote is public: a reader has to know the price before signing in.
+        $this->postJson('/api/v1/print-orders/quote', [
+            'print_house_id' => $house->id,
+            'quantity' => 2,
+            'paper_type' => 'standard',
+            'binding' => 'paperback',
+        ])
+            ->assertOk()
+            ->assertJsonPath('data.unit_price', 245000)
+            ->assertJsonPath('data.digital_owner', false)
+            // 2 × 245,000 plus the 65,000 delivery fee.
+            ->assertJsonPath('data.total_price', 555000);
+    }
+
+    public function test_a_reader_can_cancel_a_pending_print_order(): void
+    {
+        $house = $this->house();
+        $book = $this->book('cancel-printed');
+        $user = $this->reader();
+        $this->purchase($user, $book);
+
+        Sanctum::actingAs($user);
+
+        $orderId = $this->postJson('/api/v1/print-orders', [
+            'print_house_id' => $house->id,
+            'product_id' => $book->id,
+            'quantity' => 1,
+            'paper_type' => 'standard',
+            'binding' => 'paperback',
+            'shipping_name' => 'آرمان رضایی',
+            'shipping_phone' => '09121112233',
+            'shipping_city' => 'تهران',
+            'shipping_address' => 'خیابان آزادی، پلاک ۱۲',
+        ])
+            ->assertStatus(201)
+            ->json('data.id');
+
+        $this->postJson('/api/v1/print-orders/'.$orderId.'/cancel')
+            ->assertOk()
+            ->assertJsonPath('data.status', 'cancelled');
+
+        $this->assertDatabaseHas('print_orders', [
+            'id' => $orderId,
+            'status' => 'cancelled',
+        ]);
+
+        // A second attempt is refused because the order is not pending any more.
+        $this->postJson('/api/v1/print-orders/'.$orderId.'/cancel')->assertStatus(422);
+    }
+
+    public function test_approving_a_contract_request_publishes_a_printing_house(): void
+    {
+        $this->postJson('/api/v1/print-houses/contract-requests', [
+            'company_name' => 'چاپ و نشر البرز',
+            'contact_name' => 'سارا محمدی',
+            'phone' => '02122334455',
+            'city' => 'کرج',
+            'capabilities' => ['شومیز', 'فنر'],
+        ])->assertStatus(201);
+
+        $contract = PrintContractRequest::query()->latest('id')->firstOrFail();
+
+        Sanctum::actingAs(User::factory()->create(['role' => 'admin']));
+        $this->putJson('/api/v1/admin/print-contracts/'.$contract->id, ['status' => 'approved'])
+            ->assertOk();
+
+        $this->assertDatabaseHas('print_houses', [
+            'name' => 'چاپ و نشر البرز',
+            'city' => 'کرج',
+            // The new house waits until its price list is filled in.
+            'status' => 'pending',
+        ]);
+
+        $this->assertNotNull($contract->fresh()->print_house_id);
     }
 
     public function test_print_orders_are_only_visible_to_their_owner(): void

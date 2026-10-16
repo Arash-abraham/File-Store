@@ -174,6 +174,7 @@ export type PrintHouse = {
   phone?: string | null;
   email?: string | null;
   website?: string | null;
+  address?: string | null;
   unit_price: number;
   hardcover_surcharge: number;
   delivery_fee: number;
@@ -181,6 +182,8 @@ export type PrintHouse = {
   min_quantity: number;
   max_quantity: number;
   rating: number;
+  is_featured?: boolean;
+  status?: 'active' | 'inactive' | 'pending' | string;
   orders_count?: number;
 };
 
@@ -189,6 +192,21 @@ export type PrintOptions = {
   bindings: { value: string; label: string }[];
   color_surcharge: number;
   digital_owner_discount: number;
+};
+
+export type PrintDirectoryStats = {
+  print_houses: number;
+  cities: number;
+  fastest_delivery_days: number;
+  from_price: number;
+};
+
+export type PrintDirectory = {
+  houses: PrintHouse[];
+  cities: string[];
+  capabilities: string[];
+  options: PrintOptions;
+  stats: PrintDirectoryStats;
 };
 
 export type PrintQuote = {
@@ -222,6 +240,9 @@ export type PrintOrder = {
   total_price: number;
   digital_owner: boolean;
   delivery_days: number;
+  tracking_code?: string | null;
+  can_cancel?: boolean;
+  notes?: string | null;
   shipping: { name: string; phone: string; city: string; address: string; postal_code?: string | null };
   created_at?: string | null;
 };
