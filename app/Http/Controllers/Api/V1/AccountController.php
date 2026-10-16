@@ -239,23 +239,33 @@ class AccountController extends Controller
 
         return response()->json(['message' => 'پیام شما ارسال شد.', 'data' => $ticket->present()], 201);
     }
+    
+    // Why did that stupid agent repeat this twice!!!!!!!
 
-    public function createTicket(Request $request)
-    {
-        $data = $request->validate([
-            'subject' => ['required', 'string', 'max:200'],
-            'message' => ['required', 'string', 'min:10', 'max:10000'],
-        ]);
+    /**
+     * Duplicate implementation commented out.
+     * This version does not create the initial ticket message in `ticket_messages`
+     * and does not use a database transaction.
+     * Keep the original implementation to ensure ticket and message creation
+     * are atomic and support conversations remain consistent.
+    */
 
-        $ticket = Ticket::query()->create([
-            'user_id' => $request->user()->id,
-            'subject' => $data['subject'],
-            'message' => $data['message'],
-            'status' => 'open',
-        ]);
+    // public function createTicket(Request $request)
+    // {
+    //     $data = $request->validate([
+    //         'subject' => ['required', 'string', 'max:200'],
+    //         'message' => ['required', 'string', 'min:10', 'max:10000'],
+    //     ]);
 
-        return response()->json(['message' => 'درخواست شما ثبت شد.', 'data' => $ticket], 201);
-    }
+    //     $ticket = Ticket::query()->create([
+    //         'user_id' => $request->user()->id,
+    //         'subject' => $data['subject'],
+    //         'message' => $data['message'],
+    //         'status' => 'open',
+    //     ]);
+
+    //     return response()->json(['message' => 'درخواست شما ثبت شد.', 'data' => $ticket], 201);
+    // }
 
     private function publicImageUrl(?string $path): ?string
     {
