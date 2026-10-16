@@ -681,10 +681,15 @@ docs/screenshots/              Screenshots used in this README
 
 ## Authors
 
-| Arash Ebrahimian | Amir Hossein Hosseinzade |
-|:--:|:--:|
-| Lead developer and project architect | Co-developer and template specialist |
-| [GitHub](https://github.com/Arash-abraham) | [GitHub](https://github.com/iamhosseinzadeh) |
+<div align="center">
+
+| **Arash Ebrahimian** | **Amir Hossein Hosseinzade** |
+|:--------------------:|:--------------------:|
+| <img src="https://github.com/Arash-abraham.png" width="120" style="border-radius: 50%; border: 3px solid #007bff;"> | <img src="https://github.com/iamhosseinzadeh.png" width="120" style="border-radius: 50%; border: 3px solid #28a745;"> |
+| *Lead Developer & Project Architect* | *Co-developer & Template Specialist* |
+| [![GitHub](https://img.shields.io/badge/🚀_GitHub-000?style=flat&logo=github)](https://github.com/Arash-abraham) | [![GitHub](https://img.shields.io/badge/🚀_GitHub-000?style=flat&logo=github)](https://github.com/iamhosseinzadeh) |
+
+</div>
 
 ## Acknowledgments
 
