@@ -681,7 +681,7 @@ docs/screenshots/              Screenshots used in this README
 
 ## Authors
 
-<div align="center">
+<div align="left">
 
 | **Arash Ebrahimian** | **Amir Hossein Hosseinzade** |
 |:--------------------:|:--------------------:|
