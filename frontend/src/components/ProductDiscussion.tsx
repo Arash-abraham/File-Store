@@ -17,7 +17,7 @@ const TYPE_LABELS: Record<DiscussionType, { singular: string; plural: string; hi
   question: {
     singular: 'پرسش',
     plural: 'پرسش و پاسخ',
-    hint: 'سؤالت درباره‌ی محتوا، فرمت فایل یا نسخه‌ی چاپی را بپرس تا خریداران و مدیریت پاسخ دهند.',
+    hint: 'هر کاربر واردشده‌ای می‌تواند سؤال بپرسد و به سؤال‌ها پاسخ دهد؛ درباره‌ی محتوا، فرمت فایل یا نسخه‌ی چاپی.',
     placeholder: 'سؤالت را بنویس…',
   },
 };
@@ -71,7 +71,7 @@ export default function ProductDiscussion({ productId, slug, type }: Props) {
         </div>
       ) : query.data && !canWrite ? (
         <div className="discussion-cta muted">
-          <span>فقط خریداران این کتاب می‌توانند {labels.singular} ثبت کنند.</span>
+          <span>{type === 'question' ? 'ثبت پرسش در این بخش فعال نیست.' : `فقط خریداران این کتاب می‌توانند ${labels.singular} ثبت کنند.`}</span>
         </div>
       ) : canWrite ? (
         <Composer
@@ -199,7 +199,7 @@ function ThreadItem({ item, productId, type, canWrite, onChanged, onNotice, onRe
                 className="discussion-action"
                 onClick={() => {
                   if (!user) return onRequireLogin();
-                  if (!canWrite) return onNotice(`فقط خریداران می‌توانند پاسخ دهند.`);
+                  if (!canWrite) return onNotice(type === 'question' ? 'ثبت پاسخ در این بخش فعال نیست.' : 'فقط خریداران می‌توانند پاسخ دهند.');
                   setReplyOpen(!replyOpen);
                 }}
               >

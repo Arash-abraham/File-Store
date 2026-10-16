@@ -61,7 +61,8 @@ class ReviewController extends Controller
                     'last_page' => $items->lastPage(),
                     'total' => $items->total(),
                 ],
-                'can_write' => $viewerId ? $this->hasPurchased($viewerId, $product->id) : false,
+                // Questions are open to every logged-in user; comments are for buyers only.
+                'can_write' => $viewerId ? ($type === Review::TYPE_QUESTION || $this->hasPurchased($viewerId, $product->id)) : false,
                 'type' => $type,
             ],
         ]);
@@ -80,10 +81,6 @@ class ReviewController extends Controller
         ]);
 
         $userId = $request->user()->id;
-        if (!$this->hasPurchased($userId, (int) $data['product_id'])) {
-            return response()->json(['message' => 'ثبت دیدگاه و پرسش برای خریداران این کتاب فعال است.'], 403);
-        }
-
         $type = $data['type'] ?? Review::TYPE_COMMENT;
         $rating = $data['rating'] ?? null;
 
@@ -101,6 +98,10 @@ class ReviewController extends Controller
             if ($type === Review::TYPE_QUESTION) {
                 $rating = null;
             }
+        }
+
+        if (!$this->canWrite($userId, (int) $data['product_id'], $type)) {
+            return response()->json(['message' => 'ثبت دیدگاه برای خریداران این کتاب فعال است.'], 403);
         }
 
         $review = Review::query()->create([
@@ -201,6 +202,12 @@ class ReviewController extends Controller
         ]);
 
         return response()->json(['message' => 'گزارش شما ثبت شد.']);
+    }
+
+    /** Questions (and replies to them) are open to any logged-in user; comments need a paid order. */
+    private function canWrite(int $userId, int $productId, string $type): bool
+    {
+        return $type === Review::TYPE_QUESTION || $this->hasPurchased($userId, $productId);
     }
 
     private function hasPurchased(int $userId, int $productId): bool
