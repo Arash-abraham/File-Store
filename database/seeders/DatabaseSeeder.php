@@ -16,7 +16,6 @@ class DatabaseSeeder extends Seeder
             ProductsSeeder::class,
             ProductTagSeeder::class,
             ProductFilesSeeder::class,
-            SettingsSeeder::class,
             WebSettingsSeeder::class,
             FaqsSeeder::class,
             PagesSeeder::class,

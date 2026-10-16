@@ -663,6 +663,7 @@ app/Http/Controllers/Api/V1/   API controllers (account, admin, analytics, store
 app/Http/Middleware/           Admin access middleware
 app/Models/                    Eloquent models (Review, Ticket, TicketMessage, Order, Wallet, ...)
 app/Services/                  Payments, wallet payments, SMS helper
+resources/views/emails/         Transactional email templates
 routes/api.php                 Versioned API routes
 database/migrations/           Schema history
 database/seeders/              Base and demo records

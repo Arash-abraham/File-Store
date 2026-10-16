@@ -28,19 +28,7 @@ Homestead.yaml
 
 # Dependencies and generated application output
 /vendor/
-/node_modules/
 node_modules/
 /frontend/dist/
-/public/build
-/public/hot
 /public/storage
 /storage/pail
-/storage/logs/*.log
-npm-debug.log
-yarn-error.log
-
-# Legacy Laravel paths
-bootstrap/compiled.php
-app/storage/
-public_html/storage
-public_html/hot
