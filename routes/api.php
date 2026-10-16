@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AccountController;
 use App\Http\Controllers\Api\V1\AdminController;
+use App\Http\Controllers\Api\V1\AdminStatsController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\CheckoutController;
@@ -99,7 +100,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     });
 
     Route::prefix('admin')->name('admin.')->middleware(['auth:sanctum', AdminMiddleware::class])->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard', [AdminStatsController::class, 'dashboard'])->name('dashboard');
 
         Route::get('/products', [AdminController::class, 'products'])->name('products.index');
         Route::post('/products', [AdminController::class, 'storeProduct'])->name('products.store');

@@ -1,19 +1,17 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Activity, ArrowLeft, BookOpen, Check, CircleDollarSign, CircleHelp, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Package, Paperclip, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, Users, X, XCircle } from 'lucide-react';
+import { Activity, ArrowLeft, BookOpen, Check, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Paperclip, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, X, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../StoreContext';
 import PagesEditor from '../components/PagesEditor';
 import { demoCategories, demoProducts } from '../data/demo';
+import AdminOverview, { demoDashboard, type AdminDashboard, type AdminTabKey } from '../components/admin/AdminOverview';
 import { api, apiErrorMessage, demoMode } from '../lib/api';
 import { formatDate, formatPrice } from '../lib/format';
 import type { Category, Product } from '../types';
 
 type AdminTab = 'overview' | 'products' | 'pages' | 'tickets' | 'reviews';
 type ProductForm = { title: string; slug: string; category_id: string; original_price: string; price: string; cover_url: string; description: string; status: 'active' | 'inactive' | 'draft' };
-type AdminStats = { products: number; users: number; orders: number; revenue: number; pending_orders: number; open_tickets: number; pending_reviews: number };
-type AdminOrder = { id: number; status: string; amount?: number; final_amount?: number; customer?: string; created_at?: string };
-type AdminDashboard = { stats: AdminStats; recent_orders: AdminOrder[]; sales_last_7_days: { day: string; amount: number }[] };
 type AdminTicket = { id: number; subject: string; message: string; response?: string | null; status: 'open' | 'in_progress' | 'closed'; created_at?: string; user?: { name?: string } };
 type AdminReview = {
   id: number;
@@ -35,7 +33,6 @@ type ReviewTypeFilter = 'all' | 'comment' | 'question' | 'reply';
 type AdminFile = { id: number; name: string; type: string; size_label?: string };
 
 const emptyForm = (): ProductForm => ({ title: '', slug: '', category_id: String(demoCategories[0]?.id ?? 1), original_price: '', price: '', cover_url: '', description: '', status: 'active' });
-const demoStats: AdminStats = { products: 24, users: 2481, orders: 684, revenue: 438600000, pending_orders: 12, open_tickets: 7, pending_reviews: 9 };
 
 export default function AdminPage() {
   const { user, setLoginOpen, setNotice } = useStore();
@@ -60,9 +57,8 @@ export default function AdminPage() {
   const dashboardQuery = useQuery<AdminDashboard>({
     queryKey: ['admin-dashboard'],
     enabled: user?.role === 'admin',
-    queryFn: async () => demoMode
-      ? { stats: demoStats, recent_orders: demoOrders, sales_last_7_days: [] }
-      : (await api.get('/admin/dashboard')).data.data as AdminDashboard,
+    refetchInterval: demoMode ? false : 60000,
+    queryFn: async () => demoMode ? demoDashboard() : (await api.get('/admin/dashboard')).data.data as AdminDashboard,
   });
   const productsQuery = useQuery<Product[]>({
     queryKey: ['admin-products'],
@@ -343,7 +339,7 @@ export default function AdminPage() {
   if (!user) return <section className="container account-locked section-pad"><span className="account-lock-icon"><ShieldCheck size={29} /></span><span className="eyebrow">محیط امن مدیریت</span><h1>فقط مدیرها<br /><em>وارد می‌شوند.</em></h1><p>برای ادامه با حساب مدیر وارد شوید.</p><button className="button button-primary" onClick={() => setLoginOpen(true)}>ورود مدیر <ArrowLeft size={16} /></button></section>;
   if (user.role !== 'admin') return <section className="container account-locked section-pad"><span className="eyebrow">دسترسی محدود</span><h1>این بخش برای مدیران است.</h1><Link className="button button-primary" to="/account">بازگشت به حساب کاربری <ArrowLeft size={16} /></Link></section>;
 
-  const stats = dashboardQuery.data?.stats ?? demoStats;
+  const stats = dashboardQuery.data?.stats ?? demoDashboard().stats;
   const visibleProducts = (productsQuery.data ?? demoProductList).filter((product) => !search || product.title.toLowerCase().includes(search.toLowerCase()));
   const tickets = ticketsQuery.data ?? demoTicketList;
   const allReviews = reviewsQuery.data ?? demoReviewList;
@@ -379,12 +375,7 @@ export default function AdminPage() {
         </aside>
 
         <div className="admin-content">
-          {tab === 'overview' && <>
-            <div className="admin-content-heading"><div><h2>نمای کلی فروشگاه</h2><p>خلاصه‌ای از اتفاق‌های امروز.</p></div><span className="admin-live"><i /> آنلاین</span></div>
-            <div className="admin-metrics"><Metric icon={<CircleDollarSign size={19} />} color="green" label="درآمد کل" value={formatPrice(stats.revenue)} foot="از سفارش‌های پرداخت‌شده" /><Metric icon={<Package size={19} />} color="violet" label="کل سفارش‌ها" value={stats.orders.toLocaleString('fa-IR')} foot={`${stats.pending_orders.toLocaleString('fa-IR')} سفارش در انتظار`} /><Metric icon={<Users size={19} />} color="blue" label="خواننده‌ها" value={stats.users.toLocaleString('fa-IR')} foot="حساب‌های ثبت‌شده" /><Metric icon={<BookOpen size={19} />} color="orange" label="عنوان‌ها" value={stats.products.toLocaleString('fa-IR')} foot="در قفسه‌ی فروشگاه" /></div>
-            <div className="admin-overview-grid"><div className="admin-panel"><div className="admin-panel-heading"><div><h3>فروش هفت روز اخیر</h3><p>نگاهی سریع به روند فروش</p></div><span className="chart-period">۷ روز اخیر <ArrowLeft size={13} /></span></div><div className="mini-chart"><div className="chart-y-axis"><span>۴۰۰</span><span>۳۰۰</span><span>۲۰۰</span><span>۱۰۰</span><span>۰</span></div><div className="chart-bars">{[38, 56, 44, 70, 54, 82, 66].map((height, index) => <div className="chart-bar-wrap" key={index}><i style={{ height: `${height}%` }} /><small>{['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'][index]}</small></div>)}</div></div></div><div className="admin-panel admin-attention"><span className="attention-icon"><CircleHelp size={22} /></span><span className="eyebrow">چند کار کوچک</span><h3>چیزی منتظر توجه توست.</h3><p>{stats.open_tickets.toLocaleString('fa-IR')} پیام پشتیبانی و {stats.pending_reviews.toLocaleString('fa-IR')} دیدگاه منتظر بررسی هستند.</p><button onClick={() => setTab('tickets')}>رفتن به پشتیبانی <ArrowLeft size={14} /></button></div></div>
-            <div className="admin-panel"><div className="admin-panel-heading"><div><h3>آخرین سفارش‌ها</h3><p>تازه‌ترین خریدهای فایل‌استور</p></div><span className="admin-table-count">{dashboardQuery.data?.recent_orders.length ?? demoOrders.length} سفارش اخیر</span></div><div className="admin-orders-table"><div><span>سفارش</span><span>خریدار</span><span>مبلغ</span><span>وضعیت</span><span>زمان</span></div>{(dashboardQuery.data?.recent_orders ?? demoOrders).slice(0, 5).map((order) => <div key={order.id}><b>#{order.id.toLocaleString('fa-IR')}</b><span>{order.customer ?? 'آرمان رضایی'}</span><b>{formatPrice(order.amount ?? order.final_amount ?? 0)}</b><span className={`order-status ${order.status}`}>{order.status === 'paid' ? 'پرداخت‌شده' : order.status === 'pending' ? 'در انتظار' : order.status}</span><small>{formatDate(order.created_at)}</small></div>)}</div></div>
-          </>}
+          {tab === 'overview' && <AdminOverview data={dashboardQuery.data ?? (demoMode ? demoDashboard() : undefined)} loading={dashboardQuery.isLoading} userName={user.name} onNavigate={(next: AdminTabKey) => setTab(next)} onNewProduct={openNewProductForm} />}
 
           {tab === 'products' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>کتاب‌های فروشگاه</h2><p>فهرست، وضعیت و اطلاعات عنوان‌های منتشرشده.</p></div><button className="button button-primary button-small" onClick={openNewProductForm}><Plus size={16} /> افزودن کتاب</button></div><div className="admin-list-toolbar"><label><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="جست‌وجوی کتاب…" /></label><span>{visibleProducts.length.toLocaleString('fa-IR')} عنوان</span></div><div className="admin-product-table"><div className="admin-table-head"><span>کتاب</span><span>دسته‌بندی</span><span>قیمت</span><span>وضعیت</span><span>عملیات</span></div>{visibleProducts.map((product) => <div className="admin-product-row" key={product.id}><div className="admin-product-cell"><span className="admin-product-cover">{product.cover_url ? <img src={product.cover_url} alt="" /> : <BookOpen size={17} />}</span><span><b>{product.title}</b><small>/{product.slug}</small></span></div><span>{product.category?.name ?? '—'}</span><b>{formatPrice(product.price)}</b><span className={`published-status ${product.status === 'active' ? '' : 'inactive'}`}><i /> {product.status === 'draft' ? 'پیش‌نویس' : product.status === 'inactive' ? 'غیرفعال' : 'منتشر'}</span><span className="admin-row-actions"><button className="row-icon-button" title="ویرایش کتاب" onClick={() => openEditProductForm(product)}><Pencil size={15} /></button><button className="row-icon-button delete" title="حذف کتاب" onClick={() => removeProduct(product)}><Trash2 size={15} /></button></span></div>)}</div></div>}
 
@@ -415,16 +406,6 @@ function formatFileSize(bytes: number) {
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
-
-function Metric({ icon, color, label, value, foot }: { icon: ReactNode; color: string; label: string; value: string; foot: string }) {
-  return <article className="admin-metric"><span className={`metric-icon ${color}`}>{icon}</span><span className="metric-label">{label}</span><b>{value}</b><small>{foot}</small></article>;
-}
-
-const demoOrders: AdminOrder[] = [
-  { id: 2401, status: 'paid', amount: 690000, customer: 'آرمان رضایی', created_at: new Date().toISOString() },
-  { id: 2400, status: 'paid', amount: 590000, customer: 'مریم نادری', created_at: new Date(Date.now() - 86400000).toISOString() },
-  { id: 2399, status: 'pending', amount: 790000, customer: 'پارسا کاظمی', created_at: new Date(Date.now() - 86400000 * 2).toISOString() },
-];
 
 const demoTickets: AdminTicket[] = [
   { id: 1, subject: 'لینک کتاب دانلود نمی‌شود', message: 'در دریافت کتابم مشکل دارم و پیام خطا می‌بینم.', status: 'open', created_at: new Date().toISOString(), user: { name: 'سارا بهرامی' } },
