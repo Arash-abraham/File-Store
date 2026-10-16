@@ -1,5 +1,6 @@
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { StoreProvider } from './StoreContext';
+import PageViewTracker from './components/PageViewTracker';
 import SiteLayout from './components/SiteLayout';
 import AccountPage from './pages/AccountPage';
 import AdminPage from './pages/AdminPage';
@@ -24,6 +25,7 @@ export default function App() {
   return (
     <StoreProvider>
       <BrowserRouter>
+        <PageViewTracker />
         <Routes>
           <Route path="/" element={<SiteLayout />}>
             <Route index element={<HomePage />} />

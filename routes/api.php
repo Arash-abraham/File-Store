@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AccountController;
+use App\Http\Controllers\Api\V1\AnalyticsController;
 use App\Http\Controllers\Api\V1\AdminController;
+use App\Http\Controllers\Api\V1\AdminStatsController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\CheckoutController;
@@ -21,6 +23,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('/home', [StorefrontController::class, 'home'])->name('home');
     Route::get('/products', [StorefrontController::class, 'products'])->name('products.index');
     Route::get('/products/{slug}', [StorefrontController::class, 'product'])->name('products.show');
+    // Comments and product questions (approved items only, plus the viewer's own pending items).
+    Route::get('/products/{slug}/reviews', [ReviewController::class, 'index'])->name('products.reviews.index');
     Route::get('/search/suggest', [StorefrontController::class, 'searchSuggest'])
         ->middleware('throttle:90,1')
         ->name('search.suggest');
@@ -34,6 +38,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('/faqs', [StorefrontController::class, 'faqs'])->name('faqs.index');
     Route::get('/pages/{slug}', [StorefrontController::class, 'page'])->name('pages.show');
     Route::get('/navigation', [StorefrontController::class, 'navigation'])->name('navigation');
+    Route::post('/analytics/pageview', [AnalyticsController::class, 'pageView'])
+        ->middleware('throttle:120,1')
+        ->name('analytics.pageview');
     Route::get('/settings', [StorefrontController::class, 'settings'])->name('settings');
 
     // Payment gateways return the customer to these public backend callbacks.
@@ -76,6 +83,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/account/downloads/{fileId}', [AccountController::class, 'download'])->name('account.downloads.download');
         Route::get('/account/tickets', [AccountController::class, 'tickets'])->name('account.tickets');
         Route::post('/account/tickets', [AccountController::class, 'createTicket'])->name('account.tickets.store');
+        Route::get('/account/tickets/{ticket}', [AccountController::class, 'showTicket'])->name('account.tickets.show');
+        Route::post('/account/tickets/{ticket}/messages', [AccountController::class, 'replyTicket'])
+            ->middleware('throttle:20,1')
+            ->name('account.tickets.reply');
 
         Route::get('/print-orders', [PrintOrderController::class, 'index'])->name('print-orders.index');
         Route::post('/print-orders/quote', [PrintOrderController::class, 'quote'])->name('print-orders.quote');
@@ -86,13 +97,18 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/wallet', [WalletController::class, 'show'])->name('wallet.show');
         Route::post('/wallet/deposits', [WalletController::class, 'deposit'])->middleware('throttle:5,1')->name('wallet.deposits.store');
 
-        Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+        Route::post('/reviews', [ReviewController::class, 'store'])
+            ->middleware('throttle:20,1')
+            ->name('reviews.store');
+        Route::post('/reviews/{review}/edit', [ReviewController::class, 'update'])
+            ->middleware('throttle:20,1')
+            ->name('reviews.update');
         Route::post('/reviews/{review}/helpful', [ReviewController::class, 'helpful'])->name('reviews.helpful');
         Route::post('/reviews/{review}/report', [ReviewController::class, 'report'])->name('reviews.report');
     });
 
     Route::prefix('admin')->name('admin.')->middleware(['auth:sanctum', AdminMiddleware::class])->group(function () {
-        Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
+        Route::get('/dashboard', [AdminStatsController::class, 'dashboard'])->name('dashboard');
 
         Route::get('/products', [AdminController::class, 'products'])->name('products.index');
         Route::post('/products', [AdminController::class, 'storeProduct'])->name('products.store');
@@ -132,6 +148,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::delete('/menus/{id}', [AdminController::class, 'deleteMenu'])->name('menus.delete');
 
         Route::get('/tickets', [AdminController::class, 'tickets'])->name('tickets.index');
+        Route::get('/tickets/{id}', [AdminController::class, 'showTicket'])->name('tickets.show');
+        Route::post('/tickets/{id}/messages', [AdminController::class, 'replyTicket'])->name('tickets.reply');
+        Route::get('/users', [AdminController::class, 'users'])->name('users.index');
+        Route::get('/users/{id}', [AdminController::class, 'showUser'])->name('users.show');
         Route::put('/tickets/{id}', [AdminController::class, 'updateTicket'])->name('tickets.update');
         Route::get('/reviews', [AdminController::class, 'reviews'])->name('reviews.index');
         Route::put('/reviews/{id}', [AdminController::class, 'updateReview'])->name('reviews.update');

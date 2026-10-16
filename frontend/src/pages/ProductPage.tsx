@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Bookmark, BookOpenCheck, Check, CircleCheck, Download, Heart, MessageSquareText, PackageCheck, Printer, ShieldCheck, ShoppingBag, Star, Truck, ZoomIn } from 'lucide-react';
+import { ArrowLeft, Bookmark, BookOpenCheck, Check, CircleCheck, Download, Heart, PackageCheck, Printer, ShieldCheck, ShoppingBag, Star, Truck, ZoomIn } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { api, demoMode } from '../lib/api';
 import { demoProducts, demoReviews } from '../data/demo';
-import { formatDate, formatPrice } from '../lib/format';
+import { formatPrice } from '../lib/format';
 import type { Product, Review } from '../types';
 import ProductCard from '../components/ProductCard';
 import PrintOrderForm from '../components/PrintOrderForm';
+import ProductDiscussion from '../components/ProductDiscussion';
 import { useStore } from '../StoreContext';
 
 type ProductDetail = { product: Product; files: { id: number; name: string; size?: string; type: string }[]; reviews: Review[] };
@@ -16,7 +17,7 @@ export default function ProductPage() {
   const { slug = '' } = useParams();
   const navigate = useNavigate();
   const { addToCart, setNotice, setLoginOpen, user, ownsProduct } = useStore();
-  const [activeTab, setActiveTab] = useState<'overview' | 'features' | 'reviews'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'features' | 'reviews' | 'questions'>('overview');
   const [saved, setSaved] = useState(false);
   const [printOpen, setPrintOpen] = useState(false);
   const { data, isLoading, isError } = useQuery({
@@ -35,7 +36,7 @@ export default function ProductPage() {
   if (isLoading) return <div className="container product-loading"><div className="skeleton-cover" /><div><div className="skeleton-line" /><div className="skeleton-line short" /><div className="skeleton-line" /></div></div>;
   if (isError || !data) return <div className="container empty-state product-error"><h2>کتاب پیدا نشد</h2><p>شاید این عنوان از قفسه جابه‌جا شده است.</p><Link className="button button-primary" to="/catalog">برگشت به کتاب‌ها <ArrowLeft size={15} /></Link></div>;
 
-  const { product, files, reviews } = data;
+  const { product, files } = data;
   const related = demoProducts.filter((item) => item.id !== product.id).slice(0, 3);
   const owned = ownsProduct(product.id);
 
@@ -96,11 +97,12 @@ export default function ProductPage() {
           </div>
 
           {printOpen && <PrintOrderForm product={product} compact />}
-          <div className="detail-tabs"><button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>درباره‌ی کتاب</button><button className={activeTab === 'features' ? 'active' : ''} onClick={() => setActiveTab('features')}>مشخصات فایل</button><button className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}>دیدگاه‌ها</button></div>
+          <div className="detail-tabs"><button className={activeTab === 'overview' ? 'active' : ''} onClick={() => setActiveTab('overview')}>درباره‌ی کتاب</button><button className={activeTab === 'features' ? 'active' : ''} onClick={() => setActiveTab('features')}>مشخصات فایل</button><button className={activeTab === 'reviews' ? 'active' : ''} onClick={() => setActiveTab('reviews')}>دیدگاه‌ها</button><button className={activeTab === 'questions' ? 'active' : ''} onClick={() => setActiveTab('questions')}>پرسش و پاسخ</button></div>
           <div className="detail-tab-panel">
             {activeTab === 'overview' && <><h3>برای کنجکاوها، نه فقط متخصص‌ها</h3><p>{product.description} این نسخه برای مطالعه‌ی راحت روی موبایل، تبلت و رایانه آماده شده است.</p><div className="feature-check-list">{product.key_features.map((feature) => <span key={feature}><Check size={15} /> {feature}</span>)}</div></>}
             {activeTab === 'features' && <div className="file-specs">{files.map((file) => <div key={file.id}><span className="file-spec-icon"><Download size={17} /></span><span><b>{file.name}</b><small>فرمت {file.type} · {file.size ?? 'دریافت فوری'}</small></span><CircleCheck size={17} /></div>)}<p>فایل‌ها پس از پرداخت در کتابخانه‌ی شخصی شما قابل دریافت خواهند بود.</p></div>}
-            {activeTab === 'reviews' && <div className="review-list">{reviews.length ? reviews.map((review) => <article key={review.id}><div className="review-avatar">{review.author.slice(0, 1)}</div><div><div className="review-author"><b>{review.author}</b><span>{formatDate(review.created_at)}</span></div><div className="stars small-stars">{[0, 1, 2, 3, 4].map((star) => <Star key={star} size={12} fill={star < review.rating ? 'currentColor' : 'none'} />)}</div><p>{review.body}</p></div></article>) : <p>هنوز دیدگاهی برای این کتاب ثبت نشده است.</p>}<div className="review-login-note"><MessageSquareText size={15} /> فقط خریداران این کتاب می‌توانند دیدگاه ثبت کنند.</div></div>}
+            {activeTab === 'reviews' && <ProductDiscussion key={`comments-${product.id}`} productId={product.id} slug={product.slug} type="comment" />}
+            {activeTab === 'questions' && <ProductDiscussion key={`questions-${product.id}`} productId={product.id} slug={product.slug} type="question" />}
           </div>
         </div>
       </div>

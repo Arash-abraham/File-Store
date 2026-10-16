@@ -13,6 +13,7 @@
     "@fontsource/vazirmatn": "^5.2.6",
     "@tanstack/react-query": "^5.83.0",
     "axios": "^1.11.0",
+    "chart.js": "^4.5.1",
     "lucide-react": "^0.468.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

@@ -21,7 +21,7 @@ class StorefrontController extends Controller
      * Correlated subquery for the average approved rating of a product.
      * Used both for filtering (`min_rating`) and for ordering by rating.
      */
-    private const RATING_SUBQUERY = '(SELECT COALESCE(AVG(reviews.rating), 0) FROM reviews WHERE reviews.product_id = products.id AND reviews.status = ?)';
+    private const RATING_SUBQUERY = '(SELECT COALESCE(AVG(reviews.rating), 0) FROM reviews WHERE reviews.product_id = products.id AND reviews.status = ? AND reviews.type = \'comment\' AND reviews.parent_id IS NULL AND reviews.rating IS NOT NULL)';
 
     public function home()
     {

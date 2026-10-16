@@ -1,25 +1,39 @@
-import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Activity, ArrowLeft, BookOpen, Check, CircleDollarSign, CircleHelp, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Package, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, Users, X, XCircle } from 'lucide-react';
+import { Activity, ArrowLeft, BookOpen, Check, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Paperclip, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, Users, X, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../StoreContext';
 import PagesEditor from '../components/PagesEditor';
 import { demoCategories, demoProducts } from '../data/demo';
+import AdminOverview, { demoDashboard, type AdminDashboard, type AdminTabKey } from '../components/admin/AdminOverview';
+import AdminTickets from '../components/admin/AdminTickets';
+import AdminUsers from '../components/admin/AdminUsers';
 import { api, apiErrorMessage, demoMode } from '../lib/api';
 import { formatDate, formatPrice } from '../lib/format';
 import type { Category, Product } from '../types';
 
-type AdminTab = 'overview' | 'products' | 'pages' | 'tickets' | 'reviews';
+type AdminTab = AdminTabKey;
 type ProductForm = { title: string; slug: string; category_id: string; original_price: string; price: string; cover_url: string; description: string; status: 'active' | 'inactive' | 'draft' };
-type AdminStats = { products: number; users: number; orders: number; revenue: number; pending_orders: number; open_tickets: number; pending_reviews: number };
-type AdminOrder = { id: number; status: string; amount?: number; final_amount?: number; customer?: string; created_at?: string };
-type AdminDashboard = { stats: AdminStats; recent_orders: AdminOrder[]; sales_last_7_days: { day: string; amount: number }[] };
-type AdminTicket = { id: number; subject: string; message: string; response?: string | null; status: 'open' | 'in_progress' | 'closed'; created_at?: string; user?: { name?: string } };
-type AdminReview = { id: number; rating: number; body: string; status: 'approved' | 'pending' | 'rejected'; created_at?: string; user?: { name?: string }; product?: { title?: string } };
+type AdminReview = {
+  id: number;
+  rating: number | null;
+  body: string;
+  status: 'approved' | 'pending' | 'rejected';
+  type?: 'comment' | 'question';
+  parent_id?: number | null;
+  parent?: { id: number; body: string; type?: 'comment' | 'question'; user?: { name?: string } } | null;
+  image_url?: string | null;
+  edited_at?: string | null;
+  replies_count?: number;
+  created_at?: string;
+  user?: { name?: string };
+  product?: { title?: string };
+};
+type ReviewFilter = 'all' | 'pending' | 'approved' | 'rejected';
+type ReviewTypeFilter = 'all' | 'comment' | 'question' | 'reply';
 type AdminFile = { id: number; name: string; type: string; size_label?: string };
 
 const emptyForm = (): ProductForm => ({ title: '', slug: '', category_id: String(demoCategories[0]?.id ?? 1), original_price: '', price: '', cover_url: '', description: '', status: 'active' });
-const demoStats: AdminStats = { products: 24, users: 2481, orders: 684, revenue: 438600000, pending_orders: 12, open_tickets: 7, pending_reviews: 9 };
 
 export default function AdminPage() {
   const { user, setLoginOpen, setNotice } = useStore();
@@ -36,15 +50,16 @@ export default function AdminPage() {
   const [fileInputKey, setFileInputKey] = useState(0);
   const [fileDisplayName, setFileDisplayName] = useState('');
   const [fileType, setFileType] = useState('pdf');
-  const [demoTicketList, setDemoTicketList] = useState<AdminTicket[]>(demoTickets);
+  const [ticketSeed, setTicketSeed] = useState('');
   const [demoReviewList, setDemoReviewList] = useState<AdminReview[]>(demoReviews);
+  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>('pending');
+  const [reviewTypeFilter, setReviewTypeFilter] = useState<ReviewTypeFilter>('all');
 
   const dashboardQuery = useQuery<AdminDashboard>({
     queryKey: ['admin-dashboard'],
     enabled: user?.role === 'admin',
-    queryFn: async () => demoMode
-      ? { stats: demoStats, recent_orders: demoOrders, sales_last_7_days: [] }
-      : (await api.get('/admin/dashboard')).data.data as AdminDashboard,
+    refetchInterval: demoMode ? false : 60000,
+    queryFn: async () => demoMode ? demoDashboard() : (await api.get('/admin/dashboard')).data.data as AdminDashboard,
   });
   const productsQuery = useQuery<Product[]>({
     queryKey: ['admin-products'],
@@ -66,11 +81,6 @@ export default function AdminPage() {
         ? demoFilesByProduct[productId] ?? []
         : (await api.get(`/admin/products/${productId}/files`)).data.data as AdminFile[];
     },
-  });
-  const ticketsQuery = useQuery<AdminTicket[]>({
-    queryKey: ['admin-tickets'], 
-    enabled: user?.role === 'admin' && tab === 'tickets',
-    queryFn: async () => demoMode ? demoTicketList : (await api.get('/admin/tickets')).data.data as AdminTicket[],
   });
   const reviewsQuery = useQuery<AdminReview[]>({
     queryKey: ['admin-reviews'],
@@ -105,14 +115,9 @@ export default function AdminPage() {
     onSuccess: async () => { await invalidateProducts(); setNotice('کتاب از فروشگاه حذف شد.'); },
     onError: (error) => setNotice(apiErrorMessage(error, 'حذف کتاب انجام نشد.')),
   });
-  const updateTicket = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: AdminTicket['status'] }) => api.put(`/admin/tickets/${id}`, { status }),
-    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['admin-tickets'] }); setNotice('وضعیت درخواست به‌روز شد.'); },
-    onError: (error) => setNotice(apiErrorMessage(error, 'به‌روزرسانی درخواست انجام نشد.')),
-  });
   const updateReview = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: AdminReview['status'] }) => api.put(`/admin/reviews/${id}`, { status }),
-    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['admin-reviews'] }); setNotice('وضعیت دیدگاه به‌روز شد.'); },
+    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['admin-reviews'] }); await queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] }); setNotice('وضعیت دیدگاه به‌روز شد.'); },
     onError: (error) => setNotice(apiErrorMessage(error, 'به‌روزرسانی دیدگاه انجام نشد.')),
   });
   const uploadProductFile = useMutation({
@@ -288,14 +293,20 @@ export default function AdminPage() {
     }
   }
 
-  function changeTicketStatus(ticket: AdminTicket) {
-    const status: AdminTicket['status'] = ticket.status === 'closed' ? 'open' : 'closed';
+
+  const deleteReview = useMutation({
+    mutationFn: async (id: number) => api.delete(`/admin/reviews/${id}`),
+    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['admin-reviews'] }); setNotice('دیدگاه حذف شد.'); },
+  });
+
+  function removeReview(review: AdminReview) {
+    if (!window.confirm('این مورد و پاسخ‌های آن برای همیشه حذف شود؟')) return;
     if (demoMode) {
-      const nextTickets = demoTicketList.map((item) => item.id === ticket.id ? { ...item, status } : item);
-      setDemoTicketList(nextTickets);
-      queryClient.setQueryData(['admin-tickets'], nextTickets);
-      setNotice('وضعیت درخواست نمایشی به‌روز شد.');
-    } else updateTicket.mutate({ id: ticket.id, status });
+      const nextReviews = demoReviewList.filter((item) => item.id !== review.id);
+      setDemoReviewList(nextReviews);
+      queryClient.setQueryData(['admin-reviews'], nextReviews);
+      setNotice('دیدگاه نمایشی حذف شد.');
+    } else deleteReview.mutate(review.id);
   }
 
   function changeReviewStatus(review: AdminReview, status: AdminReview['status']) {
@@ -310,10 +321,20 @@ export default function AdminPage() {
   if (!user) return <section className="container account-locked section-pad"><span className="account-lock-icon"><ShieldCheck size={29} /></span><span className="eyebrow">محیط امن مدیریت</span><h1>فقط مدیرها<br /><em>وارد می‌شوند.</em></h1><p>برای ادامه با حساب مدیر وارد شوید.</p><button className="button button-primary" onClick={() => setLoginOpen(true)}>ورود مدیر <ArrowLeft size={16} /></button></section>;
   if (user.role !== 'admin') return <section className="container account-locked section-pad"><span className="eyebrow">دسترسی محدود</span><h1>این بخش برای مدیران است.</h1><Link className="button button-primary" to="/account">بازگشت به حساب کاربری <ArrowLeft size={16} /></Link></section>;
 
-  const stats = dashboardQuery.data?.stats ?? demoStats;
+  const stats = dashboardQuery.data?.stats ?? demoDashboard().stats;
   const visibleProducts = (productsQuery.data ?? demoProductList).filter((product) => !search || product.title.toLowerCase().includes(search.toLowerCase()));
-  const tickets = ticketsQuery.data ?? demoTicketList;
-  const reviews = reviewsQuery.data ?? demoReviewList;
+  const allReviews = reviewsQuery.data ?? demoReviewList;
+  const reviews = allReviews.filter((review) => {
+    if (reviewFilter !== 'all' && review.status !== reviewFilter) return false;
+    if (reviewTypeFilter === 'reply') return Boolean(review.parent_id);
+    if (reviewTypeFilter !== 'all' && (review.parent_id || (review.type ?? 'comment') !== reviewTypeFilter)) return false;
+    return true;
+  });
+  const reviewStatusCounts = {
+    pending: allReviews.filter((review) => review.status === 'pending').length,
+    approved: allReviews.filter((review) => review.status === 'approved').length,
+    rejected: allReviews.filter((review) => review.status === 'rejected').length,
+  };
   const categories = categoriesQuery.data ?? demoCategories;
   const formPending = createProduct.isPending || updateProduct.isPending;
 
@@ -325,6 +346,7 @@ export default function AdminPage() {
         <aside className="admin-sidebar">
           <div className="admin-sidebar-label">فضای کاری</div>
           <button onClick={() => setTab('overview')} className={tab === 'overview' ? 'active' : ''}><LayoutDashboard size={17} /> نمای کلی</button>
+          <button onClick={() => setTab('users')} className={tab === 'users' ? 'active' : ''}><Users size={17} /> کاربران <span>{stats.users.toLocaleString('fa-IR')}</span></button>
           <button onClick={() => setTab('products')} className={tab === 'products' ? 'active' : ''}><BookOpen size={17} /> کتاب‌ها <span>{stats.products.toLocaleString('fa-IR')}</span></button>
           <button onClick={() => setTab('tickets')} className={tab === 'tickets' ? 'active' : ''}><Ticket size={17} /> پشتیبانی <span className="sidebar-count">{stats.open_tickets.toLocaleString('fa-IR')}</span></button>
           <button onClick={() => setTab('pages')} className={tab === 'pages' ? 'active' : ''}><FileText size={17} /> صفحه‌های ثابت</button>
@@ -335,20 +357,26 @@ export default function AdminPage() {
         </aside>
 
         <div className="admin-content">
-          {tab === 'overview' && <>
-            <div className="admin-content-heading"><div><h2>نمای کلی فروشگاه</h2><p>خلاصه‌ای از اتفاق‌های امروز.</p></div><span className="admin-live"><i /> آنلاین</span></div>
-            <div className="admin-metrics"><Metric icon={<CircleDollarSign size={19} />} color="green" label="درآمد کل" value={formatPrice(stats.revenue)} foot="از سفارش‌های پرداخت‌شده" /><Metric icon={<Package size={19} />} color="violet" label="کل سفارش‌ها" value={stats.orders.toLocaleString('fa-IR')} foot={`${stats.pending_orders.toLocaleString('fa-IR')} سفارش در انتظار`} /><Metric icon={<Users size={19} />} color="blue" label="خواننده‌ها" value={stats.users.toLocaleString('fa-IR')} foot="حساب‌های ثبت‌شده" /><Metric icon={<BookOpen size={19} />} color="orange" label="عنوان‌ها" value={stats.products.toLocaleString('fa-IR')} foot="در قفسه‌ی فروشگاه" /></div>
-            <div className="admin-overview-grid"><div className="admin-panel"><div className="admin-panel-heading"><div><h3>فروش هفت روز اخیر</h3><p>نگاهی سریع به روند فروش</p></div><span className="chart-period">۷ روز اخیر <ArrowLeft size={13} /></span></div><div className="mini-chart"><div className="chart-y-axis"><span>۴۰۰</span><span>۳۰۰</span><span>۲۰۰</span><span>۱۰۰</span><span>۰</span></div><div className="chart-bars">{[38, 56, 44, 70, 54, 82, 66].map((height, index) => <div className="chart-bar-wrap" key={index}><i style={{ height: `${height}%` }} /><small>{['ش', 'ی', 'د', 'س', 'چ', 'پ', 'ج'][index]}</small></div>)}</div></div></div><div className="admin-panel admin-attention"><span className="attention-icon"><CircleHelp size={22} /></span><span className="eyebrow">چند کار کوچک</span><h3>چیزی منتظر توجه توست.</h3><p>{stats.open_tickets.toLocaleString('fa-IR')} پیام پشتیبانی و {stats.pending_reviews.toLocaleString('fa-IR')} دیدگاه منتظر بررسی هستند.</p><button onClick={() => setTab('tickets')}>رفتن به پشتیبانی <ArrowLeft size={14} /></button></div></div>
-            <div className="admin-panel"><div className="admin-panel-heading"><div><h3>آخرین سفارش‌ها</h3><p>تازه‌ترین خریدهای فایل‌استور</p></div><span className="admin-table-count">{dashboardQuery.data?.recent_orders.length ?? demoOrders.length} سفارش اخیر</span></div><div className="admin-orders-table"><div><span>سفارش</span><span>خریدار</span><span>مبلغ</span><span>وضعیت</span><span>زمان</span></div>{(dashboardQuery.data?.recent_orders ?? demoOrders).slice(0, 5).map((order) => <div key={order.id}><b>#{order.id.toLocaleString('fa-IR')}</b><span>{order.customer ?? 'آرمان رضایی'}</span><b>{formatPrice(order.amount ?? order.final_amount ?? 0)}</b><span className={`order-status ${order.status}`}>{order.status === 'paid' ? 'پرداخت‌شده' : order.status === 'pending' ? 'در انتظار' : order.status}</span><small>{formatDate(order.created_at)}</small></div>)}</div></div>
-          </>}
+          {tab === 'overview' && <AdminOverview data={dashboardQuery.data ?? (demoMode ? demoDashboard() : undefined)} loading={dashboardQuery.isLoading} userName={user.name} onNavigate={(next: AdminTabKey) => setTab(next)} />}
 
           {tab === 'products' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>کتاب‌های فروشگاه</h2><p>فهرست، وضعیت و اطلاعات عنوان‌های منتشرشده.</p></div><button className="button button-primary button-small" onClick={openNewProductForm}><Plus size={16} /> افزودن کتاب</button></div><div className="admin-list-toolbar"><label><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="جست‌وجوی کتاب…" /></label><span>{visibleProducts.length.toLocaleString('fa-IR')} عنوان</span></div><div className="admin-product-table"><div className="admin-table-head"><span>کتاب</span><span>دسته‌بندی</span><span>قیمت</span><span>وضعیت</span><span>عملیات</span></div>{visibleProducts.map((product) => <div className="admin-product-row" key={product.id}><div className="admin-product-cell"><span className="admin-product-cover">{product.cover_url ? <img src={product.cover_url} alt="" /> : <BookOpen size={17} />}</span><span><b>{product.title}</b><small>/{product.slug}</small></span></div><span>{product.category?.name ?? '—'}</span><b>{formatPrice(product.price)}</b><span className={`published-status ${product.status === 'active' ? '' : 'inactive'}`}><i /> {product.status === 'draft' ? 'پیش‌نویس' : product.status === 'inactive' ? 'غیرفعال' : 'منتشر'}</span><span className="admin-row-actions"><button className="row-icon-button" title="ویرایش کتاب" onClick={() => openEditProductForm(product)}><Pencil size={15} /></button><button className="row-icon-button delete" title="حذف کتاب" onClick={() => removeProduct(product)}><Trash2 size={15} /></button></span></div>)}</div></div>}
 
           {tab === 'pages' && <PagesEditor onNotice={setNotice} />}
 
-          {tab === 'tickets' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>درخواست‌های پشتیبانی</h2><p>پیگیری گفت‌وگوهای خواننده‌ها.</p></div><span className="admin-table-count">{tickets.length.toLocaleString('fa-IR')} مورد</span></div><div className="admin-ticket-list">{tickets.map((ticket) => <article key={ticket.id}><div className="admin-ticket-icon"><Ticket size={17} /></div><div className="admin-ticket-copy"><b>{ticket.subject}</b><small>{ticket.user?.name ?? 'کاربر فایل‌استور'} · {formatDate(ticket.created_at)}</small><p>{ticket.response || ticket.message}</p></div><div className="admin-ticket-actions"><span className={`ticket-status ${ticket.status}`}>{ticket.status === 'closed' ? 'بسته‌شده' : ticket.status === 'in_progress' ? 'در حال بررسی' : 'جدید'}</span><button className="admin-action-link" onClick={() => changeTicketStatus(ticket)}>{ticket.status === 'closed' ? 'بازگشایی' : 'بستن درخواست'}</button></div></article>)}</div></div>}
+          {tab === 'tickets' && <AdminTickets initialSearch={ticketSeed} key={ticketSeed} />}
 
-          {tab === 'reviews' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>دیدگاه‌های خواننده‌ها</h2><p>بررسی و مدیریت دیدگاه‌های کتاب‌ها.</p></div><span className="admin-table-count">{reviews.length.toLocaleString('fa-IR')} دیدگاه</span></div><div className="admin-review-list">{reviews.map((review) => <article key={review.id}><div className="review-avatar">{review.user?.name?.slice(0, 1) ?? 'ک'}</div><div><b>{review.user?.name ?? 'کاربر فایل‌استور'} <small>برای {review.product?.title ?? 'کتاب'}</small></b><div className="review-stars">{'★'.repeat(review.rating)}<span>{formatDate(review.created_at)}</span></div><p>{review.body}</p></div><div className="admin-review-actions"><span className={`ticket-status ${review.status}`}>{review.status === 'approved' ? 'منتشرشده' : review.status === 'pending' ? 'در انتظار' : 'ردشده'}</span>{review.status !== 'approved' && <button className="review-action approve" title="تأیید و انتشار" onClick={() => changeReviewStatus(review, 'approved')}><Check size={15} /></button>}{review.status !== 'rejected' && <button className="review-action reject" title="رد دیدگاه" onClick={() => changeReviewStatus(review, 'rejected')}><XCircle size={15} /></button>}</div></article>)}</div></div>}
+          {tab === 'users' && <AdminUsers onOpenTickets={(email) => { setTicketSeed(email); setTab('tickets'); }} />}
+
+          {tab === 'reviews' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>دیدگاه‌ها و پرسش و پاسخ</h2><p>هر دیدگاه، پرسش، پاسخ یا ویرایشی تا پیش از تأیید شما در فروشگاه نمایش داده نمی‌شود.</p></div><span className="admin-table-count">{reviews.length.toLocaleString('fa-IR')} مورد</span></div>
+            <div className="admin-review-filters">
+              <div className="admin-segment">
+                {([['pending', `در انتظار (${reviewStatusCounts.pending.toLocaleString('fa-IR')})`], ['approved', `منتشرشده (${reviewStatusCounts.approved.toLocaleString('fa-IR')})`], ['rejected', `ردشده (${reviewStatusCounts.rejected.toLocaleString('fa-IR')})`], ['all', 'همه']] as [ReviewFilter, string][]).map(([value, label]) => <button key={value} className={reviewFilter === value ? 'active' : ''} onClick={() => setReviewFilter(value)}>{label}</button>)}
+              </div>
+              <div className="admin-segment">
+                {([['all', 'همه‌ی انواع'], ['comment', 'دیدگاه'], ['question', 'پرسش'], ['reply', 'پاسخ‌ها']] as [ReviewTypeFilter, string][]).map(([value, label]) => <button key={value} className={reviewTypeFilter === value ? 'active' : ''} onClick={() => setReviewTypeFilter(value)}>{label}</button>)}
+              </div>
+            </div>
+            <div className="admin-review-list">{reviews.length ? reviews.map((review) => <article key={review.id}><div className="review-avatar">{review.user?.name?.slice(0, 1) ?? 'ک'}</div><div><b>{review.user?.name ?? 'کاربر فایل‌استور'} <small>برای {review.product?.title ?? 'کتاب'}</small></b><div className="review-stars"><span className="review-type-badge">{review.parent_id ? 'پاسخ' : review.type === 'question' ? 'پرسش' : 'دیدگاه'}</span>{review.rating ? '★'.repeat(review.rating) : null}<span>{formatDate(review.created_at)}{review.edited_at ? ' · ویرایش‌شده' : ''}{review.replies_count ? ` · ${review.replies_count.toLocaleString('fa-IR')} پاسخ` : ''}</span></div>{review.parent && <small className="review-parent-note">در پاسخ به {review.parent.user?.name ?? 'کاربر'}: «{review.parent.body.slice(0, 80)}{review.parent.body.length > 80 ? '…' : ''}»</small>}<p>{review.body}</p>{review.image_url && <a className="review-image-link" href={review.image_url} target="_blank" rel="noreferrer"><Paperclip size={13} /> مشاهده‌ی تصویر پیوست</a>}</div><div className="admin-review-actions"><span className={`ticket-status ${review.status}`}>{review.status === 'approved' ? 'منتشرشده' : review.status === 'pending' ? 'در انتظار' : 'ردشده'}</span>{review.status !== 'approved' && <button className="review-action approve" title="تأیید و انتشار" onClick={() => changeReviewStatus(review, 'approved')}><Check size={15} /></button>}{review.status !== 'rejected' && <button className="review-action reject" title="رد" onClick={() => changeReviewStatus(review, 'rejected')}><XCircle size={15} /></button>}<button className="review-action delete" title="حذف" onClick={() => removeReview(review)}><Trash2 size={15} /></button></div></article>) : <p className="admin-file-empty">موردی با این فیلتر پیدا نشد.</p>}</div></div>}
         </div>
       </div>
 
@@ -363,22 +391,8 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-function Metric({ icon, color, label, value, foot }: { icon: ReactNode; color: string; label: string; value: string; foot: string }) {
-  return <article className="admin-metric"><span className={`metric-icon ${color}`}>{icon}</span><span className="metric-label">{label}</span><b>{value}</b><small>{foot}</small></article>;
-}
-
-const demoOrders: AdminOrder[] = [
-  { id: 2401, status: 'paid', amount: 690000, customer: 'آرمان رضایی', created_at: new Date().toISOString() },
-  { id: 2400, status: 'paid', amount: 590000, customer: 'مریم نادری', created_at: new Date(Date.now() - 86400000).toISOString() },
-  { id: 2399, status: 'pending', amount: 790000, customer: 'پارسا کاظمی', created_at: new Date(Date.now() - 86400000 * 2).toISOString() },
-];
-
-const demoTickets: AdminTicket[] = [
-  { id: 1, subject: 'لینک کتاب دانلود نمی‌شود', message: 'در دریافت کتابم مشکل دارم و پیام خطا می‌بینم.', status: 'open', created_at: new Date().toISOString(), user: { name: 'سارا بهرامی' } },
-  { id: 2, subject: 'سؤال درباره‌ی فرمت فایل', message: 'آیا نسخه‌ی کتاب روی تبلت هم خواناست؟', status: 'in_progress', created_at: new Date(Date.now() - 86400000).toISOString(), user: { name: 'پویا احمدی' } },
-];
 
 const demoReviews: AdminReview[] = [
-  { id: 1, rating: 5, body: 'برای شروع کار با لینوکس خیلی روان و مفید بود.', status: 'pending', created_at: new Date().toISOString(), user: { name: 'مینا سلیمانی' }, product: { title: demoProducts[0].title } },
-  { id: 2, rating: 4, body: 'مرجع کاربردی و خوش‌ساختی است.', status: 'approved', created_at: new Date(Date.now() - 86400000 * 2).toISOString(), user: { name: 'امیرحسین کاظمی' }, product: { title: demoProducts[1].title } },
+  { id: 1, rating: 5, type: 'comment', body: 'برای شروع کار با لینوکس خیلی روان و مفید بود.', status: 'pending', created_at: new Date().toISOString(), user: { name: 'مینا سلیمانی' }, product: { title: demoProducts[0].title } },
+  { id: 2, rating: 4, type: 'question', body: 'آیا این نسخه روی تبلت هم خوانا است؟', status: 'pending', created_at: new Date(Date.now() - 86400000 * 2).toISOString(), user: { name: 'امیرحسین کاظمی' }, product: { title: demoProducts[1].title } },
 ];

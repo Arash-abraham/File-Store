@@ -5,6 +5,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { api, apiErrorMessage, demoMode } from '../lib/api';
 import { demoProducts } from '../data/demo';
 import { formatDate, formatPrice } from '../lib/format';
+import SupportTickets from '../components/support/SupportTickets';
 import { printStatusLabels } from '../components/PrintOrderForm';
 import { demoPrintOrders } from '../data/demo';
 import type { Order, PrintOrder } from '../types';
@@ -37,8 +38,6 @@ export default function AccountPage() {
   const { user, setLoginOpen, logout, setNotice, updateUser } = useStore();
   const [params, setParams] = useSearchParams();
   const activeTab = params.get('tab') ?? 'overview';
-  const [ticketSubject, setTicketSubject] = useState('');
-  const [ticketMessage, setTicketMessage] = useState('');
   const [profileName, setProfileName] = useState(user?.name ?? '');
   const [profilePhone, setProfilePhone] = useState(user?.phone ?? '');
   const [depositAmount, setDepositAmount] = useState('500000');
@@ -79,11 +78,6 @@ export default function AccountPage() {
       ? demoPrintOrders as unknown as PrintOrder[]
       : (await api.get('/print-orders')).data.data as PrintOrder[],
   });
-  const ticketsQuery = useQuery({
-    queryKey: ['account-tickets', user?.id],
-    enabled: !!user && activeTab === 'support',
-    queryFn: async () => demoMode ? [{ id: 1, subject: 'راهنمای کتابخانه', message: 'فایل‌ها را از بخش کتابخانه می‌توانم دریافت کنم؟', response: 'بله، کتاب‌های خریداری‌شده همیشه در کتابخانه‌تان می‌مانند.', status: 'closed', created_at: new Date().toISOString() }] : (await api.get('/account/tickets')).data.data,
-  });
   const walletQuery = useQuery({
     queryKey: ['wallet', user?.id],
     enabled: !!user && activeTab === 'wallet',
@@ -102,26 +96,6 @@ export default function AccountPage() {
     setFormError('');
   }
 
-  async function submitTicket(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setFormError('');
-    setSubmitting(true);
-    try {
-      if (demoMode) {
-        setTicketSubject(''); setTicketMessage('');
-        setNotice('درخواست نمایشی ثبت شد.');
-      } else {
-        await api.post('/account/tickets', { subject: ticketSubject, message: ticketMessage });
-        setTicketSubject(''); setTicketMessage('');
-        setNotice('درخواست پشتیبانی ثبت شد.');
-        await ticketsQuery.refetch();
-      }
-    } catch (error) {
-      setFormError(apiErrorMessage(error, 'ثبت درخواست انجام نشد.'));
-    } finally {
-      setSubmitting(false);
-    }
-  }
 
   async function saveProfile(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -190,7 +164,7 @@ export default function AccountPage() {
 
           {activeTab === 'wallet' && <div className="wallet-page-grid"><div className="wallet-balance-card"><span className="wallet-balance-label"><Wallet size={17} /> موجودی فعلی</span><strong>{formatPrice(walletQuery.data?.balance ?? overview?.wallet.balance ?? 0)}</strong><p>برای خرید کتاب بعدی، همیشه آماده‌ای.</p><form className="wallet-deposit-form" onSubmit={(event) => void deposit(event)}><label>مبلغ شارژ به تومان<input type="number" min="10000" step="10000" value={depositAmount} onChange={(event) => setDepositAmount(event.target.value)} /></label><button className="button button-light" disabled={submitting}>شارژ از درگاه <ArrowLeft size={15} /></button></form></div><div className="account-panel wallet-history"><div className="account-panel-heading"><div><h3>تراکنش‌ها</h3><p>حرکت موجودی کیف پول</p></div></div><div className="transaction-list">{(walletQuery.data?.transactions ?? []).map((transaction: any) => <div key={transaction.id}><span className="transaction-mark"><Wallet size={15} /></span><span><b>{transaction.description ?? 'تراکنش کیف پول'}</b><small>{formatDate(transaction.created_at)}</small></span><strong className={transaction.type === 'deposit' ? 'positive' : ''}>{transaction.type === 'deposit' ? '+' : '−'}{formatPrice(transaction.amount)}</strong></div>)}</div></div></div>}
 
-          {activeTab === 'support' && <div className="support-layout"><div className="account-panel"><div className="account-panel-heading"><div><h3>درخواست تازه</h3><p>تیم ما در اولین فرصت پاسخ می‌دهد.</p></div></div><form className="form-stack" onSubmit={(event) => void submitTicket(event)}><label className="field-label">موضوع<input value={ticketSubject} onChange={(event) => setTicketSubject(event.target.value)} placeholder="مثلاً مشکل در دریافت فایل" required maxLength={200} /></label><label className="field-label">توضیحات<textarea value={ticketMessage} onChange={(event) => setTicketMessage(event.target.value)} placeholder="کمی بیشتر برایمان توضیح بده…" rows={5} required minLength={10} /></label><button className="button button-primary" disabled={submitting}>ثبت درخواست <ArrowLeft size={15} /></button></form></div><div className="account-panel ticket-list-panel"><div className="account-panel-heading"><div><h3>درخواست‌های قبلی</h3><p>پیگیری گفتگوها</p></div></div>{ticketsQuery.data?.length ? ticketsQuery.data.map((ticket: any) => <article className="ticket-item" key={ticket.id}><div><b>{ticket.subject}</b><small>{formatDate(ticket.created_at)}</small></div><span className={`ticket-status ${ticket.status}`}>{ticket.status === 'closed' ? 'پاسخ داده شد' : 'در حال پیگیری'}</span><p>{ticket.response ?? ticket.message}</p></article>) : <div className="empty-inline"><Ticket size={24} /><span>درخواستی ثبت نشده است.</span></div>}</div></div>}
+          {activeTab === 'support' && <SupportTickets />}
 
           {activeTab === 'profile' && <div className="account-panel profile-panel"><div className="account-panel-heading"><div><h3>اطلاعات حساب</h3><p>اطلاعاتت را به‌روز نگه دار.</p></div></div><form className="profile-form" onSubmit={(event) => void saveProfile(event)}><label className="field-label">نام نمایشی<input value={profileName} onChange={(event) => setProfileName(event.target.value)} required /></label><label className="field-label">ایمیل<input type="email" value={user.email} disabled /><small>برای تغییر ایمیل با پشتیبانی تماس بگیر.</small></label><label className="field-label">شماره‌ی تماس<input value={profilePhone} onChange={(event) => setProfilePhone(event.target.value)} placeholder="۰۹۱۲۱۲۳۴۵۶۷" /></label><button className="button button-primary" disabled={submitting}>ذخیره‌ی تغییرات <Check size={15} /></button></form></div>}
         </div>

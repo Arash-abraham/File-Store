@@ -66,6 +66,33 @@ export type Review = {
   created_at?: string;
 };
 
+export type DiscussionType = 'comment' | 'question';
+
+export type DiscussionItem = {
+  id: number;
+  type: DiscussionType;
+  parent_id: number | null;
+  rating: number | null;
+  body: string;
+  image_url: string | null;
+  author: string;
+  status: 'approved' | 'pending' | 'rejected';
+  is_mine: boolean;
+  is_edited: boolean;
+  likes_count: number;
+  liked_by_me: boolean;
+  created_at?: string | null;
+  edited_at?: string | null;
+  replies?: DiscussionItem[];
+};
+
+export type DiscussionPage = {
+  items: DiscussionItem[];
+  meta: { current_page: number; last_page: number; total: number };
+  can_write: boolean;
+  type: DiscussionType;
+};
+
 export type SearchSuggestions = {
   query: string;
   products: Product[];
@@ -211,4 +238,44 @@ export type Library = {
   product_ids: number[];
   products: LibraryBook[];
   stats: { owned_books: number; print_orders: number };
+};
+
+export type SupportTicketStatus = 'open' | 'in_progress' | 'closed';
+
+export type TicketMessage = {
+  id: number;
+  body: string;
+  is_staff: boolean;
+  author: string;
+  created_at?: string | null;
+};
+
+export type SupportTicket = {
+  id: number;
+  subject: string;
+  status: SupportTicketStatus;
+  created_at?: string | null;
+  updated_at?: string | null;
+  user?: { id?: number; name?: string; email?: string } | null;
+  messages_count?: number | null;
+  messages?: TicketMessage[];
+};
+
+export type AdminUser = {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string | null;
+  role: string;
+  verified: boolean;
+  created_at?: string | null;
+  paid_orders_count: number;
+  tickets_count: number;
+};
+
+export type AdminUserDetail = {
+  user: AdminUser;
+  total_spent: number;
+  orders: { id: number; status: string; amount: number; created_at?: string | null }[];
+  tickets: SupportTicket[];
 };
