@@ -21,6 +21,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::get('/home', [StorefrontController::class, 'home'])->name('home');
     Route::get('/products', [StorefrontController::class, 'products'])->name('products.index');
     Route::get('/products/{slug}', [StorefrontController::class, 'product'])->name('products.show');
+    // Comments and product questions (approved items only, plus the viewer's own pending items).
+    Route::get('/products/{slug}/reviews', [ReviewController::class, 'index'])->name('products.reviews.index');
     Route::get('/search/suggest', [StorefrontController::class, 'searchSuggest'])
         ->middleware('throttle:90,1')
         ->name('search.suggest');
@@ -86,7 +88,12 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/wallet', [WalletController::class, 'show'])->name('wallet.show');
         Route::post('/wallet/deposits', [WalletController::class, 'deposit'])->middleware('throttle:5,1')->name('wallet.deposits.store');
 
-        Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+        Route::post('/reviews', [ReviewController::class, 'store'])
+            ->middleware('throttle:20,1')
+            ->name('reviews.store');
+        Route::post('/reviews/{review}/edit', [ReviewController::class, 'update'])
+            ->middleware('throttle:20,1')
+            ->name('reviews.update');
         Route::post('/reviews/{review}/helpful', [ReviewController::class, 'helpful'])->name('reviews.helpful');
         Route::post('/reviews/{review}/report', [ReviewController::class, 'report'])->name('reviews.report');
     });

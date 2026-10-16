@@ -1871,3 +1871,59 @@ main { flex: 1; }
   .print-teaser .button { width: 100%; }
   .print-house-foot { flex-direction: column; align-items: flex-start; }
 }
+
+/* ---------- Comments (دیدگاه‌ها) and product Q&A (پرسش و پاسخ) ---------- */
+.discussion { display: grid; gap: 14px; }
+.discussion-intro { display: flex; align-items: flex-start; gap: 11px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 13px; background: var(--surface-soft); }
+.discussion-intro b { display: block; color: var(--heading); font-size: 0.9375rem; }
+.discussion-intro small { display: block; color: var(--body-text); font-size: 0.8125rem; line-height: 1.6; }
+.discussion-intro-icon { width: 32px; height: 32px; flex: 0 0 auto; display: grid; place-items: center; border-radius: 9px; color: var(--green); background: var(--green-light); }
+.discussion-cta { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; padding: 12px 14px; border: 1px dashed #c9d6cb; border-radius: 13px; color: var(--body-text); font-size: 0.875rem; }
+.discussion-cta.muted { border-style: solid; background: var(--surface-soft); }
+.discussion-empty { color: var(--muted); font-size: 0.875rem; padding: 6px 2px; }
+.discussion-list { display: grid; gap: 0; }
+.discussion-item { display: flex; align-items: flex-start; gap: 10px; padding: 14px 0; border-bottom: 1px solid #eff1ed; }
+.discussion-item.is-reply { padding: 10px 0 10px 4px; border-bottom: 0; }
+.discussion-item.is-reply .review-avatar { width: 26px; height: 26px; font-size: 0.8125rem; }
+.discussion-item-body { flex: 1; min-width: 0; display: grid; gap: 6px; }
+.discussion-you { padding: 0 7px; border-radius: 999px; color: var(--green); background: var(--green-light); font-size: 0.6875rem; font-weight: 700; }
+.discussion-edited { color: #a0a8a2; font-size: 0.6875rem; }
+.discussion-status { display: inline-flex; align-items: center; gap: 5px; width: fit-content; max-width: 100%; padding: 4px 10px; border-radius: 8px; font-size: 0.75rem; line-height: 1.5; }
+.discussion-status.pending { color: #8a6a1f; background: #fbf4df; }
+.discussion-status.rejected { color: #a4483d; background: #fff0ed; }
+.discussion-text { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; color: var(--ink-soft); font-size: 0.9375rem; }
+.discussion-image { display: block; width: fit-content; max-width: 100%; border: 1px solid var(--line); border-radius: 11px; overflow: hidden; }
+.discussion-image img { display: block; max-width: min(100%, 260px); max-height: 220px; object-fit: cover; }
+.discussion-actions { display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.discussion-action { display: inline-flex; align-items: center; gap: 5px; height: 30px; padding: 0 9px; border: 0; border-radius: 8px; background: transparent; color: var(--body-text); font: inherit; font-size: 0.8125rem; cursor: pointer; }
+.discussion-action:hover:not(:disabled) { background: var(--surface-hover); color: var(--ink); }
+.discussion-action:disabled { opacity: .55; cursor: default; }
+.discussion-action.is-liked { color: #c66b60; }
+.discussion-replies { display: grid; gap: 2px; margin-top: 6px; padding-inline-start: 12px; border-inline-start: 2px solid var(--line); }
+.discussion-reply-box { margin-top: 6px; }
+.discussion-composer { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: var(--paper); }
+.discussion-composer.is-compact { padding: 10px; }
+.discussion-composer textarea { width: 100%; box-sizing: border-box; min-height: 76px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); color: var(--ink); font: inherit; font-size: 0.9375rem; resize: vertical; outline: 0; }
+.discussion-composer textarea:focus { border-color: #9bb7a5; }
+.discussion-rating-input { display: flex; align-items: center; gap: 4px; color: var(--body-text); font-size: 0.8125rem; flex-wrap: wrap; }
+.discussion-rating-input span { margin-inline-end: 6px; }
+.discussion-rating-input button { width: 26px; height: 26px; display: grid; place-items: center; border: 0; background: transparent; color: #cfd5cf; cursor: pointer; padding: 0; }
+.discussion-rating-input button.on { color: #d49b54; }
+.discussion-composer-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.discussion-composer-buttons { display: flex; gap: 8px; }
+.discussion-attach { position: relative; display: inline-flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border: 1px dashed #bfcdc2; border-radius: 9px; color: var(--green); font-size: 0.8125rem; cursor: pointer; }
+.discussion-attach input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; }
+.discussion-preview { display: flex; align-items: center; gap: 10px; }
+.discussion-preview img { width: 72px; height: 72px; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
+.discussion-preview button { display: inline-flex; align-items: center; gap: 4px; border: 0; background: transparent; color: #b86459; font: inherit; font-size: 0.8125rem; cursor: pointer; }
+.discussion-error { margin: 0; }
+.discussion-more { justify-self: center; }
+.review-type-badge { padding: 1px 8px; border-radius: 999px; color: var(--green); background: var(--green-light); font-size: 0.6875rem; font-weight: 700; }
+.review-parent-note { display: block; color: #9aa39c; font-size: 0.75rem; line-height: 1.6; }
+.review-image-link { display: inline-flex; align-items: center; gap: 4px; color: var(--green); font-size: 0.75rem; }
+.admin-review-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; }
+.admin-segment { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 11px; background: var(--surface-soft); }
+.admin-segment button { height: 32px; padding: 0 11px; border: 0; border-radius: 8px; background: transparent; color: var(--body-text); font: inherit; font-size: 0.8125rem; cursor: pointer; }
+.admin-segment button.active { background: var(--paper); color: var(--green); font-weight: 700; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.review-action.delete { color: #8d8f8a; }
+.review-action.delete:hover { background: #fff2ef; color: #b86459; border-color: #edd3ce; }

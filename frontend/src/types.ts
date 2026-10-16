@@ -66,6 +66,33 @@ export type Review = {
   created_at?: string;
 };
 
+export type DiscussionType = 'comment' | 'question';
+
+export type DiscussionItem = {
+  id: number;
+  type: DiscussionType;
+  parent_id: number | null;
+  rating: number | null;
+  body: string;
+  image_url: string | null;
+  author: string;
+  status: 'approved' | 'pending' | 'rejected';
+  is_mine: boolean;
+  is_edited: boolean;
+  likes_count: number;
+  liked_by_me: boolean;
+  created_at?: string | null;
+  edited_at?: string | null;
+  replies?: DiscussionItem[];
+};
+
+export type DiscussionPage = {
+  items: DiscussionItem[];
+  meta: { current_page: number; last_page: number; total: number };
+  can_write: boolean;
+  type: DiscussionType;
+};
+
 export type SearchSuggestions = {
   query: string;
   products: Product[];

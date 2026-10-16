@@ -104,20 +104,21 @@ class Product extends Model
         return $this->hasMany(Review::class);
     }
 
+    /** Approved top-level comments only (replies and questions are not part of the rating). */
     public function approvedReviews()
     {
-        return $this->reviews()->approved();
+        return $this->reviews()->approved()->topLevelComments();
     }
 
     
     public function getReviewsCountAttribute()
     {
-        return $this->reviews()->approved()->count();
+        return $this->approvedReviews()->count();
     }
 
     public function getAverageRatingAttribute()
     {
-        return $this->reviews()->approved()->average('rating') ?? 0;
+        return $this->approvedReviews()->whereNotNull('rating')->average('rating') ?? 0;
     }
     public function files()
     {

@@ -449,9 +449,15 @@ class AdminController extends Controller
 
     public function reviews(Request $request)
     {
-        $query = Review::query()->with(['user:id,name', 'product:id,title,slug'])->latest();
+        $query = Review::query()
+            ->with(['user:id,name', 'product:id,title,slug', 'parent:id,body,type,user_id', 'parent.user:id,name'])
+            ->withCount('replies')
+            ->latest();
         if ($request->filled('status')) {
             $query->where('status', $request->string('status'));
+        }
+        if ($request->filled('type')) {
+            $query->where('type', $request->string('type'));
         }
         $reviews = $query->paginate(20);
         return response()->json(['data' => $reviews->items(), 'meta' => $this->paginationMeta($reviews)]);
@@ -466,7 +472,12 @@ class AdminController extends Controller
 
     public function deleteReview(int $id)
     {
-        Review::query()->findOrFail($id)->delete();
+        $review = Review::query()->findOrFail($id);
+        $paths = Review::query()->where('id', $review->id)->orWhere('parent_id', $review->id)->pluck('image_path')->filter();
+        $review->delete();
+        foreach ($paths as $path) {
+            Storage::disk('public')->delete($path);
+        }
         return response()->json(['message' => 'دیدگاه حذف شد.']);
     }
 

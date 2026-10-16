@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Activity, ArrowLeft, BookOpen, Check, CircleDollarSign, CircleHelp, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Package, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, Users, X, XCircle } from 'lucide-react';
+import { Activity, ArrowLeft, BookOpen, Check, CircleDollarSign, CircleHelp, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Package, Paperclip, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, Users, X, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../StoreContext';
 import PagesEditor from '../components/PagesEditor';
@@ -15,7 +15,23 @@ type AdminStats = { products: number; users: number; orders: number; revenue: nu
 type AdminOrder = { id: number; status: string; amount?: number; final_amount?: number; customer?: string; created_at?: string };
 type AdminDashboard = { stats: AdminStats; recent_orders: AdminOrder[]; sales_last_7_days: { day: string; amount: number }[] };
 type AdminTicket = { id: number; subject: string; message: string; response?: string | null; status: 'open' | 'in_progress' | 'closed'; created_at?: string; user?: { name?: string } };
-type AdminReview = { id: number; rating: number; body: string; status: 'approved' | 'pending' | 'rejected'; created_at?: string; user?: { name?: string }; product?: { title?: string } };
+type AdminReview = {
+  id: number;
+  rating: number | null;
+  body: string;
+  status: 'approved' | 'pending' | 'rejected';
+  type?: 'comment' | 'question';
+  parent_id?: number | null;
+  parent?: { id: number; body: string; type?: 'comment' | 'question'; user?: { name?: string } } | null;
+  image_url?: string | null;
+  edited_at?: string | null;
+  replies_count?: number;
+  created_at?: string;
+  user?: { name?: string };
+  product?: { title?: string };
+};
+type ReviewFilter = 'all' | 'pending' | 'approved' | 'rejected';
+type ReviewTypeFilter = 'all' | 'comment' | 'question' | 'reply';
 type AdminFile = { id: number; name: string; type: string; size_label?: string };
 
 const emptyForm = (): ProductForm => ({ title: '', slug: '', category_id: String(demoCategories[0]?.id ?? 1), original_price: '', price: '', cover_url: '', description: '', status: 'active' });
@@ -38,6 +54,8 @@ export default function AdminPage() {
   const [fileType, setFileType] = useState('pdf');
   const [demoTicketList, setDemoTicketList] = useState<AdminTicket[]>(demoTickets);
   const [demoReviewList, setDemoReviewList] = useState<AdminReview[]>(demoReviews);
+  const [reviewFilter, setReviewFilter] = useState<ReviewFilter>('pending');
+  const [reviewTypeFilter, setReviewTypeFilter] = useState<ReviewTypeFilter>('all');
 
   const dashboardQuery = useQuery<AdminDashboard>({
     queryKey: ['admin-dashboard'],
@@ -298,6 +316,21 @@ export default function AdminPage() {
     } else updateTicket.mutate({ id: ticket.id, status });
   }
 
+  const deleteReview = useMutation({
+    mutationFn: async (id: number) => api.delete(`/admin/reviews/${id}`),
+    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['admin-reviews'] }); setNotice('دیدگاه حذف شد.'); },
+  });
+
+  function removeReview(review: AdminReview) {
+    if (!window.confirm('این مورد و پاسخ‌های آن برای همیشه حذف شود؟')) return;
+    if (demoMode) {
+      const nextReviews = demoReviewList.filter((item) => item.id !== review.id);
+      setDemoReviewList(nextReviews);
+      queryClient.setQueryData(['admin-reviews'], nextReviews);
+      setNotice('دیدگاه نمایشی حذف شد.');
+    } else deleteReview.mutate(review.id);
+  }
+
   function changeReviewStatus(review: AdminReview, status: AdminReview['status']) {
     if (demoMode) {
       const nextReviews = demoReviewList.map((item) => item.id === review.id ? { ...item, status } : item);
@@ -313,7 +346,18 @@ export default function AdminPage() {
   const stats = dashboardQuery.data?.stats ?? demoStats;
   const visibleProducts = (productsQuery.data ?? demoProductList).filter((product) => !search || product.title.toLowerCase().includes(search.toLowerCase()));
   const tickets = ticketsQuery.data ?? demoTicketList;
-  const reviews = reviewsQuery.data ?? demoReviewList;
+  const allReviews = reviewsQuery.data ?? demoReviewList;
+  const reviews = allReviews.filter((review) => {
+    if (reviewFilter !== 'all' && review.status !== reviewFilter) return false;
+    if (reviewTypeFilter === 'reply') return Boolean(review.parent_id);
+    if (reviewTypeFilter !== 'all' && (review.parent_id || (review.type ?? 'comment') !== reviewTypeFilter)) return false;
+    return true;
+  });
+  const reviewStatusCounts = {
+    pending: allReviews.filter((review) => review.status === 'pending').length,
+    approved: allReviews.filter((review) => review.status === 'approved').length,
+    rejected: allReviews.filter((review) => review.status === 'rejected').length,
+  };
   const categories = categoriesQuery.data ?? demoCategories;
   const formPending = createProduct.isPending || updateProduct.isPending;
 
@@ -348,7 +392,16 @@ export default function AdminPage() {
 
           {tab === 'tickets' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>درخواست‌های پشتیبانی</h2><p>پیگیری گفت‌وگوهای خواننده‌ها.</p></div><span className="admin-table-count">{tickets.length.toLocaleString('fa-IR')} مورد</span></div><div className="admin-ticket-list">{tickets.map((ticket) => <article key={ticket.id}><div className="admin-ticket-icon"><Ticket size={17} /></div><div className="admin-ticket-copy"><b>{ticket.subject}</b><small>{ticket.user?.name ?? 'کاربر فایل‌استور'} · {formatDate(ticket.created_at)}</small><p>{ticket.response || ticket.message}</p></div><div className="admin-ticket-actions"><span className={`ticket-status ${ticket.status}`}>{ticket.status === 'closed' ? 'بسته‌شده' : ticket.status === 'in_progress' ? 'در حال بررسی' : 'جدید'}</span><button className="admin-action-link" onClick={() => changeTicketStatus(ticket)}>{ticket.status === 'closed' ? 'بازگشایی' : 'بستن درخواست'}</button></div></article>)}</div></div>}
 
-          {tab === 'reviews' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>دیدگاه‌های خواننده‌ها</h2><p>بررسی و مدیریت دیدگاه‌های کتاب‌ها.</p></div><span className="admin-table-count">{reviews.length.toLocaleString('fa-IR')} دیدگاه</span></div><div className="admin-review-list">{reviews.map((review) => <article key={review.id}><div className="review-avatar">{review.user?.name?.slice(0, 1) ?? 'ک'}</div><div><b>{review.user?.name ?? 'کاربر فایل‌استور'} <small>برای {review.product?.title ?? 'کتاب'}</small></b><div className="review-stars">{'★'.repeat(review.rating)}<span>{formatDate(review.created_at)}</span></div><p>{review.body}</p></div><div className="admin-review-actions"><span className={`ticket-status ${review.status}`}>{review.status === 'approved' ? 'منتشرشده' : review.status === 'pending' ? 'در انتظار' : 'ردشده'}</span>{review.status !== 'approved' && <button className="review-action approve" title="تأیید و انتشار" onClick={() => changeReviewStatus(review, 'approved')}><Check size={15} /></button>}{review.status !== 'rejected' && <button className="review-action reject" title="رد دیدگاه" onClick={() => changeReviewStatus(review, 'rejected')}><XCircle size={15} /></button>}</div></article>)}</div></div>}
+          {tab === 'reviews' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>دیدگاه‌ها و پرسش و پاسخ</h2><p>هر دیدگاه، پرسش، پاسخ یا ویرایشی تا پیش از تأیید شما در فروشگاه نمایش داده نمی‌شود.</p></div><span className="admin-table-count">{reviews.length.toLocaleString('fa-IR')} مورد</span></div>
+            <div className="admin-review-filters">
+              <div className="admin-segment">
+                {([['pending', `در انتظار (${reviewStatusCounts.pending.toLocaleString('fa-IR')})`], ['approved', `منتشرشده (${reviewStatusCounts.approved.toLocaleString('fa-IR')})`], ['rejected', `ردشده (${reviewStatusCounts.rejected.toLocaleString('fa-IR')})`], ['all', 'همه']] as [ReviewFilter, string][]).map(([value, label]) => <button key={value} className={reviewFilter === value ? 'active' : ''} onClick={() => setReviewFilter(value)}>{label}</button>)}
+              </div>
+              <div className="admin-segment">
+                {([['all', 'همه‌ی انواع'], ['comment', 'دیدگاه'], ['question', 'پرسش'], ['reply', 'پاسخ‌ها']] as [ReviewTypeFilter, string][]).map(([value, label]) => <button key={value} className={reviewTypeFilter === value ? 'active' : ''} onClick={() => setReviewTypeFilter(value)}>{label}</button>)}
+              </div>
+            </div>
+            <div className="admin-review-list">{reviews.length ? reviews.map((review) => <article key={review.id}><div className="review-avatar">{review.user?.name?.slice(0, 1) ?? 'ک'}</div><div><b>{review.user?.name ?? 'کاربر فایل‌استور'} <small>برای {review.product?.title ?? 'کتاب'}</small></b><div className="review-stars"><span className="review-type-badge">{review.parent_id ? 'پاسخ' : review.type === 'question' ? 'پرسش' : 'دیدگاه'}</span>{review.rating ? '★'.repeat(review.rating) : null}<span>{formatDate(review.created_at)}{review.edited_at ? ' · ویرایش‌شده' : ''}{review.replies_count ? ` · ${review.replies_count.toLocaleString('fa-IR')} پاسخ` : ''}</span></div>{review.parent && <small className="review-parent-note">در پاسخ به {review.parent.user?.name ?? 'کاربر'}: «{review.parent.body.slice(0, 80)}{review.parent.body.length > 80 ? '…' : ''}»</small>}<p>{review.body}</p>{review.image_url && <a className="review-image-link" href={review.image_url} target="_blank" rel="noreferrer"><Paperclip size={13} /> مشاهده‌ی تصویر پیوست</a>}</div><div className="admin-review-actions"><span className={`ticket-status ${review.status}`}>{review.status === 'approved' ? 'منتشرشده' : review.status === 'pending' ? 'در انتظار' : 'ردشده'}</span>{review.status !== 'approved' && <button className="review-action approve" title="تأیید و انتشار" onClick={() => changeReviewStatus(review, 'approved')}><Check size={15} /></button>}{review.status !== 'rejected' && <button className="review-action reject" title="رد" onClick={() => changeReviewStatus(review, 'rejected')}><XCircle size={15} /></button>}<button className="review-action delete" title="حذف" onClick={() => removeReview(review)}><Trash2 size={15} /></button></div></article>) : <p className="admin-file-empty">موردی با این فیلتر پیدا نشد.</p>}</div></div>}
         </div>
       </div>
 
@@ -379,6 +432,6 @@ const demoTickets: AdminTicket[] = [
 ];
 
 const demoReviews: AdminReview[] = [
-  { id: 1, rating: 5, body: 'برای شروع کار با لینوکس خیلی روان و مفید بود.', status: 'pending', created_at: new Date().toISOString(), user: { name: 'مینا سلیمانی' }, product: { title: demoProducts[0].title } },
-  { id: 2, rating: 4, body: 'مرجع کاربردی و خوش‌ساختی است.', status: 'approved', created_at: new Date(Date.now() - 86400000 * 2).toISOString(), user: { name: 'امیرحسین کاظمی' }, product: { title: demoProducts[1].title } },
+  { id: 1, rating: 5, type: 'comment', body: 'برای شروع کار با لینوکس خیلی روان و مفید بود.', status: 'pending', created_at: new Date().toISOString(), user: { name: 'مینا سلیمانی' }, product: { title: demoProducts[0].title } },
+  { id: 2, rating: 4, type: 'question', body: 'آیا این نسخه روی تبلت هم خوانا است؟', status: 'pending', created_at: new Date(Date.now() - 86400000 * 2).toISOString(), user: { name: 'امیرحسین کاظمی' }, product: { title: demoProducts[1].title } },
 ];
