@@ -28,7 +28,9 @@ export default function MainNav({ menuOpen, onNavigate }: { menuOpen: boolean; o
   const items = categories.slice(0, 6);
 
   return (
-    <nav className={`main-nav ${menuOpen ? 'is-open' : ''}`} onMouseLeave={() => setPanelOpen(false)} aria-label="ناوبری اصلی">
+    <nav className={`main-nav ${menuOpen ? 'is-open' : ''}`} onMouseLeave={() => setPanelOpen(false)} aria-label="ناوبری اصلی" style={{
+      borderRadius : '17px'
+    }}>
       <div className="nav-links">
         <NavLink to="/" end className="nav-link" onClick={onNavigate}>خانه</NavLink>
         <NavLink to="/catalog" className="nav-link" onClick={onNavigate}>کتاب‌ها</NavLink>

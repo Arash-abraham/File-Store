@@ -35,9 +35,9 @@ function Header() {
           <Brand />
           <MainNav menuOpen={menuOpen} onNavigate={() => setMenuOpen(false)} />
           <SearchBox variant="header" onNavigate={() => setMenuOpen(false)} />
-          <Link to="/catalog?advanced=1" className="header-tool" title="جست‌وجوی پیشرفته" aria-label="جست‌وجوی پیشرفته" onClick={() => setMenuOpen(false)}>
+          {/* <Link to="/catalog?advanced=1" className="header-tool" title="جست‌وجوی پیشرفته" aria-label="جست‌وجوی پیشرفته" onClick={() => setMenuOpen(false)}>
             <SlidersHorizontal size={19} />
-          </Link>
+          </Link> */}
           <div className="header-actions">
             <button
               type="button"
