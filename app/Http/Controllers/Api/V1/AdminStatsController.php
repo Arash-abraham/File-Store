@@ -113,6 +113,7 @@ class AdminStatsController extends Controller
                     'reports_total' => DB::table('review_reports')->count(),
                     'average_rating' => round((float) Review::query()->approved()->topLevelComments()->whereNotNull('rating')->avg('rating'), 1),
                     'by_status' => $this->statusMap($reviewsByStatus, ['approved', 'pending', 'rejected']),
+                    'by_type_status' => $this->typeStatusMatrix(),
                 ],
                 'support' => [
                     'open' => (int) ($ticketsByStatus['open'] ?? 0),
@@ -253,6 +254,29 @@ class AdminStatsController extends Controller
             ->map(fn ($row) => ['name' => $row->name, 'revenue' => (int) $row->revenue])
             ->values()
             ->all();
+    }
+
+    /** Counts per content type (comment, question, reply) and moderation status. */
+    private function typeStatusMatrix(): array
+    {
+        $rows = Review::query()
+            ->selectRaw("CASE WHEN parent_id IS NOT NULL THEN 'reply' ELSE type END as kind, status, COUNT(*) as total")
+            ->groupBy('kind', 'status')
+            ->get();
+
+        $matrix = [];
+        foreach (['comment' => 'دیدگاه', 'question' => 'پرسش', 'reply' => 'پاسخ'] as $kind => $label) {
+            $matrix[] = ['type' => $kind, 'label' => $label, 'approved' => 0, 'pending' => 0, 'rejected' => 0];
+        }
+        foreach ($rows as $row) {
+            foreach ($matrix as $index => $entry) {
+                if ($entry['type'] === $row->kind) {
+                    $matrix[$index][$row->status] = (int) $row->total;
+                }
+            }
+        }
+
+        return $matrix;
     }
 
     /** Ensures every expected status appears in the output, even with a zero count. */

@@ -126,7 +126,7 @@ export default function AdminPage() {
   });
   const updateReview = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: AdminReview['status'] }) => api.put(`/admin/reviews/${id}`, { status }),
-    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['admin-reviews'] }); setNotice('وضعیت دیدگاه به‌روز شد.'); },
+    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['admin-reviews'] }); await queryClient.invalidateQueries({ queryKey: ['admin-dashboard'] }); setNotice('وضعیت دیدگاه به‌روز شد.'); },
     onError: (error) => setNotice(apiErrorMessage(error, 'به‌روزرسانی دیدگاه انجام نشد.')),
   });
   const uploadProductFile = useMutation({
@@ -375,7 +375,7 @@ export default function AdminPage() {
         </aside>
 
         <div className="admin-content">
-          {tab === 'overview' && <AdminOverview data={dashboardQuery.data ?? (demoMode ? demoDashboard() : undefined)} loading={dashboardQuery.isLoading} userName={user.name} onNavigate={(next: AdminTabKey) => setTab(next)} onNewProduct={openNewProductForm} />}
+          {tab === 'overview' && <AdminOverview data={dashboardQuery.data ?? (demoMode ? demoDashboard() : undefined)} loading={dashboardQuery.isLoading} userName={user.name} onNavigate={(next: AdminTabKey) => setTab(next)} onNewProduct={openNewProductForm} onModerate={(id, status) => { if (demoMode) setNotice('تغییر وضعیت در حالت نمایشی ذخیره نمی‌شود.'); else updateReview.mutate({ id, status }); }} />}
 
           {tab === 'products' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>کتاب‌های فروشگاه</h2><p>فهرست، وضعیت و اطلاعات عنوان‌های منتشرشده.</p></div><button className="button button-primary button-small" onClick={openNewProductForm}><Plus size={16} /> افزودن کتاب</button></div><div className="admin-list-toolbar"><label><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="جست‌وجوی کتاب…" /></label><span>{visibleProducts.length.toLocaleString('fa-IR')} عنوان</span></div><div className="admin-product-table"><div className="admin-table-head"><span>کتاب</span><span>دسته‌بندی</span><span>قیمت</span><span>وضعیت</span><span>عملیات</span></div>{visibleProducts.map((product) => <div className="admin-product-row" key={product.id}><div className="admin-product-cell"><span className="admin-product-cover">{product.cover_url ? <img src={product.cover_url} alt="" /> : <BookOpen size={17} />}</span><span><b>{product.title}</b><small>/{product.slug}</small></span></div><span>{product.category?.name ?? '—'}</span><b>{formatPrice(product.price)}</b><span className={`published-status ${product.status === 'active' ? '' : 'inactive'}`}><i /> {product.status === 'draft' ? 'پیش‌نویس' : product.status === 'inactive' ? 'غیرفعال' : 'منتشر'}</span><span className="admin-row-actions"><button className="row-icon-button" title="ویرایش کتاب" onClick={() => openEditProductForm(product)}><Pencil size={15} /></button><button className="row-icon-button delete" title="حذف کتاب" onClick={() => removeProduct(product)}><Trash2 size={15} /></button></span></div>)}</div></div>}
 
