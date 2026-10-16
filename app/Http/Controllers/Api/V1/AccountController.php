@@ -10,6 +10,7 @@ use App\Models\PrintOrder;
 use App\Models\Ticket;
 use App\Models\Wallet;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -168,12 +169,75 @@ class AccountController extends Controller
 
     public function tickets(Request $request)
     {
-        $tickets = Ticket::query()->where('user_id', $request->user()->id)->latest()->paginate(10);
+        $tickets = Ticket::query()
+            ->where('user_id', $request->user()->id)
+            ->withCount('messages')
+            ->latest('updated_at')
+            ->paginate(20);
 
         return response()->json([
-            'data' => $tickets->items(),
+            'data' => $tickets->getCollection()->map(fn (Ticket $ticket) => $ticket->present())->values(),
             'meta' => ['current_page' => $tickets->currentPage(), 'last_page' => $tickets->lastPage(), 'total' => $tickets->total()],
         ]);
+    }
+
+    public function createTicket(Request $request)
+    {
+        $data = $request->validate([
+            'subject' => ['required', 'string', 'max:200'],
+            'message' => ['required', 'string', 'min:10', 'max:10000'],
+        ]);
+
+        $ticket = DB::transaction(function () use ($request, $data) {
+            $ticket = Ticket::query()->create([
+                'user_id' => $request->user()->id,
+                'subject' => $data['subject'],
+                'message' => $data['message'],
+                'status' => 'open',
+            ]);
+            $ticket->messages()->create([
+                'user_id' => $request->user()->id,
+                'is_staff' => false,
+                'body' => $data['message'],
+            ]);
+
+            return $ticket;
+        });
+
+        $ticket->load('messages.user:id,name');
+
+        return response()->json(['message' => 'درخواست شما ثبت شد.', 'data' => $ticket->present()], 201);
+    }
+
+    public function showTicket(Request $request, Ticket $ticket)
+    {
+        abort_unless($ticket->user_id === $request->user()->id, 404);
+        $ticket->load('messages.user:id,name');
+
+        return response()->json(['data' => $ticket->present()]);
+    }
+
+    public function replyTicket(Request $request, Ticket $ticket)
+    {
+        abort_unless($ticket->user_id === $request->user()->id, 404);
+        $data = $request->validate(['body' => ['required', 'string', 'min:2', 'max:5000']]);
+
+        DB::transaction(function () use ($request, $ticket, $data) {
+            $ticket->messages()->create([
+                'user_id' => $request->user()->id,
+                'is_staff' => false,
+                'body' => $data['body'],
+            ]);
+            // A customer writing again on a closed ticket re-opens it for support.
+            $ticket->forceFill([
+                'status' => $ticket->status === 'closed' ? 'open' : $ticket->status,
+                'updated_at' => now(),
+            ])->save();
+        });
+
+        $ticket->load('messages.user:id,name');
+
+        return response()->json(['message' => 'پیام شما ارسال شد.', 'data' => $ticket->present()], 201);
     }
 
     public function createTicket(Request $request)

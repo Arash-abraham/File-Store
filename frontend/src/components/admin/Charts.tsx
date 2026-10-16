@@ -15,7 +15,6 @@ import {
   type ChartConfiguration,
   type ChartOptions,
   type ScriptableContext,
-  type TooltipItem,
 } from 'chart.js';
 
 Chart.register(ArcElement, BarController, BarElement, CategoryScale, DoughnutController, Filler, LineController, LineElement, LinearScale, PointElement, Tooltip);
@@ -24,7 +23,7 @@ Chart.defaults.font.family = "'Vazirmatn', Tahoma, sans-serif";
 Chart.defaults.color = '#7b867f';
 Chart.defaults.borderColor = '#eef1ec';
 
-export const CHART_COLORS = ['#215446', '#e97b51', '#4a7fb5', '#d49b54', '#7a6bb5', '#3f9d8f', '#c66b60', '#9bb7a5'];
+export const CHART_COLORS = ['#215446', '#e97b51', '#4a7fb5', '#d49b54'];
 
 const toFa = (value: number) => value.toLocaleString('fa-IR');
 
@@ -94,34 +93,6 @@ export function AreaChart({ labels, values, color = '#215446', height = 260, for
   return <div className="ch-box" style={{ height }}><canvas ref={ref} /></div>;
 }
 
-/** Tiny line without axes, used inside KPI cards. */
-export function Sparkline({ values, color }: { values: number[]; color: string }) {
-  const key = JSON.stringify({ values, color });
-  const ref = useChart(() => ({
-    type: 'line',
-    data: {
-      labels: values.map((_, index) => String(index)),
-      datasets: [{
-        data: values,
-        borderColor: color,
-        backgroundColor: (context: ScriptableContext<'line'>) => gradientFor(context, color),
-        fill: true,
-        tension: 0.4,
-        borderWidth: 2,
-        pointRadius: 0,
-      }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      animation: { duration: 500 },
-      plugins: { legend: { display: false }, tooltip: { enabled: false } },
-      scales: { x: { display: false }, y: { display: false, beginAtZero: true } },
-    },
-  }), key);
-  return <div className="ch-spark"><canvas ref={ref} /></div>;
-}
-
 /* ----------------------------------------------------------------- bars */
 
 export function BarsChart({ labels, datasets, horizontal = false, height = 260, stacked = false, format = toFa }: {
@@ -154,45 +125,6 @@ export function BarsChart({ labels, datasets, horizontal = false, height = 260, 
         y: { stacked, beginAtZero: true, grid: { color: '#f2f4f0' }, ticks: { callback: (value) => (horizontal ? undefined : format(Number(value))) } },
       },
     } as ChartOptions<'bar'>,
-  }), key);
-  return <div className="ch-box" style={{ height }}><canvas ref={ref} /></div>;
-}
-
-/* ------------------------------------------------------------- doughnut */
-
-export function DoughnutChart({ labels, values, colors = CHART_COLORS, cutout = '72%', height = 220, format = toFa }: {
-  labels: string[];
-  values: number[];
-  colors?: string[];
-  cutout?: string;
-  height?: number;
-  format?: (value: number) => string;
-}) {
-  const key = JSON.stringify({ labels, values, colors, cutout });
-  const ref = useChart(() => ({
-    type: 'doughnut',
-    data: {
-      labels,
-      datasets: [{ data: values, backgroundColor: colors, borderColor: '#ffffff', borderWidth: 3, hoverOffset: 6 }],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout,
-      animation: { duration: 600 },
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          ...tooltipStyle,
-          callbacks: {
-            label: (item: TooltipItem<'doughnut'>) => {
-              const total = values.reduce((sum, value) => sum + value, 0) || 1;
-              return ` ${item.label}: ${format(Number(item.raw))} (${Math.round((Number(item.raw) / total) * 100).toLocaleString('fa-IR')}٪)`;
-            },
-          },
-        },
-      },
-    },
   }), key);
   return <div className="ch-box" style={{ height }}><canvas ref={ref} /></div>;
 }

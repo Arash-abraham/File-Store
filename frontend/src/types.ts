@@ -239,3 +239,43 @@ export type Library = {
   products: LibraryBook[];
   stats: { owned_books: number; print_orders: number };
 };
+
+export type SupportTicketStatus = 'open' | 'in_progress' | 'closed';
+
+export type TicketMessage = {
+  id: number;
+  body: string;
+  is_staff: boolean;
+  author: string;
+  created_at?: string | null;
+};
+
+export type SupportTicket = {
+  id: number;
+  subject: string;
+  status: SupportTicketStatus;
+  created_at?: string | null;
+  updated_at?: string | null;
+  user?: { id?: number; name?: string; email?: string } | null;
+  messages_count?: number | null;
+  messages?: TicketMessage[];
+};
+
+export type AdminUser = {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string | null;
+  role: string;
+  verified: boolean;
+  created_at?: string | null;
+  paid_orders_count: number;
+  tickets_count: number;
+};
+
+export type AdminUserDetail = {
+  user: AdminUser;
+  total_spent: number;
+  orders: { id: number; status: string; amount: number; created_at?: string | null }[];
+  tickets: SupportTicket[];
+};

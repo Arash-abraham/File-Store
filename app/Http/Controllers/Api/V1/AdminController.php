@@ -426,12 +426,122 @@ class AdminController extends Controller
         return response()->json(['message' => 'پیوند منو حذف شد.']);
     }
 
-    public function tickets()
+    public function tickets(Request $request)
     {
-        $tickets = Ticket::query()->with('user:id,name,email')->latest()->paginate(20);
-        return response()->json(['data' => $tickets->items(), 'meta' => $this->paginationMeta($tickets)]);
+        $query = Ticket::query()->with('user:id,name,email')->withCount('messages')->latest('updated_at');
+        if ($request->filled('status')) {
+            $query->where('status', $request->string('status'));
+        }
+        if ($request->filled('search')) {
+            $term = '%'.$request->string('search').'%';
+            $query->where(function ($q) use ($term) {
+                $q->where('subject', 'like', $term)
+                    ->orWhereHas('user', fn ($u) => $u->where('name', 'like', $term)->orWhere('email', 'like', $term));
+            });
+        }
+        $tickets = $query->paginate(30);
+
+        return response()->json([
+            'data' => $tickets->getCollection()->map(fn (Ticket $ticket) => $ticket->present())->values(),
+            'meta' => $this->paginationMeta($tickets),
+        ]);
     }
 
+    public function showTicket(int $id)
+    {
+        $ticket = Ticket::query()->with(['user:id,name,email', 'messages.user:id,name'])->findOrFail($id);
+
+        return response()->json(['data' => $ticket->present()]);
+    }
+
+    public function replyTicket(Request $request, int $id)
+    {
+        $ticket = Ticket::query()->findOrFail($id);
+        $data = $request->validate([
+            'body' => ['required', 'string', 'min:2', 'max:5000'],
+            'status' => ['nullable', Rule::in(['open', 'in_progress', 'closed'])],
+        ]);
+
+        DB::transaction(function () use ($request, $ticket, $data) {
+            $ticket->messages()->create([
+                'user_id' => $request->user()->id,
+                'is_staff' => true,
+                'body' => $data['body'],
+            ]);
+            $ticket->forceFill([
+                'status' => $data['status'] ?? ($ticket->status === 'open' ? 'in_progress' : $ticket->status),
+                'response' => $data['body'],
+                'response_time' => now(),
+                'updated_at' => now(),
+            ])->save();
+        });
+
+        $ticket->load(['user:id,name,email', 'messages.user:id,name']);
+
+        return response()->json(['message' => 'پاسخ ارسال شد.', 'data' => $ticket->present()], 201);
+    }
+
+    public function users(Request $request)
+    {
+        $query = User::query()
+            ->withCount(['tickets', 'orders as paid_orders_count' => fn ($q) => $q->where('status', 'paid')])
+            ->latest('id');
+        if ($request->filled('search')) {
+            $term = '%'.$request->string('search').'%';
+            $query->where(fn ($q) => $q->where('name', 'like', $term)->orWhere('email', 'like', $term)->orWhere('phone', 'like', $term));
+        }
+        if ($request->filled('role')) {
+            $query->where('role', $request->string('role'));
+        }
+        $users = $query->paginate(20);
+
+        return response()->json([
+            'data' => $users->getCollection()->map(fn (User $user) => $this->userRow($user))->values(),
+            'meta' => $this->paginationMeta($users),
+        ]);
+    }
+
+    public function showUser(int $id)
+    {
+        $user = User::query()
+            ->withCount(['tickets', 'orders as paid_orders_count' => fn ($q) => $q->where('status', 'paid')])
+            ->findOrFail($id);
+
+        $orders = Order::query()->where('user_id', $user->id)->latest('id')->limit(10)->get()->map(fn (Order $order) => [
+            'id' => $order->id,
+            'status' => $order->status,
+            'amount' => (int) $order->total_amount - (int) $order->discount_amount,
+            'created_at' => $order->created_at?->toISOString(),
+        ]);
+
+        $tickets = Ticket::query()->where('user_id', $user->id)->withCount('messages')->latest('updated_at')->limit(10)->get()
+            ->map(fn (Ticket $ticket) => $ticket->present());
+
+        $spent = (int) Order::query()->where('user_id', $user->id)->where('status', 'paid')
+            ->selectRaw('COALESCE(SUM(total_amount - discount_amount), 0) as spent')->value('spent');
+
+        return response()->json(['data' => [
+            'user' => $this->userRow($user),
+            'total_spent' => $spent,
+            'orders' => $orders,
+            'tickets' => $tickets,
+        ]]);
+    }
+
+    private function userRow(User $user): array
+    {
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'role' => $user->role,
+            'verified' => $user->email_verified_at !== null,
+            'created_at' => $user->created_at?->toISOString(),
+            'paid_orders_count' => (int) ($user->paid_orders_count ?? 0),
+            'tickets_count' => (int) ($user->tickets_count ?? 0),
+        ];
+    }
     public function updateTicket(Request $request, int $id)
     {
         $ticket = Ticket::query()->findOrFail($id);

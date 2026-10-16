@@ -1,18 +1,19 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Activity, ArrowLeft, BookOpen, Check, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Paperclip, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, X, XCircle } from 'lucide-react';
+import { Activity, ArrowLeft, BookOpen, Check, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Paperclip, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, Users, X, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../StoreContext';
 import PagesEditor from '../components/PagesEditor';
 import { demoCategories, demoProducts } from '../data/demo';
 import AdminOverview, { demoDashboard, type AdminDashboard, type AdminTabKey } from '../components/admin/AdminOverview';
+import AdminTickets from '../components/admin/AdminTickets';
+import AdminUsers from '../components/admin/AdminUsers';
 import { api, apiErrorMessage, demoMode } from '../lib/api';
 import { formatDate, formatPrice } from '../lib/format';
 import type { Category, Product } from '../types';
 
-type AdminTab = 'overview' | 'products' | 'pages' | 'tickets' | 'reviews';
+type AdminTab = AdminTabKey;
 type ProductForm = { title: string; slug: string; category_id: string; original_price: string; price: string; cover_url: string; description: string; status: 'active' | 'inactive' | 'draft' };
-type AdminTicket = { id: number; subject: string; message: string; response?: string | null; status: 'open' | 'in_progress' | 'closed'; created_at?: string; user?: { name?: string } };
 type AdminReview = {
   id: number;
   rating: number | null;
@@ -49,7 +50,7 @@ export default function AdminPage() {
   const [fileInputKey, setFileInputKey] = useState(0);
   const [fileDisplayName, setFileDisplayName] = useState('');
   const [fileType, setFileType] = useState('pdf');
-  const [demoTicketList, setDemoTicketList] = useState<AdminTicket[]>(demoTickets);
+  const [ticketSeed, setTicketSeed] = useState('');
   const [demoReviewList, setDemoReviewList] = useState<AdminReview[]>(demoReviews);
   const [reviewFilter, setReviewFilter] = useState<ReviewFilter>('pending');
   const [reviewTypeFilter, setReviewTypeFilter] = useState<ReviewTypeFilter>('all');
@@ -80,11 +81,6 @@ export default function AdminPage() {
         ? demoFilesByProduct[productId] ?? []
         : (await api.get(`/admin/products/${productId}/files`)).data.data as AdminFile[];
     },
-  });
-  const ticketsQuery = useQuery<AdminTicket[]>({
-    queryKey: ['admin-tickets'], 
-    enabled: user?.role === 'admin' && tab === 'tickets',
-    queryFn: async () => demoMode ? demoTicketList : (await api.get('/admin/tickets')).data.data as AdminTicket[],
   });
   const reviewsQuery = useQuery<AdminReview[]>({
     queryKey: ['admin-reviews'],
@@ -118,11 +114,6 @@ export default function AdminPage() {
     mutationFn: async (id: number) => api.delete(`/admin/products/${id}`),
     onSuccess: async () => { await invalidateProducts(); setNotice('کتاب از فروشگاه حذف شد.'); },
     onError: (error) => setNotice(apiErrorMessage(error, 'حذف کتاب انجام نشد.')),
-  });
-  const updateTicket = useMutation({
-    mutationFn: async ({ id, status }: { id: number; status: AdminTicket['status'] }) => api.put(`/admin/tickets/${id}`, { status }),
-    onSuccess: async () => { await queryClient.invalidateQueries({ queryKey: ['admin-tickets'] }); setNotice('وضعیت درخواست به‌روز شد.'); },
-    onError: (error) => setNotice(apiErrorMessage(error, 'به‌روزرسانی درخواست انجام نشد.')),
   });
   const updateReview = useMutation({
     mutationFn: async ({ id, status }: { id: number; status: AdminReview['status'] }) => api.put(`/admin/reviews/${id}`, { status }),
@@ -302,15 +293,6 @@ export default function AdminPage() {
     }
   }
 
-  function changeTicketStatus(ticket: AdminTicket) {
-    const status: AdminTicket['status'] = ticket.status === 'closed' ? 'open' : 'closed';
-    if (demoMode) {
-      const nextTickets = demoTicketList.map((item) => item.id === ticket.id ? { ...item, status } : item);
-      setDemoTicketList(nextTickets);
-      queryClient.setQueryData(['admin-tickets'], nextTickets);
-      setNotice('وضعیت درخواست نمایشی به‌روز شد.');
-    } else updateTicket.mutate({ id: ticket.id, status });
-  }
 
   const deleteReview = useMutation({
     mutationFn: async (id: number) => api.delete(`/admin/reviews/${id}`),
@@ -341,7 +323,6 @@ export default function AdminPage() {
 
   const stats = dashboardQuery.data?.stats ?? demoDashboard().stats;
   const visibleProducts = (productsQuery.data ?? demoProductList).filter((product) => !search || product.title.toLowerCase().includes(search.toLowerCase()));
-  const tickets = ticketsQuery.data ?? demoTicketList;
   const allReviews = reviewsQuery.data ?? demoReviewList;
   const reviews = allReviews.filter((review) => {
     if (reviewFilter !== 'all' && review.status !== reviewFilter) return false;
@@ -365,6 +346,7 @@ export default function AdminPage() {
         <aside className="admin-sidebar">
           <div className="admin-sidebar-label">فضای کاری</div>
           <button onClick={() => setTab('overview')} className={tab === 'overview' ? 'active' : ''}><LayoutDashboard size={17} /> نمای کلی</button>
+          <button onClick={() => setTab('users')} className={tab === 'users' ? 'active' : ''}><Users size={17} /> کاربران <span>{stats.users.toLocaleString('fa-IR')}</span></button>
           <button onClick={() => setTab('products')} className={tab === 'products' ? 'active' : ''}><BookOpen size={17} /> کتاب‌ها <span>{stats.products.toLocaleString('fa-IR')}</span></button>
           <button onClick={() => setTab('tickets')} className={tab === 'tickets' ? 'active' : ''}><Ticket size={17} /> پشتیبانی <span className="sidebar-count">{stats.open_tickets.toLocaleString('fa-IR')}</span></button>
           <button onClick={() => setTab('pages')} className={tab === 'pages' ? 'active' : ''}><FileText size={17} /> صفحه‌های ثابت</button>
@@ -375,13 +357,15 @@ export default function AdminPage() {
         </aside>
 
         <div className="admin-content">
-          {tab === 'overview' && <AdminOverview data={dashboardQuery.data ?? (demoMode ? demoDashboard() : undefined)} loading={dashboardQuery.isLoading} userName={user.name} onNavigate={(next: AdminTabKey) => setTab(next)} onNewProduct={openNewProductForm} onModerate={(id, status) => { if (demoMode) setNotice('تغییر وضعیت در حالت نمایشی ذخیره نمی‌شود.'); else updateReview.mutate({ id, status }); }} />}
+          {tab === 'overview' && <AdminOverview data={dashboardQuery.data ?? (demoMode ? demoDashboard() : undefined)} loading={dashboardQuery.isLoading} userName={user.name} onNavigate={(next: AdminTabKey) => setTab(next)} />}
 
           {tab === 'products' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>کتاب‌های فروشگاه</h2><p>فهرست، وضعیت و اطلاعات عنوان‌های منتشرشده.</p></div><button className="button button-primary button-small" onClick={openNewProductForm}><Plus size={16} /> افزودن کتاب</button></div><div className="admin-list-toolbar"><label><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="جست‌وجوی کتاب…" /></label><span>{visibleProducts.length.toLocaleString('fa-IR')} عنوان</span></div><div className="admin-product-table"><div className="admin-table-head"><span>کتاب</span><span>دسته‌بندی</span><span>قیمت</span><span>وضعیت</span><span>عملیات</span></div>{visibleProducts.map((product) => <div className="admin-product-row" key={product.id}><div className="admin-product-cell"><span className="admin-product-cover">{product.cover_url ? <img src={product.cover_url} alt="" /> : <BookOpen size={17} />}</span><span><b>{product.title}</b><small>/{product.slug}</small></span></div><span>{product.category?.name ?? '—'}</span><b>{formatPrice(product.price)}</b><span className={`published-status ${product.status === 'active' ? '' : 'inactive'}`}><i /> {product.status === 'draft' ? 'پیش‌نویس' : product.status === 'inactive' ? 'غیرفعال' : 'منتشر'}</span><span className="admin-row-actions"><button className="row-icon-button" title="ویرایش کتاب" onClick={() => openEditProductForm(product)}><Pencil size={15} /></button><button className="row-icon-button delete" title="حذف کتاب" onClick={() => removeProduct(product)}><Trash2 size={15} /></button></span></div>)}</div></div>}
 
           {tab === 'pages' && <PagesEditor onNotice={setNotice} />}
 
-          {tab === 'tickets' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>درخواست‌های پشتیبانی</h2><p>پیگیری گفت‌وگوهای خواننده‌ها.</p></div><span className="admin-table-count">{tickets.length.toLocaleString('fa-IR')} مورد</span></div><div className="admin-ticket-list">{tickets.map((ticket) => <article key={ticket.id}><div className="admin-ticket-icon"><Ticket size={17} /></div><div className="admin-ticket-copy"><b>{ticket.subject}</b><small>{ticket.user?.name ?? 'کاربر فایل‌استور'} · {formatDate(ticket.created_at)}</small><p>{ticket.response || ticket.message}</p></div><div className="admin-ticket-actions"><span className={`ticket-status ${ticket.status}`}>{ticket.status === 'closed' ? 'بسته‌شده' : ticket.status === 'in_progress' ? 'در حال بررسی' : 'جدید'}</span><button className="admin-action-link" onClick={() => changeTicketStatus(ticket)}>{ticket.status === 'closed' ? 'بازگشایی' : 'بستن درخواست'}</button></div></article>)}</div></div>}
+          {tab === 'tickets' && <AdminTickets initialSearch={ticketSeed} key={ticketSeed} />}
+
+          {tab === 'users' && <AdminUsers onOpenTickets={(email) => { setTicketSeed(email); setTab('tickets'); }} />}
 
           {tab === 'reviews' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>دیدگاه‌ها و پرسش و پاسخ</h2><p>هر دیدگاه، پرسش، پاسخ یا ویرایشی تا پیش از تأیید شما در فروشگاه نمایش داده نمی‌شود.</p></div><span className="admin-table-count">{reviews.length.toLocaleString('fa-IR')} مورد</span></div>
             <div className="admin-review-filters">
@@ -407,10 +391,6 @@ function formatFileSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-const demoTickets: AdminTicket[] = [
-  { id: 1, subject: 'لینک کتاب دانلود نمی‌شود', message: 'در دریافت کتابم مشکل دارم و پیام خطا می‌بینم.', status: 'open', created_at: new Date().toISOString(), user: { name: 'سارا بهرامی' } },
-  { id: 2, subject: 'سؤال درباره‌ی فرمت فایل', message: 'آیا نسخه‌ی کتاب روی تبلت هم خواناست؟', status: 'in_progress', created_at: new Date(Date.now() - 86400000).toISOString(), user: { name: 'پویا احمدی' } },
-];
 
 const demoReviews: AdminReview[] = [
   { id: 1, rating: 5, type: 'comment', body: 'برای شروع کار با لینوکس خیلی روان و مفید بود.', status: 'pending', created_at: new Date().toISOString(), user: { name: 'مینا سلیمانی' }, product: { title: demoProducts[0].title } },
