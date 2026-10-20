@@ -10,6 +10,7 @@ class AdminMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
+        // ????
         $user = $request->user();
 
         if (!$user) {
