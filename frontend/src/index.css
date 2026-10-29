@@ -2101,3 +2101,53 @@ main { flex: 1; }
 :root[data-theme="dark"] .adm-task-icon.review { background: #403824; }
 :root[data-theme="dark"] .adm-task-icon.print-order { background: #29384a; }
 :root[data-theme="dark"] .adm-task-icon.contract { background: #382d43; }
+
+/* Reader-friendly product preview, saved books and price-drop notices */
+.sample-preview-trigger { width: 100%; display: flex; align-items: center; gap: 11px; margin: 16px 0 8px; padding: 11px 13px; border: 1px solid #dce9dc; border-radius: 12px; color: #40584a; background: linear-gradient(110deg,#f4f8f1,#fbfaf4); text-align: start; cursor: pointer; }
+.sample-preview-trigger > span:nth-child(2) { display: grid; gap: 2px; flex: 1; }
+.sample-preview-trigger b { font-size: .82rem; }
+.sample-preview-trigger small { color: #8b988e; font-size: .7rem; }
+.sample-preview-icon { width: 35px; height: 35px; display: grid; place-items: center; border-radius: 10px; color: #5a8466; background: #e5f0e5; }
+.sample-preview-trigger:hover { border-color: #b6cfb8; transform: translateY(-1px); }
+.sample-preview-backdrop { position: fixed; z-index: 130; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(21,31,25,.66); backdrop-filter: blur(5px); }
+.sample-preview-dialog { width: min(900px,100%); height: min(850px,92vh); display: grid; grid-template-rows: auto minmax(0,1fr); overflow: hidden; border: 1px solid rgba(255,255,255,.5); border-radius: 18px; background: var(--paper); box-shadow: 0 25px 80px rgba(0,0,0,.25); }
+.sample-preview-dialog > header { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 17px 20px; border-bottom: 1px solid var(--line); }
+.sample-preview-dialog h2 { margin: 4px 0 0; color: var(--ink); font-size: 1.05rem; }
+.sample-preview-dialog iframe { width: 100%; height: 100%; border: 0; background: #eff1ed; }
+.sample-preview-demo { align-content: center; justify-items: center; gap: 16px; overflow: auto; padding: 36px; color: var(--ink); background: radial-gradient(ellipse at top,#eff6ed,#f9f7ef 70%); text-align: center; }
+.sample-preview-demo h3 { max-width: 600px; margin: 0; font-family: var(--font-display,inherit); font-size: clamp(1.8rem,5vw,3.2rem); }
+.sample-preview-demo p { max-width: 620px; color: #6e7c72; line-height: 2; }
+.sample-preview-demo > small { color: #8a968e; font-size: .72rem; }
+.account-favorites-panel { overflow: visible; }
+.account-favorites-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 14px; }
+.account-favorite-card { min-width: 0; position: relative; padding-top: 38px; }
+.account-favorite-card .product-card { height: 100%; }
+.price-drop-alert { position: absolute; z-index: 2; top: 0; inset-inline: 0; min-height: 34px; display: flex; align-items: center; justify-content: space-between; gap: 7px; padding: 6px 9px; border: 1px solid #d8eadc; border-radius: 10px 10px 0 0; color: #39744c; background: #edf7ee; }
+.price-drop-alert span { display: flex; align-items: center; gap: 5px; font-size: .69rem; font-weight: 800; }
+.price-drop-alert small { color: #5c8768; font-size: .62rem; }
+.admin-preview-manager { margin: 0 0 17px; padding: 14px; border: 1px solid #e3eae1; border-radius: 12px; background: linear-gradient(130deg,#f7faf5,#fffefa); }
+.admin-preview-manager > p { margin: 4px 0 10px; color: #89958d; font-size: .74rem; }
+.admin-preview-manager .admin-file-heading { margin-bottom: 5px; }
+.admin-preview-current { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 9px 0; padding: 7px 9px; border-radius: 8px; background: #edf5ec; }
+.admin-preview-current a { display: flex; align-items: center; gap: 6px; color: #4d7657; font-size: .75rem; }
+@media (max-width: 900px) { .account-favorites-grid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
+@media (max-width: 560px) {
+  .account-favorites-grid { grid-template-columns: 1fr; }
+  .sample-preview-backdrop { padding: 8px; }
+  .sample-preview-dialog { height: 95vh; border-radius: 13px; }
+  .sample-preview-dialog > header { padding: 13px; }
+  .sample-preview-demo { padding: 22px; }
+  .price-drop-alert small { font-size: .58rem; }
+}
+:root[data-theme="dark"] .sample-preview-trigger { border-color: #3d5142; color: #dce9dd; background: linear-gradient(110deg,#26372b,#2c3027); }
+:root[data-theme="dark"] .sample-preview-trigger small { color: #a0b1a3; }
+:root[data-theme="dark"] .sample-preview-icon { color: #a2d0a9; background: #304633; }
+:root[data-theme="dark"] .sample-preview-dialog { border-color: #3c4840; }
+:root[data-theme="dark"] .sample-preview-demo { color: #e5ece6; background: radial-gradient(ellipse at top,#2d3c30,#252b25 70%); }
+:root[data-theme="dark"] .sample-preview-demo p,
+:root[data-theme="dark"] .sample-preview-demo > small { color: #a9b7ac; }
+:root[data-theme="dark"] .price-drop-alert { border-color: #38563e; color: #a8d5af; background: #263b2b; }
+:root[data-theme="dark"] .price-drop-alert small { color: #9dc3a4; }
+:root[data-theme="dark"] .admin-preview-manager { border-color: #35463a; background: linear-gradient(130deg,#26352a,#292d27); }
+:root[data-theme="dark"] .admin-preview-manager > p { color: #a3b1a6; }
+:root[data-theme="dark"] .admin-preview-current { background: #304331; }

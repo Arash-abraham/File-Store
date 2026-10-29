@@ -34,6 +34,7 @@ Created by **Arash** · [GitHub profile](https://github.com/Arash-abraham) · [R
 
 - Persian/RTL interface with Vazirmatn typography, a responsive layout, and light and dark themes. The theme follows the operating system preference on the first visit and is remembered afterwards.
 - Home page, category pages, and product pages with ratings and reviews.
+- Free sample-PDF previews on product pages, managed from each book’s admin editor, plus related-book recommendations based on category and reader ratings.
 - Instant search suggestions and an advanced catalog search (price range, minimum rating, discount, availability, tags, and sorting). Applied filters are kept in the URL, so result pages can be shared.
 - Product comments and questions and answers (Q&A):
   - Only buyers can post comments. Comments have an optional rating and there is no posting limit.
@@ -49,6 +50,7 @@ Created by **Arash** · [GitHub profile](https://github.com/Arash-abraham) · [R
 
 - Registration, sign-in, sign-out, email verification, and password reset.
 - Profile management, order history, a personal library, and protected downloads of purchased files.
+- A personal favorites list; books saved before a price drop are highlighted in the list so customers can spot the new price.
 - Cart with coupon codes and checkout. Customers pay from their wallet when the balance covers the full order, or through Zarinpal.
 - Wallet top-up through Zarinpal (optional).
 - Support tickets as a two-way conversation. Customers reply in the same thread, can write again on a closed ticket to reopen it, and see the status of each request.
@@ -507,15 +509,16 @@ All endpoints are under `/api/v1`. Successful responses are wrapped in a `data` 
 
 | Group | Endpoints (examples) |
 |---|---|
-| Public storefront | `GET /home`, `/products`, `/products/{slug}`, `/products/{slug}/reviews`, `/search/suggest`, `/categories`, `/faqs`, `/pages/{slug}`, `/print-houses`, `/navigation`, `/settings` |
+| Public storefront | `GET /home`, `/products`, `/products/{slug}`, `/products/{slug}/preview` (when a sample is available), `/products/{slug}/reviews`, `/search/suggest`, `/categories`, `/faqs`, `/pages/{slug}`, `/print-houses`, `/navigation`, `/settings` |
 | Analytics | `POST /analytics/pageview` (rate limited) |
 | Authentication | `POST /auth/register`, `/auth/login`, `/auth/logout`, `/auth/forgot-password`, `/auth/reset-password`; `GET /auth/me` |
 | Cart and checkout | `GET /cart`; `POST /cart/items`, `/cart/coupon`, `/checkout`; `PATCH` and `DELETE /cart/items/{itemId}`; `DELETE /cart/coupon` |
-| Account | `GET` and `PUT /account/profile`; `GET /account/overview`, `/account/library`, `/account/orders`, `/account/downloads`, `/account/print-orders`, `/account/tickets`; `GET /account/tickets/{ticket}`; `POST /account/tickets`; `POST /account/tickets/{ticket}/messages` |
+| Account | `GET` and `PUT /account/profile`; `GET /account/overview`, `/account/library`, `/account/orders`, `/account/downloads`, `/account/favorites`, `/account/print-orders`, `/account/tickets`; `GET /account/tickets/{ticket}`; `POST /account/tickets`; `POST /account/tickets/{ticket}/messages` |
+| Favorites | `GET /account/favorites`; `POST` and `DELETE /favorites/{productId}` (authenticated) |
 | Reviews, comments, and Q&A | `POST /reviews` (comments, questions, and replies); `POST /reviews/{review}/edit`; `POST /reviews/{review}/helpful`; `POST /reviews/{review}/report` |
 | Wallet | `GET /wallet`; `POST /wallet/deposits` |
 | Printing | `POST /print-houses/contract-requests`; `POST /print-orders/quote`; `POST /print-orders` |
-| Administration | `/admin/dashboard`, `/admin/users`, `/admin/users/{id}`, `/admin/tickets`, `/admin/tickets/{id}`, `/admin/tickets/{id}/messages`, `PUT /admin/tickets/{id}`, `/admin/reviews`, `/admin/products`, `/admin/categories`, `/admin/tags`, `/admin/coupons`, `/admin/faqs`, `/admin/pages`, `/admin/menus`, `/admin/payments`, `/admin/print-houses`, `/admin/print-contracts`, `/admin/print-orders`, `/admin/settings` |
+| Administration | `/admin/dashboard`, `/admin/users`, `/admin/users/{id}`, `/admin/tickets`, `/admin/tickets/{id}`, `/admin/tickets/{id}/messages`, `PUT /admin/tickets/{id}`, `/admin/reviews`, `/admin/products` (including `POST`/`DELETE /admin/products/{id}/preview`), `/admin/categories`, `/admin/tags`, `/admin/coupons`, `/admin/faqs`, `/admin/pages`, `/admin/menus`, `/admin/payments`, `/admin/print-houses`, `/admin/print-contracts`, `/admin/print-orders`, `/admin/settings` |
 
 ### Rules the API enforces
 

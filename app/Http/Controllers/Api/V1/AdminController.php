@@ -807,6 +807,33 @@ class AdminController extends Controller
         return response()->json(['message' => 'فایل حذف شد.']);
     }
 
+    public function storeProductPreview(Request $request, int $productId)
+    {
+        $product = Product::query()->findOrFail($productId);
+        $data = $request->validate(['file' => ['required', 'file', 'mimetypes:application/pdf', 'max:20480']]);
+        $path = $data['file']->store('product-previews/'.$productId, 'public');
+        if (!$path) {
+            return response()->json(['message' => 'ذخیره‌ی فایل پیش‌نمایش انجام نشد.'], 500);
+        }
+        if ($product->preview_path) {
+            Storage::disk('public')->delete($product->preview_path);
+        }
+        $product->update(['preview_path' => $path]);
+
+        return response()->json(['message' => 'پیش‌نمایش کتاب بارگذاری شد.', 'data' => ['preview_url' => route('api.v1.products.preview', $product->slug)]], 201);
+    }
+
+    public function deleteProductPreview(int $productId)
+    {
+        $product = Product::query()->findOrFail($productId);
+        if ($product->preview_path) {
+            Storage::disk('public')->delete($product->preview_path);
+            $product->update(['preview_path' => null]);
+        }
+
+        return response()->json(['message' => 'پیش‌نمایش کتاب حذف شد.']);
+    }
+
     private function paginationMeta($paginator): array
     {
         return [

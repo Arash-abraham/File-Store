@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\V1\AdminStatsController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CartController;
 use App\Http\Controllers\Api\V1\CheckoutController;
+use App\Http\Controllers\Api\V1\FavoriteController;
+use App\Http\Controllers\Api\V1\ProductPreviewController;
 use App\Http\Controllers\Api\V1\PaymentsController;
 use App\Http\Controllers\Api\V1\PrintController;
 use App\Http\Controllers\Api\V1\PrintOrderController;
@@ -22,6 +24,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     // Public storefront API.
     Route::get('/home', [StorefrontController::class, 'home'])->name('home');
     Route::get('/products', [StorefrontController::class, 'products'])->name('products.index');
+    Route::get('/products/{slug}/preview', [ProductPreviewController::class, 'show'])->name('products.preview');
     Route::get('/products/{slug}', [StorefrontController::class, 'product'])->name('products.show');
     // Comments and product questions (approved items only, plus the viewer's own pending items).
     Route::get('/products/{slug}/reviews', [ReviewController::class, 'index'])->name('products.reviews.index');
@@ -80,6 +83,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/account/orders', [AccountController::class, 'orders'])->name('account.orders');
         Route::get('/account/library', [AccountController::class, 'library'])->name('account.library');
         Route::get('/account/downloads', [AccountController::class, 'downloads'])->name('account.downloads');
+        Route::get('/account/favorites', [FavoriteController::class, 'index'])->name('account.favorites');
+        Route::post('/favorites/{productId}', [FavoriteController::class, 'store'])->name('favorites.store');
+        Route::delete('/favorites/{productId}', [FavoriteController::class, 'destroy'])->name('favorites.delete');
         Route::get('/account/downloads/{fileId}', [AccountController::class, 'download'])->name('account.downloads.download');
         Route::get('/account/tickets', [AccountController::class, 'tickets'])->name('account.tickets');
         Route::post('/account/tickets', [AccountController::class, 'createTicket'])->name('account.tickets.store');
@@ -118,6 +124,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('/products/{productId}/files', [AdminController::class, 'productFiles'])->name('products.files.index');
         Route::post('/products/{productId}/files', [AdminController::class, 'storeProductFile'])->name('products.files.store');
         Route::delete('/products/{productId}/files/{fileId}', [AdminController::class, 'deleteProductFile'])->name('products.files.delete');
+        Route::post('/products/{productId}/preview', [AdminController::class, 'storeProductPreview'])->name('products.preview.store');
+        Route::delete('/products/{productId}/preview', [AdminController::class, 'deleteProductPreview'])->name('products.preview.delete');
 
         Route::get('/categories', [AdminController::class, 'categories'])->name('categories.index');
         Route::post('/categories', [AdminController::class, 'storeCategory'])->name('categories.store');

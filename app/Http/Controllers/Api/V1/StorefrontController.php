@@ -213,10 +213,35 @@ class StorefrontController extends Controller
             ->with('user:id,name')
             ->latest()
             ->paginate(10);
+        $related = Product::query()
+            ->active()
+            ->where('category_id', $product->category_id)
+            ->where('id', '!=', $product->id)
+            ->with('category')
+            ->withAvg('approvedReviews', 'rating')
+            ->withCount('approvedReviews')
+            ->orderByDesc('approved_reviews_count')
+            ->latest()
+            ->limit(3)
+            ->get();
+        if ($related->count() < 3) {
+            $excludedIds = $related->pluck('id')->push($product->id)->all();
+            $related = $related->concat(Product::query()
+                ->active()
+                ->whereNotIn('id', $excludedIds)
+                ->with('category')
+                ->withAvg('approvedReviews', 'rating')
+                ->withCount('approvedReviews')
+                ->orderByDesc('approved_reviews_count')
+                ->latest()
+                ->limit(3 - $related->count())
+                ->get());
+        }
 
         return response()->json([
             'data' => [
                 'product' => (new ProductResource($product))->resolve(),
+                'related_products' => ProductResource::collection($related)->resolve(),
                 'files' => $product->files->map(fn ($file) => [
                     'id' => $file->id,
                     'name' => $file->name,

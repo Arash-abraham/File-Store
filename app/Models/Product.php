@@ -32,6 +32,7 @@ class Product extends Model
         'original_price',
         'price',
         'image_urls',
+        'preview_path',
         'description',
         'key_features'
     ];

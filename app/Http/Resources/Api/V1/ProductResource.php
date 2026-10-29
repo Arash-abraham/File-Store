@@ -33,6 +33,7 @@ class ProductResource extends JsonResource
                 : 0,
             'images' => $images,
             'cover_url' => $images->first(),
+            'preview_url' => $this->preview_path ? route('api.v1.products.preview', $this->slug) : null,
             'key_features' => $this->key_features ?? [],
             'rating' => round((float) ($this->approved_reviews_avg_rating ?? 0), 1),
             'reviews_count' => (int) ($this->approved_reviews_count ?? 0),
