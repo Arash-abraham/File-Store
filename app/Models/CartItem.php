@@ -10,6 +10,8 @@ class CartItem extends Model
 {
     use HasFactory;
 
+    protected $touches = ['cart'];
+
     protected $fillable = [
         'cart_id',
         'product_id',

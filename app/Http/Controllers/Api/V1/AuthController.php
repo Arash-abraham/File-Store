@@ -130,6 +130,7 @@ class AuthController extends Controller
             'role' => $user->role,
             'avatar_url' => $user->avatar_url,
             'email_verified_at' => $user->email_verified_at?->toISOString(),
+            'marketing_opt_in' => (bool) $user->marketing_opt_in,
         ];
     }
 }

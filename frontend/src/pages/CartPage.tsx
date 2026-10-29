@@ -4,7 +4,7 @@ import { ArrowLeft, ArrowRight, Check, CreditCard, Gift, ShieldCheck, ShoppingBa
 import { Link, useNavigate } from 'react-router-dom';
 import { useStore } from '../StoreContext';
 import { formatPrice } from '../lib/format';
-import { api, demoMode } from '../lib/api';
+import { api, apiErrorMessage, demoMode } from '../lib/api';
 
 export default function CartPage() {
   const { cart, user, removeFromCart, applyCoupon, removeCoupon, checkout, setNotice, setLoginOpen } = useStore();
@@ -30,9 +30,7 @@ export default function CartPage() {
       setCoupon('');
       setNotice('کد تخفیف با موفقیت اعمال شد.');
     } catch (error) {
-      // console.log(error.response.data.message);
-      // setCouponError(error instanceof Error ? error.message : 'این کد تخفیف معتبر نیست.');
-      setCouponError(error instanceof Error ? error.response.data.message : 'این کد تخفیف معتبر نیست.');
+      setCouponError(apiErrorMessage(error, 'این کد تخفیف معتبر نیست.'));
     }
   }
 

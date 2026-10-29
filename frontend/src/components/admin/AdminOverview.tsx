@@ -2,7 +2,7 @@ import { ArrowLeft, Receipt, Ticket, MessageSquareText, Users, Eye } from 'lucid
 import { formatPrice } from '../../lib/format';
 import { AreaChart, BarsChart, CHART_COLORS } from './Charts';
 
-export type AdminTabKey = 'overview' | 'products' | 'users' | 'tickets' | 'pages' | 'reviews';
+export type AdminTabKey = 'overview' | 'products' | 'users' | 'tickets' | 'pages' | 'reviews' | 'tasks';
 
 export type AdminDashboard = {
   stats: {

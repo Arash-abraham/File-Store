@@ -6,6 +6,7 @@ export type User = {
   role: 'admin' | 'user';
   avatar_url?: string | null;
   email_verified_at?: string | null;
+  marketing_opt_in?: boolean;
 };
 
 export type Category = {
@@ -35,6 +36,17 @@ export type Product = {
   availability: boolean;
   status?: string;
   files_count?: number;
+  preview_url?: string | null;
+};
+
+export type ProductFavorite = {
+  id: number;
+  product_id: number;
+  saved_price: number;
+  current_price: number;
+  price_dropped: boolean;
+  updated_at?: string | null;
+  product: Product;
 };
 
 export type CartLine = {

@@ -1,13 +1,14 @@
-import { useState } from 'react';
 import { ArrowLeft, BookOpen, BookOpenCheck, Heart, ShoppingBag, Star } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import type { Product } from '../types';
 import { formatPrice } from '../lib/format';
 import { useStore } from '../StoreContext';
+import { useFavorites } from '../lib/useFavorites';
 
 export default function ProductCard({ product, index = 0 }: { product: Product; index?: number }) {
-  const { addToCart, setNotice, ownsProduct } = useStore();
-  const [saved, setSaved] = useState(false);
+  const { addToCart, ownsProduct } = useStore();
+  const { isSaved, toggle, busy } = useFavorites();
+  const saved = isSaved(product.id);
   const owned = ownsProduct(product.id);
   return (
     <article className="product-card" style={{ animationDelay: `${Math.min(index * 55, 300)}ms` }}>
@@ -23,7 +24,7 @@ export default function ProductCard({ product, index = 0 }: { product: Product; 
             <div className="cover-placeholder"><BookOpen size={35} /><span>فایل‌استور</span></div>
           )}
         </Link>
-        <button className={`cover-heart ${saved ? 'saved' : ''}`} aria-label={saved ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'} onClick={() => { setSaved(!saved); setNotice(saved ? 'از علاقه‌مندی‌ها حذف شد.' : 'به علاقه‌مندی‌ها اضافه شد.'); }}><Heart size={17} fill={saved ? 'currentColor' : 'none'} /></button>
+        <button className={`cover-heart ${saved ? 'saved' : ''}`} disabled={busy} aria-label={saved ? 'حذف از علاقه‌مندی‌ها' : 'افزودن به علاقه‌مندی‌ها'} onClick={() => toggle(product)}><Heart size={17} fill={saved ? 'currentColor' : 'none'} /></button>
         <Link className="cover-quick-view" to={`/book/${product.slug}`}>مشاهده‌ی کتاب <ArrowLeft size={13} /></Link>
       </div>
       <div className="product-card-info">

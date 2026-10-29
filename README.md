@@ -34,6 +34,7 @@ Created by **Arash** · [GitHub profile](https://github.com/Arash-abraham) · [R
 
 - Persian/RTL interface with Vazirmatn typography, a responsive layout, and light and dark themes. The theme follows the operating system preference on the first visit and is remembered afterwards.
 - Home page, category pages, and product pages with ratings and reviews.
+- Free sample-PDF previews on product pages, managed from each book’s admin editor, plus related-book recommendations based on category and reader ratings.
 - Instant search suggestions and an advanced catalog search (price range, minimum rating, discount, availability, tags, and sorting). Applied filters are kept in the URL, so result pages can be shared.
 - Product comments and questions and answers (Q&A):
   - Only buyers can post comments. Comments have an optional rating and there is no posting limit.
@@ -49,12 +50,15 @@ Created by **Arash** · [GitHub profile](https://github.com/Arash-abraham) · [R
 
 - Registration, sign-in, sign-out, email verification, and password reset.
 - Profile management, order history, a personal library, and protected downloads of purchased files.
+- A personal favorites list with in-account price-drop badges and email alerts when a saved book’s price falls below its saved price.
+- Optional abandoned-cart email reminders: verified customers who explicitly opt in can receive one reminder after 24 hours of inactivity; another reminder is eligible only after they change the cart again.
 - Cart with coupon codes and checkout. Customers pay from their wallet when the balance covers the full order, or through Zarinpal.
 - Wallet top-up through Zarinpal (optional).
 - Support tickets as a two-way conversation. Customers reply in the same thread, can write again on a closed ticket to reopen it, and see the status of each request.
 
 ### Admin dashboard
 
+- **Task center:** a unified queue for open support tickets, pending reviews and questions, print orders awaiting confirmation, and print-house partnership requests. Filter and search the queue, approve/reject content, confirm print orders, and review partnership requests without switching sections.
 - **Overview:** three Chart.js charts (daily sales, new users, and visits) and summary numbers for revenue, orders, users, open tickets, pending reviews, and visitors.
 - **Users:** a searchable customer list. Selecting a customer shows their orders, lifetime spend, and support requests.
 - **Support inbox:** filter tickets by status or customer, read the full thread, reply, change the status, or send a reply and close the ticket in one step.
@@ -506,15 +510,16 @@ All endpoints are under `/api/v1`. Successful responses are wrapped in a `data` 
 
 | Group | Endpoints (examples) |
 |---|---|
-| Public storefront | `GET /home`, `/products`, `/products/{slug}`, `/products/{slug}/reviews`, `/search/suggest`, `/categories`, `/faqs`, `/pages/{slug}`, `/print-houses`, `/navigation`, `/settings` |
+| Public storefront | `GET /home`, `/products`, `/products/{slug}`, `/products/{slug}/preview` (when a sample is available), `/products/{slug}/reviews`, `/search/suggest`, `/categories`, `/faqs`, `/pages/{slug}`, `/print-houses`, `/navigation`, `/settings` |
 | Analytics | `POST /analytics/pageview` (rate limited) |
 | Authentication | `POST /auth/register`, `/auth/login`, `/auth/logout`, `/auth/forgot-password`, `/auth/reset-password`; `GET /auth/me` |
 | Cart and checkout | `GET /cart`; `POST /cart/items`, `/cart/coupon`, `/checkout`; `PATCH` and `DELETE /cart/items/{itemId}`; `DELETE /cart/coupon` |
-| Account | `GET` and `PUT /account/profile`; `GET /account/overview`, `/account/library`, `/account/orders`, `/account/downloads`, `/account/print-orders`, `/account/tickets`; `GET /account/tickets/{ticket}`; `POST /account/tickets`; `POST /account/tickets/{ticket}/messages` |
+| Account | `GET` and `PUT /account/profile`; `GET /account/overview`, `/account/library`, `/account/orders`, `/account/downloads`, `/account/favorites`, `/account/print-orders`, `/account/tickets`; `GET /account/tickets/{ticket}`; `POST /account/tickets`; `POST /account/tickets/{ticket}/messages` |
+| Favorites | `GET /account/favorites`; `POST` and `DELETE /favorites/{productId}` (authenticated) |
 | Reviews, comments, and Q&A | `POST /reviews` (comments, questions, and replies); `POST /reviews/{review}/edit`; `POST /reviews/{review}/helpful`; `POST /reviews/{review}/report` |
 | Wallet | `GET /wallet`; `POST /wallet/deposits` |
 | Printing | `POST /print-houses/contract-requests`; `POST /print-orders/quote`; `POST /print-orders` |
-| Administration | `/admin/dashboard`, `/admin/users`, `/admin/users/{id}`, `/admin/tickets`, `/admin/tickets/{id}`, `/admin/tickets/{id}/messages`, `PUT /admin/tickets/{id}`, `/admin/reviews`, `/admin/products`, `/admin/categories`, `/admin/tags`, `/admin/coupons`, `/admin/faqs`, `/admin/pages`, `/admin/menus`, `/admin/payments`, `/admin/print-houses`, `/admin/print-contracts`, `/admin/print-orders`, `/admin/settings` |
+| Administration | `/admin/dashboard`, `/admin/users`, `/admin/users/{id}`, `/admin/tickets`, `/admin/tickets/{id}`, `/admin/tickets/{id}/messages`, `PUT /admin/tickets/{id}`, `/admin/reviews`, `/admin/products` (including `POST`/`DELETE /admin/products/{id}/preview`), `/admin/categories`, `/admin/tags`, `/admin/coupons`, `/admin/faqs`, `/admin/pages`, `/admin/menus`, `/admin/payments`, `/admin/print-houses`, `/admin/print-contracts`, `/admin/print-orders`, `/admin/settings` |
 
 ### Rules the API enforces
 
@@ -554,7 +559,7 @@ The main tables and models:
 | `CORS_ALLOWED_ORIGINS`, `SANCTUM_STATEFUL_DOMAINS`, `SESSION_DOMAIN` | Cookie authentication between the React app and the API |
 | `SESSION_SECURE_COOKIE` | Set to `true` in production over HTTPS |
 | `DB_*` | MySQL connection |
-| `MAIL_*` | Email for verification and password reset. `MAIL_MAILER=log` writes to the log for local use. |
+| `MAIL_*` | Email for verification, password reset, price-drop alerts, and opted-in abandoned-cart reminders. `MAIL_MAILER=log` writes to the log for local use. |
 | `ZARINPAL_MERCHANT_ID`, `ZARINPAL_SANDBOX` | Zarinpal gateway (optional) |
 | `DEMO_USER_*`, `DEMO_ADMIN_*` | Seeder accounts |
 | `VITE_DEMO_MODE`, `VITE_API_BASE_URL` | Frontend build settings |
@@ -562,7 +567,7 @@ The main tables and models:
 
 ### Email
 
-Set SMTP settings in `.env` to deliver verification and password-reset emails. The default `MAIL_MAILER=log` writes messages to the Laravel log instead of sending them.
+Set SMTP settings in `.env` to deliver verification, password-reset, and price-drop alert emails. Price alerts are sent after an admin lowers a saved book’s price. The default `MAIL_MAILER=log` writes messages to the Laravel log instead of sending them.
 
 ### Zarinpal
 
@@ -636,6 +641,16 @@ php artisan route:cache
 - Keep the same `APP_KEY` across releases. Do not regenerate it on an existing installation, because that breaks encrypted data and sessions.
 - Host the frontend and the API under the same parent domain, for example `app.example.com` and `api.example.com`. Set `CORS_ALLOWED_ORIGINS` to the exact frontend origin, add both hostnames to `SANCTUM_STATEFUL_DOMAINS`, set `SESSION_DOMAIN` to the parent domain, and set `SESSION_SECURE_COOKIE=true`.
 - Never enable `VITE_DEMO_MODE`, `APP_DEBUG=true`, or the demo accounts on a public server.
+
+### Scheduled cart reminders
+
+The reminder command runs hourly through Laravel's scheduler. Add the standard scheduler cron entry on the API host:
+
+```cron
+* * * * * cd /path/to/File-Store && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Customers can enable reminders under **Account → Profile**. Only verified customers who have explicitly opted in are emailed. To test manually, run `php artisan cart:send-abandoned-reminders`.
 
 ## Troubleshooting
 

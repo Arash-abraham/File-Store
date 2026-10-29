@@ -1,12 +1,13 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Activity, ArrowLeft, BookOpen, Check, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Paperclip, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, Users, X, XCircle } from 'lucide-react';
+import { Activity, ArrowLeft, BookOpen, Check, ClipboardList, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Paperclip, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, Users, X, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../StoreContext';
 import PagesEditor from '../components/PagesEditor';
 import { demoCategories, demoProducts } from '../data/demo';
 import AdminOverview, { demoDashboard, type AdminDashboard, type AdminTabKey } from '../components/admin/AdminOverview';
 import AdminTickets from '../components/admin/AdminTickets';
+import AdminTaskCenter from '../components/admin/AdminTaskCenter';
 import AdminUsers from '../components/admin/AdminUsers';
 import { api, apiErrorMessage, demoMode } from '../lib/api';
 import { formatDate, formatPrice } from '../lib/format';
@@ -47,6 +48,8 @@ export default function AdminPage() {
   const [demoProductList, setDemoProductList] = useState<Product[]>(demoProducts);
   const [demoFilesByProduct, setDemoFilesByProduct] = useState<Record<number, AdminFile[]>>({});
   const [fileToUpload, setFileToUpload] = useState<File | null>(null);
+  const [previewFile, setPreviewFile] = useState<File | null>(null);
+  const [previewInputKey, setPreviewInputKey] = useState(0);
   const [fileInputKey, setFileInputKey] = useState(0);
   const [fileDisplayName, setFileDisplayName] = useState('');
   const [fileType, setFileType] = useState('pdf');
@@ -137,6 +140,35 @@ export default function AdminPage() {
     },
     onError: (error) => setFormError(apiErrorMessage(error, 'بارگذاری فایل انجام نشد.')),
   });
+  const uploadProductPreview = useMutation({
+    mutationFn: async ({ productId, file }: { productId: number; file: File }) => {
+      const payload = new FormData();
+      payload.append('file', file);
+      return api.post(`/admin/products/${productId}/preview`, payload);
+    },
+    onSuccess: async (response, variables) => {
+      const previewUrl = response.data.data.preview_url as string;
+      setEditingProduct((current) => current?.id === variables.productId ? { ...current, preview_url: previewUrl } : current);
+      setPreviewFile(null);
+      setPreviewInputKey((key) => key + 1);
+      await queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      await queryClient.invalidateQueries({ queryKey: ['products'] });
+      await queryClient.invalidateQueries({ queryKey: ['product'] });
+      setNotice('پیش‌نمایش رایگان کتاب بارگذاری شد.');
+    },
+    onError: (error) => setFormError(apiErrorMessage(error, 'بارگذاری پیش‌نمایش انجام نشد.')),
+  });
+  const deleteProductPreview = useMutation({
+    mutationFn: async (productId: number) => api.delete(`/admin/products/${productId}/preview`),
+    onSuccess: async (_response, productId) => {
+      setEditingProduct((current) => current?.id === productId ? { ...current, preview_url: null } : current);
+      await queryClient.invalidateQueries({ queryKey: ['admin-products'] });
+      await queryClient.invalidateQueries({ queryKey: ['products'] });
+      await queryClient.invalidateQueries({ queryKey: ['product'] });
+      setNotice('پیش‌نمایش کتاب حذف شد.');
+    },
+    onError: (error) => setNotice(apiErrorMessage(error, 'حذف پیش‌نمایش انجام نشد.')),
+  });
   const deleteProductFile = useMutation({
     mutationFn: async ({ productId, fileId }: { productId: number; fileId: number }) => api.delete(`/admin/products/${productId}/files/${fileId}`),
     onSuccess: async (_response, variables) => {
@@ -152,6 +184,8 @@ export default function AdminPage() {
     setForm(emptyForm());
     setFormError('');
     setFileToUpload(null);
+    setPreviewFile(null);
+    setPreviewInputKey((key) => key + 1);
     setFileInputKey((key) => key + 1);
     setFileDisplayName('');
     setFileType('pdf');
@@ -162,6 +196,8 @@ export default function AdminPage() {
     setForm(emptyForm());
     setFormError('');
     setFileToUpload(null);
+    setPreviewFile(null);
+    setPreviewInputKey((key) => key + 1);
     setFileInputKey((key) => key + 1);
     setFileDisplayName('');
     setFileType('pdf');
@@ -182,6 +218,8 @@ export default function AdminPage() {
     });
     setFormError('');
     setFileToUpload(null);
+    setPreviewFile(null);
+    setPreviewInputKey((key) => key + 1);
     setFileInputKey((key) => key + 1);
     setFileDisplayName('');
     setFileType('pdf');
@@ -222,6 +260,7 @@ export default function AdminPage() {
         discount_percent: originalPrice > price ? Math.round((1 - price / originalPrice) * 100) : 0,
         images: payload.image_urls,
         cover_url: payload.image_urls[0] ?? null,
+        preview_url: editingProduct?.preview_url ?? null,
         key_features: editingProduct?.key_features ?? [],
         rating: editingProduct?.rating ?? 0,
         reviews_count: editingProduct?.reviews_count ?? 0,
@@ -240,6 +279,31 @@ export default function AdminPage() {
 
     if (editingProduct) updateProduct.mutate({ id: editingProduct.id, payload });
     else createProduct.mutate(payload);
+  }
+
+  function submitPreview(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!editingProduct || !previewFile) return;
+    if (previewFile.type !== 'application/pdf' || previewFile.size > 20 * 1024 * 1024) {
+      setFormError('پیش‌نمایش باید فایل PDF و حداکثر ۲۰ مگابایت باشد.');
+      return;
+    }
+    setFormError('');
+    if (demoMode) {
+      setEditingProduct({ ...editingProduct, preview_url: URL.createObjectURL(previewFile) });
+      setPreviewFile(null);
+      setNotice('پیش‌نمایش نمایشی بارگذاری شد.');
+      return;
+    }
+    uploadProductPreview.mutate({ productId: editingProduct.id, file: previewFile });
+  }
+
+  function removeProductPreview() {
+    if (!editingProduct || !window.confirm('پیش‌نمایش رایگان این کتاب حذف شود؟')) return;
+    if (demoMode) {
+      setEditingProduct({ ...editingProduct, preview_url: null });
+      setNotice('پیش‌نمایش نمایشی حذف شد.');
+    } else deleteProductPreview.mutate(editingProduct.id);
   }
 
   function submitFile(event: FormEvent<HTMLFormElement>) {
@@ -346,6 +410,7 @@ export default function AdminPage() {
         <aside className="admin-sidebar">
           <div className="admin-sidebar-label">فضای کاری</div>
           <button onClick={() => setTab('overview')} className={tab === 'overview' ? 'active' : ''}><LayoutDashboard size={17} /> نمای کلی</button>
+          <button onClick={() => setTab('tasks')} className={tab === 'tasks' ? 'active' : ''}><ClipboardList size={17} /> کارهای مدیریتی</button>
           <button onClick={() => setTab('users')} className={tab === 'users' ? 'active' : ''}><Users size={17} /> کاربران <span>{stats.users.toLocaleString('fa-IR')}</span></button>
           <button onClick={() => setTab('products')} className={tab === 'products' ? 'active' : ''}><BookOpen size={17} /> کتاب‌ها <span>{stats.products.toLocaleString('fa-IR')}</span></button>
           <button onClick={() => setTab('tickets')} className={tab === 'tickets' ? 'active' : ''}><Ticket size={17} /> پشتیبانی <span className="sidebar-count">{stats.open_tickets.toLocaleString('fa-IR')}</span></button>
@@ -358,6 +423,8 @@ export default function AdminPage() {
 
         <div className="admin-content">
           {tab === 'overview' && <AdminOverview data={dashboardQuery.data ?? (demoMode ? demoDashboard() : undefined)} loading={dashboardQuery.isLoading} userName={user.name} onNavigate={(next: AdminTabKey) => setTab(next)} />}
+
+          {tab === 'tasks' && <AdminTaskCenter onNavigate={(next) => setTab(next)} />}
 
           {tab === 'products' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>کتاب‌های فروشگاه</h2><p>فهرست، وضعیت و اطلاعات عنوان‌های منتشرشده.</p></div><button className="button button-primary button-small" onClick={openNewProductForm}><Plus size={16} /> افزودن کتاب</button></div><div className="admin-list-toolbar"><label><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="جست‌وجوی کتاب…" /></label><span>{visibleProducts.length.toLocaleString('fa-IR')} عنوان</span></div><div className="admin-product-table"><div className="admin-table-head"><span>کتاب</span><span>دسته‌بندی</span><span>قیمت</span><span>وضعیت</span><span>عملیات</span></div>{visibleProducts.map((product) => <div className="admin-product-row" key={product.id}><div className="admin-product-cell"><span className="admin-product-cover">{product.cover_url ? <img src={product.cover_url} alt="" /> : <BookOpen size={17} />}</span><span><b>{product.title}</b><small>/{product.slug}</small></span></div><span>{product.category?.name ?? '—'}</span><b>{formatPrice(product.price)}</b><span className={`published-status ${product.status === 'active' ? '' : 'inactive'}`}><i /> {product.status === 'draft' ? 'پیش‌نویس' : product.status === 'inactive' ? 'غیرفعال' : 'منتشر'}</span><span className="admin-row-actions"><button className="row-icon-button" title="ویرایش کتاب" onClick={() => openEditProductForm(product)}><Pencil size={15} /></button><button className="row-icon-button delete" title="حذف کتاب" onClick={() => removeProduct(product)}><Trash2 size={15} /></button></span></div>)}</div></div>}
 
@@ -380,7 +447,7 @@ export default function AdminPage() {
         </div>
       </div>
 
-      {showProductForm && <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && closeProductForm()}><section className="admin-form-modal" role="dialog" aria-modal="true" aria-labelledby="product-form-title"><button className="modal-close icon-button" onClick={closeProductForm} aria-label="بستن"><X size={19} /></button><span className="eyebrow">قفسه را تازه کن</span><h2 id="product-form-title">{editingProduct ? 'ویرایش کتاب' : 'افزودن کتاب جدید'}</h2><p>اطلاعات کتاب را وارد کن؛ پس از ثبت، فایل‌های دانلود را همین‌جا به محصول اضافه کن.</p><form className="form-stack" onSubmit={submitProduct}><label className="field-label">عنوان کتاب<input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} required maxLength={200} /></label><label className="field-label">شناسه‌ی URL<input value={form.slug} onChange={(event) => setForm({ ...form, slug: event.target.value })} placeholder="اگر خالی بماند، خودکار ساخته می‌شود" /></label><label className="field-label">دسته‌بندی<select value={form.category_id} onChange={(event) => setForm({ ...form, category_id: event.target.value })} required>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><div className="form-inline-fields"><label className="field-label">قیمت اصلی (تومان)<input type="number" min="0" value={form.original_price} onChange={(event) => setForm({ ...form, original_price: event.target.value })} required /></label><label className="field-label">قیمت فروش (اختیاری)<input type="number" min="0" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} /></label></div><label className="field-label">نشانی تصویر جلد<input type="text" value={form.cover_url} onChange={(event) => setForm({ ...form, cover_url: event.target.value })} placeholder="https://… یا products/cover.png" /></label><label className="field-label">معرفی کوتاه<textarea rows={3} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></label>{editingProduct && <label className="field-label">وضعیت انتشار<select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as ProductForm['status'] })}><option value="active">منتشرشده</option><option value="inactive">غیرفعال</option><option value="draft">پیش‌نویس</option></select></label>}{formError && <div className="form-error">{formError}</div>}<button className="button button-primary button-full" disabled={formPending}><FilePlus2 size={16} /> {formPending ? 'در حال ذخیره…' : editingProduct ? 'ذخیره‌ی تغییرات' : 'ثبت کتاب'} <ArrowLeft size={15} /></button></form>{editingProduct && <div className="admin-file-manager"><div className="admin-file-heading"><div><span className="eyebrow">کتابخانه‌ی دانلود</span><h3>فایل‌های محصول</h3></div><span className="admin-table-count">{(filesQuery.data ?? []).length.toLocaleString('fa-IR')} فایل</span></div><div className="admin-file-list">{filesQuery.isLoading ? <p className="admin-file-empty">در حال دریافت فهرست فایل‌ها…</p> : (filesQuery.data ?? []).length ? filesQuery.data!.map((file) => <div className="admin-file-row" key={file.id}><span className="admin-file-icon"><FileText size={17} /></span><span className="admin-file-name"><b>{file.name}</b><small>{file.type.toUpperCase()} · {file.size_label ?? 'اندازه نامشخص'}</small></span><button type="button" className="row-icon-button delete" title="حذف فایل" onClick={() => removeProductFile(file)} disabled={deleteProductFile.isPending}><Trash2 size={15} /></button></div>) : <p className="admin-file-empty">هنوز فایلی برای این کتاب ثبت نشده است.</p>}</div><form className="admin-upload-form" onSubmit={submitFile}><div className="form-inline-fields"><label className="field-label">نام نمایشی<input value={fileDisplayName} onChange={(event) => setFileDisplayName(event.target.value)} placeholder="در صورت خالی بودن، نام فایل استفاده می‌شود" maxLength={255} /></label><label className="field-label">نوع فایل<select value={fileType} onChange={(event) => setFileType(event.target.value)}><option value="pdf">PDF</option><option value="zip">ZIP</option><option value="rar">RAR</option><option value="mp4">MP4</option><option value="txt">TXT</option><option value="other">سایر</option></select></label></div><label className="field-label">انتخاب فایل<input key={fileInputKey} type="file" accept=".pdf,.zip,.rar,.mp4,.txt" required={!fileToUpload} onChange={(event) => { const selected = event.target.files?.[0] ?? null; setFileToUpload(selected); if (selected) { const extension = selected.name.split('.').pop()?.toLowerCase() ?? 'other'; setFileType(['pdf', 'zip', 'rar', 'mp4', 'txt'].includes(extension) ? extension : 'other'); } }} /></label>{fileToUpload && <small className="admin-file-hint">{fileToUpload.name} · {formatFileSize(fileToUpload.size)} (حداکثر ۳۰ مگابایت)</small>}<button type="submit" className="button button-outline button-small" disabled={uploadProductFile.isPending}><UploadCloud size={16} /> {uploadProductFile.isPending ? 'در حال بارگذاری…' : 'افزودن فایل به محصول'}</button></form></div>}</section></div>}
+      {showProductForm && <div className="modal-backdrop" onMouseDown={(event) => event.target === event.currentTarget && closeProductForm()}><section className="admin-form-modal" role="dialog" aria-modal="true" aria-labelledby="product-form-title"><button className="modal-close icon-button" onClick={closeProductForm} aria-label="بستن"><X size={19} /></button><span className="eyebrow">قفسه را تازه کن</span><h2 id="product-form-title">{editingProduct ? 'ویرایش کتاب' : 'افزودن کتاب جدید'}</h2><p>اطلاعات کتاب را وارد کن؛ پس از ثبت، فایل‌های دانلود را همین‌جا به محصول اضافه کن.</p><form className="form-stack" onSubmit={submitProduct}><label className="field-label">عنوان کتاب<input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} required maxLength={200} /></label><label className="field-label">شناسه‌ی URL<input value={form.slug} onChange={(event) => setForm({ ...form, slug: event.target.value })} placeholder="اگر خالی بماند، خودکار ساخته می‌شود" /></label><label className="field-label">دسته‌بندی<select value={form.category_id} onChange={(event) => setForm({ ...form, category_id: event.target.value })} required>{categories.map((category) => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label><div className="form-inline-fields"><label className="field-label">قیمت اصلی (تومان)<input type="number" min="0" value={form.original_price} onChange={(event) => setForm({ ...form, original_price: event.target.value })} required /></label><label className="field-label">قیمت فروش (اختیاری)<input type="number" min="0" value={form.price} onChange={(event) => setForm({ ...form, price: event.target.value })} /></label></div><label className="field-label">نشانی تصویر جلد<input type="text" value={form.cover_url} onChange={(event) => setForm({ ...form, cover_url: event.target.value })} placeholder="https://… یا products/cover.png" /></label><label className="field-label">معرفی کوتاه<textarea rows={3} value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} /></label>{editingProduct && <label className="field-label">وضعیت انتشار<select value={form.status} onChange={(event) => setForm({ ...form, status: event.target.value as ProductForm['status'] })}><option value="active">منتشرشده</option><option value="inactive">غیرفعال</option><option value="draft">پیش‌نویس</option></select></label>}{formError && <div className="form-error">{formError}</div>}<button className="button button-primary button-full" disabled={formPending}><FilePlus2 size={16} /> {formPending ? 'در حال ذخیره…' : editingProduct ? 'ذخیره‌ی تغییرات' : 'ثبت کتاب'} <ArrowLeft size={15} /></button></form>{editingProduct && <div className="admin-file-manager"><div className="admin-preview-manager"><div className="admin-file-heading"><div><span className="eyebrow">برای انتخاب مطمئن</span><h3>پیش‌نمایش رایگان PDF</h3></div>{editingProduct.preview_url && <span className="published-status"><i /> فعال</span>}</div><p>نمونه‌ای کوتاه از کتاب را برای مطالعه‌ی رایگان در صفحه‌ی محصول بارگذاری کن.</p>{editingProduct.preview_url && <div className="admin-preview-current"><a href={editingProduct.preview_url} target="_blank" rel="noreferrer"><Eye size={15} /> مشاهده‌ی پیش‌نمایش فعلی</a><button type="button" className="row-icon-button delete" title="حذف پیش‌نمایش" onClick={removeProductPreview}><Trash2 size={15} /></button></div>}<form className="admin-upload-form" onSubmit={submitPreview}><label className="field-label">فایل نمونه (PDF، حداکثر ۲۰ مگابایت)<input key={previewInputKey} type="file" accept="application/pdf,.pdf" onChange={(event) => setPreviewFile(event.target.files?.[0] ?? null)} /></label>{previewFile && <small className="admin-file-hint">{previewFile.name} · {formatFileSize(previewFile.size)}</small>}<button type="submit" className="button button-outline button-small" disabled={!previewFile || uploadProductPreview.isPending}><UploadCloud size={15} /> {uploadProductPreview.isPending ? 'در حال بارگذاری…' : editingProduct.preview_url ? 'جایگزینی پیش‌نمایش' : 'بارگذاری پیش‌نمایش'}</button></form></div><div className="admin-file-heading"><div><span className="eyebrow">کتابخانه‌ی دانلود</span><h3>فایل‌های محصول</h3></div><span className="admin-table-count">{(filesQuery.data ?? []).length.toLocaleString('fa-IR')} فایل</span></div><div className="admin-file-list">{filesQuery.isLoading ? <p className="admin-file-empty">در حال دریافت فهرست فایل‌ها…</p> : (filesQuery.data ?? []).length ? filesQuery.data!.map((file) => <div className="admin-file-row" key={file.id}><span className="admin-file-icon"><FileText size={17} /></span><span className="admin-file-name"><b>{file.name}</b><small>{file.type.toUpperCase()} · {file.size_label ?? 'اندازه نامشخص'}</small></span><button type="button" className="row-icon-button delete" title="حذف فایل" onClick={() => removeProductFile(file)} disabled={deleteProductFile.isPending}><Trash2 size={15} /></button></div>) : <p className="admin-file-empty">هنوز فایلی برای این کتاب ثبت نشده است.</p>}</div><form className="admin-upload-form" onSubmit={submitFile}><div className="form-inline-fields"><label className="field-label">نام نمایشی<input value={fileDisplayName} onChange={(event) => setFileDisplayName(event.target.value)} placeholder="در صورت خالی بودن، نام فایل استفاده می‌شود" maxLength={255} /></label><label className="field-label">نوع فایل<select value={fileType} onChange={(event) => setFileType(event.target.value)}><option value="pdf">PDF</option><option value="zip">ZIP</option><option value="rar">RAR</option><option value="mp4">MP4</option><option value="txt">TXT</option><option value="other">سایر</option></select></label></div><label className="field-label">انتخاب فایل<input key={fileInputKey} type="file" accept=".pdf,.zip,.rar,.mp4,.txt" required={!fileToUpload} onChange={(event) => { const selected = event.target.files?.[0] ?? null; setFileToUpload(selected); if (selected) { const extension = selected.name.split('.').pop()?.toLowerCase() ?? 'other'; setFileType(['pdf', 'zip', 'rar', 'mp4', 'txt'].includes(extension) ? extension : 'other'); } }} /></label>{fileToUpload && <small className="admin-file-hint">{fileToUpload.name} · {formatFileSize(fileToUpload.size)} (حداکثر ۳۰ مگابایت)</small>}<button type="submit" className="button button-outline button-small" disabled={uploadProductFile.isPending}><UploadCloud size={16} /> {uploadProductFile.isPending ? 'در حال بارگذاری…' : 'افزودن فایل به محصول'}</button></form></div>}</section></div>}
     </section>
   );
 }
