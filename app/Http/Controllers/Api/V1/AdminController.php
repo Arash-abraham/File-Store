@@ -18,16 +18,20 @@ use App\Models\PrintContractRequest;
 use App\Models\PrintHouse;
 use App\Models\PrintOrder;
 use App\Models\Product;
+use App\Models\ProductFavorite;
 use App\Models\Review;
 use App\Models\Tag;
+use App\Notifications\PriceDropNotification;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Models\WebSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Throwable;
 
 class AdminController extends Controller
 {
@@ -115,8 +119,42 @@ class AdminController extends Controller
             'key_features' => ['nullable', 'array', 'max:20'],
             'key_features.*' => ['string', 'max:250'],
         ]);
+        $previousPrice = (int) $product->final_price;
         $product->update($data);
-        return response()->json(['message' => 'محصول به‌روزرسانی شد.', 'data' => $product->fresh()->load('category')]);
+        $product = $product->fresh();
+        $currentPrice = (int) $product->final_price;
+        if ($currentPrice < $previousPrice) {
+            $this->notifyFavoriteCustomersOfPriceDrop($product, $currentPrice);
+        }
+
+        return response()->json(['message' => 'محصول به‌روزرسانی شد.', 'data' => $product->load('category')]);
+    }
+
+    private function notifyFavoriteCustomersOfPriceDrop(Product $product, int $currentPrice): void
+    {
+        $favorites = ProductFavorite::query()
+            ->where('product_id', $product->id)
+            ->where('saved_price', '>', $currentPrice)
+            ->where(fn ($query) => $query->whereNull('price_drop_notified_price')->orWhere('price_drop_notified_price', '!=', $currentPrice))
+            ->with('user')
+            ->get();
+
+        foreach ($favorites as $favorite) {
+            if (!$favorite->user) {
+                continue;
+            }
+
+            try {
+                $favorite->user->notify(new PriceDropNotification($product, (int) $favorite->saved_price, $currentPrice));
+                $favorite->update(['price_drop_notified_price' => $currentPrice]);
+            } catch (Throwable $exception) {
+                Log::warning('Could not send product price-drop notification.', [
+                    'product_id' => $product->id,
+                    'user_id' => $favorite->user_id,
+                    'exception' => $exception->getMessage(),
+                ]);
+            }
+        }
     }
 
     public function deleteProduct(int $id)

@@ -9,9 +9,9 @@ class ProductFavorite extends Model
 {
     protected $table = 'product_favorites';
 
-    protected $fillable = ['user_id', 'product_id', 'saved_price'];
+    protected $fillable = ['user_id', 'product_id', 'saved_price', 'price_drop_notified_price'];
 
-    protected $casts = ['saved_price' => 'integer'];
+    protected $casts = ['saved_price' => 'integer', 'price_drop_notified_price' => 'integer'];
 
     public function user(): BelongsTo
     {

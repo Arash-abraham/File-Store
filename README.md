@@ -50,7 +50,7 @@ Created by **Arash** · [GitHub profile](https://github.com/Arash-abraham) · [R
 
 - Registration, sign-in, sign-out, email verification, and password reset.
 - Profile management, order history, a personal library, and protected downloads of purchased files.
-- A personal favorites list; books saved before a price drop are highlighted in the list so customers can spot the new price.
+- A personal favorites list with in-account price-drop badges and email alerts when a saved book’s price falls below its saved price.
 - Cart with coupon codes and checkout. Customers pay from their wallet when the balance covers the full order, or through Zarinpal.
 - Wallet top-up through Zarinpal (optional).
 - Support tickets as a two-way conversation. Customers reply in the same thread, can write again on a closed ticket to reopen it, and see the status of each request.
@@ -558,7 +558,7 @@ The main tables and models:
 | `CORS_ALLOWED_ORIGINS`, `SANCTUM_STATEFUL_DOMAINS`, `SESSION_DOMAIN` | Cookie authentication between the React app and the API |
 | `SESSION_SECURE_COOKIE` | Set to `true` in production over HTTPS |
 | `DB_*` | MySQL connection |
-| `MAIL_*` | Email for verification and password reset. `MAIL_MAILER=log` writes to the log for local use. |
+| `MAIL_*` | Email for verification, password reset, and price-drop alerts. `MAIL_MAILER=log` writes to the log for local use. |
 | `ZARINPAL_MERCHANT_ID`, `ZARINPAL_SANDBOX` | Zarinpal gateway (optional) |
 | `DEMO_USER_*`, `DEMO_ADMIN_*` | Seeder accounts |
 | `VITE_DEMO_MODE`, `VITE_API_BASE_URL` | Frontend build settings |
@@ -566,7 +566,7 @@ The main tables and models:
 
 ### Email
 
-Set SMTP settings in `.env` to deliver verification and password-reset emails. The default `MAIL_MAILER=log` writes messages to the Laravel log instead of sending them.
+Set SMTP settings in `.env` to deliver verification, password-reset, and price-drop alert emails. Price alerts are sent after an admin lowers a saved book’s price. The default `MAIL_MAILER=log` writes messages to the Laravel log instead of sending them.
 
 ### Zarinpal
 
