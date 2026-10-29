@@ -51,6 +51,7 @@ Created by **Arash** · [GitHub profile](https://github.com/Arash-abraham) · [R
 - Registration, sign-in, sign-out, email verification, and password reset.
 - Profile management, order history, a personal library, and protected downloads of purchased files.
 - A personal favorites list with in-account price-drop badges and email alerts when a saved book’s price falls below its saved price.
+- Optional abandoned-cart email reminders: verified customers who explicitly opt in can receive one reminder after 24 hours of inactivity; another reminder is eligible only after they change the cart again.
 - Cart with coupon codes and checkout. Customers pay from their wallet when the balance covers the full order, or through Zarinpal.
 - Wallet top-up through Zarinpal (optional).
 - Support tickets as a two-way conversation. Customers reply in the same thread, can write again on a closed ticket to reopen it, and see the status of each request.
@@ -558,7 +559,7 @@ The main tables and models:
 | `CORS_ALLOWED_ORIGINS`, `SANCTUM_STATEFUL_DOMAINS`, `SESSION_DOMAIN` | Cookie authentication between the React app and the API |
 | `SESSION_SECURE_COOKIE` | Set to `true` in production over HTTPS |
 | `DB_*` | MySQL connection |
-| `MAIL_*` | Email for verification, password reset, and price-drop alerts. `MAIL_MAILER=log` writes to the log for local use. |
+| `MAIL_*` | Email for verification, password reset, price-drop alerts, and opted-in abandoned-cart reminders. `MAIL_MAILER=log` writes to the log for local use. |
 | `ZARINPAL_MERCHANT_ID`, `ZARINPAL_SANDBOX` | Zarinpal gateway (optional) |
 | `DEMO_USER_*`, `DEMO_ADMIN_*` | Seeder accounts |
 | `VITE_DEMO_MODE`, `VITE_API_BASE_URL` | Frontend build settings |
@@ -640,6 +641,16 @@ php artisan route:cache
 - Keep the same `APP_KEY` across releases. Do not regenerate it on an existing installation, because that breaks encrypted data and sessions.
 - Host the frontend and the API under the same parent domain, for example `app.example.com` and `api.example.com`. Set `CORS_ALLOWED_ORIGINS` to the exact frontend origin, add both hostnames to `SANCTUM_STATEFUL_DOMAINS`, set `SESSION_DOMAIN` to the parent domain, and set `SESSION_SECURE_COOKIE=true`.
 - Never enable `VITE_DEMO_MODE`, `APP_DEBUG=true`, or the demo accounts on a public server.
+
+### Scheduled cart reminders
+
+The reminder command runs hourly through Laravel's scheduler. Add the standard scheduler cron entry on the API host:
+
+```cron
+* * * * * cd /path/to/File-Store && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Customers can enable reminders under **Account → Profile**. Only verified customers who have explicitly opted in are emailed. To test manually, run `php artisan cart:send-abandoned-reminders`.
 
 ## Troubleshooting
 

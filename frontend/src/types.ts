@@ -6,6 +6,7 @@ export type User = {
   role: 'admin' | 'user';
   avatar_url?: string | null;
   email_verified_at?: string | null;
+  marketing_opt_in?: boolean;
 };
 
 export type Category = {

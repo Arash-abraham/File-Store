@@ -2151,3 +2151,14 @@ main { flex: 1; }
 :root[data-theme="dark"] .admin-preview-manager { border-color: #35463a; background: linear-gradient(130deg,#26352a,#292d27); }
 :root[data-theme="dark"] .admin-preview-manager > p { color: #a3b1a6; }
 :root[data-theme="dark"] .admin-preview-current { background: #304331; }
+
+.marketing-opt-in { display: grid; grid-template-columns: 18px 34px minmax(0,1fr); align-items: center; gap: 10px; margin: 4px 0 8px; padding: 12px; border: 1px solid #e2e9df; border-radius: 11px; background: #f8faf6; cursor: pointer; }
+.marketing-opt-in > input { width: 16px; height: 16px; accent-color: var(--green); }
+.marketing-opt-in-icon { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; color: #62826a; background: #e9f2e8; }
+.marketing-opt-in > span:last-child { display: grid; gap: 3px; }
+.marketing-opt-in b { color: #435349; font-size: .78rem; }
+.marketing-opt-in small { color: #89958d; font-size: .68rem; line-height: 1.7; }
+:root[data-theme="dark"] .marketing-opt-in { border-color: #35473a; background: #252f28; }
+:root[data-theme="dark"] .marketing-opt-in b { color: #e1e9e1; }
+:root[data-theme="dark"] .marketing-opt-in small { color: #a3b0a6; }
+:root[data-theme="dark"] .marketing-opt-in-icon { color: #a6c9a9; background: #304532; }

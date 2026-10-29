@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ArrowUpLeft, BookOpen, Check, CircleHelp, Download, LayoutDashboard, LibraryBig, LogOut, Package, Printer, Settings2, Ticket, UserRound, Heart, Wallet, X } from 'lucide-react';
+import { ArrowLeft, ArrowUpLeft, BookOpen, Check, CircleHelp, Download, LayoutDashboard, LibraryBig, LogOut, Mail, Package, Printer, Settings2, Ticket, UserRound, Heart, Wallet, X } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { api, apiErrorMessage, demoMode } from '../lib/api';
 import { demoProducts } from '../data/demo';
@@ -43,6 +43,7 @@ export default function AccountPage() {
   const activeTab = params.get('tab') ?? 'overview';
   const [profileName, setProfileName] = useState(user?.name ?? '');
   const [profilePhone, setProfilePhone] = useState(user?.phone ?? '');
+  const [marketingOptIn, setMarketingOptIn] = useState(Boolean(user?.marketing_opt_in));
   const [depositAmount, setDepositAmount] = useState('500000');
   const [formError, setFormError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -51,7 +52,8 @@ export default function AccountPage() {
   useEffect(() => {
     setProfileName(user?.name ?? '');
     setProfilePhone(user?.phone ?? '');
-  }, [user?.id, user?.name, user?.phone]);
+    setMarketingOptIn(Boolean(user?.marketing_opt_in));
+  }, [user?.id, user?.name, user?.phone, user?.marketing_opt_in]);
 
   useEffect(() => {
     const status = params.get('status');
@@ -107,10 +109,10 @@ export default function AccountPage() {
     setSubmitting(true);
     try {
       if (demoMode) {
-        updateUser({ ...user!, name: profileName.trim(), phone: profilePhone || null });
+        updateUser({ ...user!, name: profileName.trim(), phone: profilePhone || null, marketing_opt_in: marketingOptIn });
         setNotice('اطلاعات آزمایشی ذخیره شد.');
       } else {
-        const response = await api.put('/account/profile', { name: profileName, phone: profilePhone || null });
+        const response = await api.put('/account/profile', { name: profileName, phone: profilePhone || null, marketing_opt_in: marketingOptIn });
         updateUser(response.data.data.user);
         setNotice('اطلاعات حساب ذخیره شد.');
       }
@@ -172,7 +174,7 @@ export default function AccountPage() {
 
           {activeTab === 'support' && <SupportTickets />}
 
-          {activeTab === 'profile' && <div className="account-panel profile-panel"><div className="account-panel-heading"><div><h3>اطلاعات حساب</h3><p>اطلاعاتت را به‌روز نگه دار.</p></div></div><form className="profile-form" onSubmit={(event) => void saveProfile(event)}><label className="field-label">نام نمایشی<input value={profileName} onChange={(event) => setProfileName(event.target.value)} required /></label><label className="field-label">ایمیل<input type="email" value={user.email} disabled /><small>برای تغییر ایمیل با پشتیبانی تماس بگیر.</small></label><label className="field-label">شماره‌ی تماس<input value={profilePhone} onChange={(event) => setProfilePhone(event.target.value)} placeholder="۰۹۱۲۱۲۳۴۵۶۷" /></label><button className="button button-primary" disabled={submitting}>ذخیره‌ی تغییرات <Check size={15} /></button></form></div>}
+          {activeTab === 'profile' && <div className="account-panel profile-panel"><div className="account-panel-heading"><div><h3>اطلاعات حساب</h3><p>اطلاعاتت را به‌روز نگه دار.</p></div></div><form className="profile-form" onSubmit={(event) => void saveProfile(event)}><label className="field-label">نام نمایشی<input value={profileName} onChange={(event) => setProfileName(event.target.value)} required /></label><label className="field-label">ایمیل<input type="email" value={user.email} disabled /><small>برای تغییر ایمیل با پشتیبانی تماس بگیر.</small></label><label className="field-label">شماره‌ی تماس<input value={profilePhone} onChange={(event) => setProfilePhone(event.target.value)} placeholder="۰۹۱۲۱۲۳۴۵۶۷" /></label><label className="marketing-opt-in"><input type="checkbox" checked={marketingOptIn} onChange={(event) => setMarketingOptIn(event.target.checked)} /><span className="marketing-opt-in-icon"><Mail size={16} /></span><span><b>یادآوری سبد خرید با ایمیل</b><small>فقط اگر کتابی در سبد بماند، حداکثر یک یادآوری پس از ۲۴ ساعت دریافت می‌کنی.</small></span></label><button className="button button-primary" disabled={submitting}>ذخیره‌ی تغییرات <Check size={15} /></button></form></div>}
         </div>
       </div>
     </section>
