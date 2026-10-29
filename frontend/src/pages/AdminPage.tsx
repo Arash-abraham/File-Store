@@ -1,12 +1,13 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Activity, ArrowLeft, BookOpen, Check, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Paperclip, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, Users, X, XCircle } from 'lucide-react';
+import { Activity, ArrowLeft, BookOpen, Check, ClipboardList, Eye, FilePlus2, FileText, LayoutDashboard, MessageSquareText, Paperclip, Pencil, Plus, Search, Settings2, ShieldCheck, Ticket, Trash2, UploadCloud, Users, X, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../StoreContext';
 import PagesEditor from '../components/PagesEditor';
 import { demoCategories, demoProducts } from '../data/demo';
 import AdminOverview, { demoDashboard, type AdminDashboard, type AdminTabKey } from '../components/admin/AdminOverview';
 import AdminTickets from '../components/admin/AdminTickets';
+import AdminTaskCenter from '../components/admin/AdminTaskCenter';
 import AdminUsers from '../components/admin/AdminUsers';
 import { api, apiErrorMessage, demoMode } from '../lib/api';
 import { formatDate, formatPrice } from '../lib/format';
@@ -346,6 +347,7 @@ export default function AdminPage() {
         <aside className="admin-sidebar">
           <div className="admin-sidebar-label">فضای کاری</div>
           <button onClick={() => setTab('overview')} className={tab === 'overview' ? 'active' : ''}><LayoutDashboard size={17} /> نمای کلی</button>
+          <button onClick={() => setTab('tasks')} className={tab === 'tasks' ? 'active' : ''}><ClipboardList size={17} /> کارهای مدیریتی</button>
           <button onClick={() => setTab('users')} className={tab === 'users' ? 'active' : ''}><Users size={17} /> کاربران <span>{stats.users.toLocaleString('fa-IR')}</span></button>
           <button onClick={() => setTab('products')} className={tab === 'products' ? 'active' : ''}><BookOpen size={17} /> کتاب‌ها <span>{stats.products.toLocaleString('fa-IR')}</span></button>
           <button onClick={() => setTab('tickets')} className={tab === 'tickets' ? 'active' : ''}><Ticket size={17} /> پشتیبانی <span className="sidebar-count">{stats.open_tickets.toLocaleString('fa-IR')}</span></button>
@@ -358,6 +360,8 @@ export default function AdminPage() {
 
         <div className="admin-content">
           {tab === 'overview' && <AdminOverview data={dashboardQuery.data ?? (demoMode ? demoDashboard() : undefined)} loading={dashboardQuery.isLoading} userName={user.name} onNavigate={(next: AdminTabKey) => setTab(next)} />}
+
+          {tab === 'tasks' && <AdminTaskCenter onNavigate={(next) => setTab(next)} />}
 
           {tab === 'products' && <div className="admin-panel"><div className="admin-panel-heading"><div><h2>کتاب‌های فروشگاه</h2><p>فهرست، وضعیت و اطلاعات عنوان‌های منتشرشده.</p></div><button className="button button-primary button-small" onClick={openNewProductForm}><Plus size={16} /> افزودن کتاب</button></div><div className="admin-list-toolbar"><label><Search size={16} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="جست‌وجوی کتاب…" /></label><span>{visibleProducts.length.toLocaleString('fa-IR')} عنوان</span></div><div className="admin-product-table"><div className="admin-table-head"><span>کتاب</span><span>دسته‌بندی</span><span>قیمت</span><span>وضعیت</span><span>عملیات</span></div>{visibleProducts.map((product) => <div className="admin-product-row" key={product.id}><div className="admin-product-cell"><span className="admin-product-cover">{product.cover_url ? <img src={product.cover_url} alt="" /> : <BookOpen size={17} />}</span><span><b>{product.title}</b><small>/{product.slug}</small></span></div><span>{product.category?.name ?? '—'}</span><b>{formatPrice(product.price)}</b><span className={`published-status ${product.status === 'active' ? '' : 'inactive'}`}><i /> {product.status === 'draft' ? 'پیش‌نویس' : product.status === 'inactive' ? 'غیرفعال' : 'منتشر'}</span><span className="admin-row-actions"><button className="row-icon-button" title="ویرایش کتاب" onClick={() => openEditProductForm(product)}><Pencil size={15} /></button><button className="row-icon-button delete" title="حذف کتاب" onClick={() => removeProduct(product)}><Trash2 size={15} /></button></span></div>)}</div></div>}
 

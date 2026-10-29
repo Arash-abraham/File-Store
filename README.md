@@ -55,6 +55,7 @@ Created by **Arash** · [GitHub profile](https://github.com/Arash-abraham) · [R
 
 ### Admin dashboard
 
+- **Task center:** a unified queue for open support tickets, pending reviews and questions, print orders awaiting confirmation, and print-house partnership requests. Filter and search the queue, approve/reject content, confirm print orders, and review partnership requests without switching sections.
 - **Overview:** three Chart.js charts (daily sales, new users, and visits) and summary numbers for revenue, orders, users, open tickets, pending reviews, and visitors.
 - **Users:** a searchable customer list. Selecting a customer shows their orders, lifetime spend, and support requests.
 - **Support inbox:** filter tickets by status or customer, read the full thread, reply, change the status, or send a reply and close the ticket in one step.

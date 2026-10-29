@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Check, ChevronDown, CircleUserRound, Menu, Moon, ShoppingBag, SlidersHorizontal, Sun, X } from 'lucide-react';
+import { ArrowLeft, BookOpen, Check, ChevronDown, CircleUserRound, Menu, Moon, ShoppingBag, Sun, X } from 'lucide-react';
 import { useStore } from '../StoreContext';
 import { apiErrorMessage, demoMode } from '../lib/api';
 import MainNav from './MainNav';
